@@ -34,7 +34,9 @@ async function bestArtwork(handle: string): Promise<string | null> {
 }
 
 export default async function handler(req: Request): Promise<Response> {
-  const handle = new URL(req.url).searchParams.get('handle')?.replace(/[^a-z0-9_-]/gi, '').toLowerCase() ?? '';
+  // req.url can arrive without an origin on some Vercel routings; a base
+  // keeps new URL() from throwing before query parsing.
+  const handle = new URL(req.url, 'https://savepointarchive.vercel.app').searchParams.get('handle')?.replace(/[^a-z0-9_-]/gi, '').toLowerCase() ?? '';
   const artwork = await bestArtwork(handle);
   const target = artwork ?? FALLBACK;
   return new Response(null, {
