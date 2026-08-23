@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      '@vercel/og':
+        specifier: 1.0.1
+        version: 1.0.1(@types/node@26.2.0)
 
   apps/web:
     dependencies:
