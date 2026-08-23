@@ -56,6 +56,8 @@ pnpm test:api
 pnpm build
 ```
 
+Browser suites (smoke, axe accessibility, studio flows, visual regression) run via `pnpm --dir apps/web test:e2e`. Visual baselines in `apps/web/e2e/visual.spec.ts-snapshots/` are pixel-curated on macOS; on other platforms the visual spec skips unless `PLAYWRIGHT_UPDATE_SNAPSHOTS=1` is set to curate fresh ones.
+
 ## Product constraints
 
 - Public profile pages never require authentication.

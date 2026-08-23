@@ -25,6 +25,16 @@ jobs:
       - run: pnpm --dir apps/web typecheck
       - run: pnpm --dir apps/web test
       - run: pnpm --dir apps/web build
+      - run: pnpm --dir apps/web exec playwright install --with-deps chromium
+      - name: Browser suites (smoke, accessibility, studio flows)
+        run: pnpm --dir apps/web test:e2e
+      - name: Upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: apps/web/test-results/
+          retention-days: 7
 
   api:
     runs-on: ubuntu-latest
