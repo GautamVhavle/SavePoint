@@ -21,10 +21,10 @@
     }
   ],
   "functions": {
-    "apps/web/api/profile-html.ts": {
+    "api/profile-html.ts": {
       "includeFiles": "apps/web/dist/index.html"
     },
-    "apps/web/api/og-image.tsx": {
+    "api/og-image.tsx": {
       "maxDuration": 15
     }
   },

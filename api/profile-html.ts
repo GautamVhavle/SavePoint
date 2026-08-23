@@ -30,7 +30,7 @@ export default async function handler(
 ) {
   const rawHandle = Array.isArray(req.query.handle) ? req.query.handle[0] : req.query.handle;
   const handle = (rawHandle ?? "").replace(/[^a-z0-9_-]/gi, "").toLowerCase();
-  let html = await readFile(path.join(process.cwd(), "dist", "index.html"), "utf8");
+  let html = await readFile(path.join(process.cwd(), "apps", "web", "dist", "index.html"), "utf8");
 
   if (handle) {
     const apiUrl = process.env.SAVEPOINT_API_URL?.replace(/\/$/, "");
