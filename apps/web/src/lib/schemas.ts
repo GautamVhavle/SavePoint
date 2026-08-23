@@ -10,7 +10,7 @@ export const profileSchema = z.object({
   displayName: z.string().trim().min(2, 'At least 2 characters').max(80),
   handle: z.string().trim().toLowerCase().regex(
     /^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])?$/,
-    '3–30 lowercase letters, numbers, _ or -',
+    '3 to 30 lowercase letters, numbers, _ or -',
   ),
   location: optionalText(120),
   bio: z.string().max(2000),
@@ -79,7 +79,7 @@ export const onboardingSchema = z.object({
   displayName: z.string().trim().min(2, 'At least 2 characters').max(80),
   handle: z.string().trim().toLowerCase().regex(
     /^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])?$/,
-    '3–30 lowercase letters, numbers, _ or -',
+    '3 to 30 lowercase letters, numbers, _ or -',
   ),
   bio: z.string().max(2000),
 });

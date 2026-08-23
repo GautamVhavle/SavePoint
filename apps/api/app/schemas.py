@@ -130,6 +130,7 @@ class IGDBGame(APIModel):
     slug: str
     summary: str | None = None
     cover_url: str | None = None
+    banner_url: str | None = None
     release_date: datetime | None = None
     genres: list[str] = Field(default_factory=list)
     platforms: list[str] = Field(default_factory=list)
@@ -200,6 +201,7 @@ class GameRead(APIModel):
     slug: str
     summary: str | None
     cover_url: str | None
+    banner_url: str | None
     release_date: datetime | None
     genres: list[str]
     platforms: list[str]

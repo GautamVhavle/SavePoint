@@ -10,6 +10,14 @@ export const STATUS_LABELS: Record<GameStatus, string> = {
 
 export const STATUS_ORDER: GameStatus[] = ['playing', 'completed', 'backlog', 'dropped'];
 
+/** Accent per play state, shared by cards, spines, and dialog ribbons. */
+export const STATUS_COLORS: Record<GameStatus, { core: string; soft: string }> = {
+  playing: { core: '#58e8ff', soft: 'rgba(88,232,255,.14)' },
+  completed: { core: '#b18cff', soft: 'rgba(177,140,255,.14)' },
+  backlog: { core: '#8fa0bd', soft: 'rgba(143,160,189,.12)' },
+  dropped: { core: '#ff7d92', soft: 'rgba(255,125,146,.10)' },
+};
+
 /** View model consumed by pages (camelCase, presentation-ready). */
 export interface RigItem { id: string; category: string; name: string; detail: string; accent?: string; }
 export interface Award { id: string; title: string; gameId: string; note: string; year?: number; }
@@ -19,6 +27,7 @@ export interface Game {
   slug: string;
   title: string;
   cover: string;
+  banner?: string | null;
   rating: number | null;
   platform: string;
   status: GameStatus;
@@ -85,6 +94,7 @@ export interface ApiPeripheral {
 }
 export interface ApiGameMeta {
   igdb_id: number; name: string; slug: string; summary: string | null; cover_url: string | null;
+  banner_url?: string | null;
   release_date: string | null; genres: string[]; platforms: string[]; snapshot_at?: string;
 }
 export interface ApiProfileGame {
@@ -102,6 +112,7 @@ export interface ApiPublicProfile {
 }
 export interface ApiIGDBResult {
   igdb_id: number; name: string; slug: string; summary: string | null; cover_url: string | null;
+  banner_url?: string | null;
   release_date: string | null; genres: string[]; platforms: string[];
 }
 

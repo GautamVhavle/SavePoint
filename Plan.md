@@ -1,34 +1,34 @@
-# SavePoint — Product Plan
+# SavePoint, Product Plan
 
 ## 1. Philosophy
 
-SavePoint is a **portfolio, not a feed.** No likes, no follows, no comments, no timeline. The only social action is: someone visits a link and sees a person's gaming life laid out — what they play it on, what they've played, and what they thought of it. Think Behance/Linktree/MyAnimeList, not Instagram.
+SavePoint is a **portfolio, not a feed.** No likes, no follows, no comments, no timeline. The only social action is: someone visits a link and sees a person's gaming life laid out, what they play it on, what they've played, and what they thought of it. Think Behance/Linktree/MyAnimeList, not Instagram.
 
 Every gamer already curates a mental "best of" list and a rig they're proud of. SavePoint gives that a permanent, shareable, beautiful home. The product succeeds if a stranger lands on someone's `/u/handle` page and thinks *"this person clearly has taste, and this page is gorgeous."*
 
-Two words should guide every UI decision: **collectible** and **credible**. Collectible — games render as cards with rarity-like visual weight (a 5-star review with a custom award should *feel* like pulling a rare card). Credible — all game data comes from IGDB, not free text, so the catalog never looks amateur or has typos in a game title.
+Two words should guide every UI decision: **collectible** and **credible**. Collectible, games render as cards with rarity-like visual weight (a 5-star review with a custom award should *feel* like pulling a rare card). Credible, all game data comes from IGDB, not free text, so the catalog never looks amateur or has typos in a game title.
 
 ## 2. Core Pillars
 
-1. **The Rig** — one section, one time: what you play on and what you play with.
-2. **The Chronicle** — every game touched, tagged `playing / completed / backlog / dropped`, each with a personal star rating and a review of any length.
-3. **The Card** — the atomic unit of the whole app. IGDB metadata (cover, title, platforms, genres, release year) fused with the user's own voice (rating, review, custom award). Front face is glanceable; click/tap expands into the full story.
-4. **The Portfolio** — a single public, shareable, read-only URL that composes all of the above into one page. This is the artifact people paste in a Discord bio or Twitter link.
-5. **The Guide** — an AI chatbot scoped *only* to that one profile's data, so a visitor can ask "what does he think of Elden Ring?" instead of scrolling to find it.
+1. **The Rig**, one section, one time: what you play on and what you play with.
+2. **The Chronicle**, every game touched, tagged `playing / completed / backlog / dropped`, each with a personal star rating and a review of any length.
+3. **The Card**, the atomic unit of the whole app. IGDB metadata (cover, title, platforms, genres, release year) fused with the user's own voice (rating, review, custom award). Front face is glanceable; click/tap expands into the full story.
+4. **The Portfolio**, a single public, shareable, read-only URL that composes all of the above into one page. This is the artifact people paste in a Discord bio or Twitter link.
+5. **The Guide**, an AI chatbot scoped *only* to that one profile's data, so a visitor can ask "what does he think of Elden Ring?" instead of scrolling to find it.
 
 ## 3. Feature Breakdown
 
 ### 3.1 The Rig (setup showcase)
 
-- Structured fields, not free text, so it renders consistently: CPU, GPU, RAM, motherboard, storage, monitor(s), and a flexible **peripherals list** (keyboard, mouse, headset, controller, chair, desk, mic, capture card — user can add arbitrary items with a name + brand/model + optional photo).
+- Structured fields, not free text, so it renders consistently: CPU, GPU, RAM, motherboard, storage, monitor(s), and a flexible **peripherals list** (keyboard, mouse, headset, controller, chair, desk, mic, capture card, user can add arbitrary items with a name + brand/model + optional photo).
 - Optional photo per item and one hero "battlestation" photo for the whole setup.
-- Rendered as a spec sheet with a distinct visual identity from the game cards — this is the "about my hardware" section, not part of the collection.
+- Rendered as a spec sheet with a distinct visual identity from the game cards, this is the "about my hardware" section, not part of the collection.
 
 ### 3.2 The Chronicle (game library)
 
 - Add a game via IGDB search-as-you-type (debounced, backend-proxied).
 - On selection, snapshot IGDB metadata into your own DB (cover art, title, platforms, genres, release date, IGDB id). Never re-fetch IGDB live on every profile view.
-- User then sets: status (`playing / completed / backlog / dropped`), star rating (1–5, half-star optional), platform they personally played it on (may differ from IGDB's platform list), start/finish dates (optional), hours played (optional), and a long-form review (no hard cap).
+- User then sets: status (`playing / completed / backlog / dropped`), star rating (1-5, half-star optional), platform they personally played it on (may differ from IGDB's platform list), start/finish dates (optional), hours played (optional), and a long-form review (no hard cap).
 - Duplicate protection matches against IGDB id, not title string.
 
 ### 3.3 Custom Awards & Featured Games
@@ -61,11 +61,11 @@ Two words should guide every UI decision: **collectible** and **credible**. Coll
 
 ## 4. Data Model
 
-- **User** — auth0_sub, unique handle/slug, display name, avatar URL, bio, theme preference
-- **Setup** — User-owned structured specs, monitors, peripherals, and hero photo URL
-- **GameEntry** — User-owned IGDB snapshot plus status, platform played, rating, review, hours, and dates
-- **Award** — User-owned and attached to a GameEntry; name, description, and featured state
-- **FeaturedGame** — ordered featured state and optional curator's note
+- **User**, auth0_sub, unique handle/slug, display name, avatar URL, bio, theme preference
+- **Setup**, User-owned structured specs, monitors, peripherals, and hero photo URL
+- **GameEntry**, User-owned IGDB snapshot plus status, platform played, rating, review, hours, and dates
+- **Award**, User-owned and attached to a GameEntry; name, description, and featured state
+- **FeaturedGame**, ordered featured state and optional curator's note
 
 GameEntry's IGDB snapshot stays denormalized so profiles render if IGDB is unavailable or a game is delisted.
 

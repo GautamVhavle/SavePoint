@@ -240,7 +240,7 @@ function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
   const ordered = [...peripherals].sort((a, b) => a.sort_order - b.sort_order);
   return <section className="mt-10 border-t border-white/10 pt-8">
     <h2 className="text-xl font-semibold">Peripherals & extras</h2>
-    <p className="muted mt-1 text-sm">Keyboard, mouse, headset, chair, mic — anything that shapes the setup.</p>
+    <p className="muted mt-1 text-sm">Keyboard, mouse, headset, chair, mic, anything that shapes the setup.</p>
     <ul className="mt-5 grid gap-3">
       {ordered.map(item => <li key={item.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 p-3">
         <span className="rounded-lg bg-white/5 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-cyan-200">{item.type}</span>
@@ -249,7 +249,7 @@ function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
         <Button className="icon-btn" aria-label={`Edit ${item.display_name}`} onClick={() => openEditor(item)}><Pencil size={16}/></Button>
         <Button className="icon-btn" aria-label={`Remove ${item.display_name}`} onClick={() => void run(() => api.deletePeripheral(item.id), 'Peripheral removed.')}><Trash2 size={16}/></Button>
       </li>)}
-      {!ordered.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">Nothing documented yet — add your first piece below.</li>}
+      {!ordered.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">Nothing documented yet, add your first piece below.</li>}
     </ul>
     <form className="mt-5 grid gap-4 rounded-2xl border border-white/10 bg-white/[.02] p-4 sm:grid-cols-2" onSubmit={form.handleSubmit(submit)}>
       <Field label="TYPE" name="type" form={form} placeholder="keyboard, mouse, headset…"/>
@@ -397,7 +397,7 @@ function GameEditor() {
             if (confirm(`Remove ${entry.game.name} and its awards from your archive?`)) void run(() => api.deleteGame(entry.id), 'Entry deleted.');
           }}><Trash2 size={16}/></Button>
         </li>)}
-        {!entries.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">Library is empty — search IGDB above to add your first world.</li>}
+        {!entries.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">Library is empty, search IGDB above to add your first world.</li>}
       </ul>
     </section>
   </EditorShell>;

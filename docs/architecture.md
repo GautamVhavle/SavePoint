@@ -46,7 +46,7 @@ The browser never receives the Twitch secret, Supabase service-role key, Gemini 
 - Handles are normalized and globally unique.
 - Auth0 subjects are globally unique.
 - A profile can add a given IGDB game only once.
-- Ratings use half-star steps in the inclusive 1–5 range when present.
+- Ratings use half-star steps in the inclusive 1 to 5 range when present.
 - Awards belong to a profile and reference a game from that same profile.
 - Featured games are manually selected and explicitly ordered.
 - Long reviews are stored as text without an arbitrary product-level cap.

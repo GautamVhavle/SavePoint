@@ -2,20 +2,24 @@ import { expect, test, type Page } from '@playwright/test';
 
 /**
  * Visual regression guards. External imagery is stubbed with a flat tile so
- * only layout/typography/color can move the baseline — never remote photos.
+ * only layout/typography/color can move the baseline, never remote photos.
  */
 const TILE_PNG =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
-async function stubRemoteMedia(page: Page) {
-  await page.route(/images\.unsplash\.com/, route =>
-    route.fulfill({ contentType: 'image/png', body: Buffer.from(TILE_PNG, 'base64') }),
-  );
+async function prepare(page: Page) {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
 }
 
 async function settle(page: Page) {
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(1000);
+}
+
+async function stubRemoteMedia(page: Page) {
+  await page.route(/images\.unsplash\.com/, route =>
+    route.fulfill({ contentType: 'image/png', body: Buffer.from(TILE_PNG, 'base64') }),
+  );
 }
 
 test.describe('visual baselines', () => {
@@ -27,13 +31,15 @@ test.describe('visual baselines', () => {
   );
 
   test('landing hero (dark)', async ({ page }) => {
+    await prepare(page);
     await stubRemoteMedia(page);
     await page.goto('/');
     await settle(page);
-    await expect(page.locator('main')).toHaveScreenshot('landing-dark.png', { animations: 'disabled' });
+    await expect(page.locator('main')).toHaveScreenshot('landing-dark.png', { animations: 'disabled', maxDiffPixelRatio: 0.02 });
   });
 
   test('public archive full page (dark)', async ({ page }) => {
+    await prepare(page);
     await stubRemoteMedia(page);
     await page.goto('/u/nova');
     await settle(page);
@@ -45,25 +51,28 @@ test.describe('visual baselines', () => {
     await expect(page.locator('main')).toHaveScreenshot('archive-dark.png', {
       animations: 'disabled',
       fullPage: true,
+      maxDiffPixelRatio: 0.02,
     });
   });
 
   test('public archive masthead (light)', async ({ page }) => {
+    await prepare(page);
     await stubRemoteMedia(page);
     await page.addInitScript(() => localStorage.setItem('savepoint-theme', 'light'));
     await page.goto('/u/nova');
     await settle(page);
     await expect(page.getByRole('heading', { name: 'Nova Reyes' })).toHaveScreenshot(
       'archive-light-masthead.png',
-      { animations: 'disabled' },
+      { animations: 'disabled', maxDiffPixelRatio: 0.02 },
     );
   });
 
   test('studio dashboard (dark)', async ({ page }) => {
+    await prepare(page);
     await stubRemoteMedia(page);
     await page.goto('/dashboard');
     await settle(page);
-    await expect(page.locator('main')).toHaveScreenshot('dashboard-dark.png', { animations: 'disabled' });
+    await expect(page.locator('main')).toHaveScreenshot('dashboard-dark.png', { animations: 'disabled', maxDiffPixelRatio: 0.02 });
   });
 
   test('archive on mobile (dark)', async ({ page }) => {

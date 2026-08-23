@@ -18,12 +18,12 @@ For the credential-free visual showcase, omit `VITE_API_URL` or set `VITE_DEMO_M
 
 ## Commands
 
-- `npm run dev` — Vite development server
-- `npm run typecheck` — strict TypeScript project check
-- `npm run lint` — ESLint quality gate
-- `npm test` — Vitest suite
-- `npm run build` — typecheck and optimized production bundle
-- `npm run test:e2e` — Playwright desktop/mobile smoke tests against preview
+- `npm run dev`, Vite development server
+- `npm run typecheck`, strict TypeScript project check
+- `npm run lint`, ESLint quality gate
+- `npm test`, Vitest suite
+- `npm run build`, typecheck and optimized production bundle
+- `npm run test:e2e`, Playwright desktop/mobile smoke tests against preview
 
 ## FastAPI contract
 

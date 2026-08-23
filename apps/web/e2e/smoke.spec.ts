@@ -1,3 +1,21 @@
 import { expect, test } from '@playwright/test';
-test('public archive has required section order and details',async({page})=>{await page.goto('/u/nova');await expect(page.getByRole('heading',{name:'Nova Reyes'})).toBeVisible();const headings=await page.locator('main section h2').allTextContents();expect(headings.join('|')).toMatch(/Rig.*games that stayed.*Every save.*compass/is);await page.getByRole('button',{name:/Open Outer Wilds details/}).click();await expect(page.getByRole('dialog')).toContainText('The field notes');await page.getByRole('button',{name:'Close game details'}).click()});
-test('theme and mobile navigation work',async({page})=>{await page.goto('/');const html=page.locator('html');const before=await html.getAttribute('data-theme');await page.getByRole('button',{name:/Switch to (light|dark) theme/}).click();await expect(html).toHaveAttribute('data-theme',before==='dark'?'light':'dark')});
+
+test('public archive has required section order and details', async ({ page }) => {
+  await page.goto('/u/nova');
+  await expect(page.getByRole('heading', { name: 'Nova Reyes' })).toBeVisible();
+  const headings = await page.locator('main section h2').allTextContents();
+  expect(headings.join('|')).toMatch(/Rig.*games that stayed.*Every save.*compass/is);
+  // The Hall of Fame card and its chronicle row share a label; target the card grid.
+  await page.locator('#featured').getByRole('button', { name: /Open Outer Wilds details/ }).click();
+  await expect(page.getByRole('dialog')).toContainText('Field notes');
+  await expect(page.getByRole('dialog')).toContainText('Archive record');
+  await page.getByRole('button', { name: 'Close game details' }).click();
+});
+
+test('theme and mobile navigation work', async ({ page }) => {
+  await page.goto('/');
+  const html = page.locator('html');
+  const before = await html.getAttribute('data-theme');
+  await page.getByRole('button', { name: /Switch to (light|dark) theme/ }).click();
+  await expect(html).toHaveAttribute('data-theme', before === 'dark' ? 'light' : 'dark');
+});

@@ -87,6 +87,7 @@ async def seed(auth0_sub: str, handle: str) -> None:
             name="Elden Ring",
             slug="elden-ring",
             summary="An action RPG set in the Lands Between.",
+            banner_url="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1600&q=80",
             cover_url="https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg",
             genres=["Role-playing (RPG)", "Adventure"],
             platforms=["PC (Microsoft Windows)", "PlayStation 5", "Xbox Series X|S"],

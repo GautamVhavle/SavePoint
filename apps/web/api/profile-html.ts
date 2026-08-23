@@ -45,7 +45,7 @@ export default async function handler(
           const siteUrl = process.env.SITE_URL ?? "https://savepoint.vercel.app";
           const url = `${siteUrl}/u/${data.profile.handle}`;
           const displayName = data.profile.display_name;
-          const title = escapeHtml(`${displayName} (@${data.profile.handle}) — SavePoint`);
+          const title = escapeHtml(`${displayName} (@${data.profile.handle}), SavePoint`);
           const description = escapeHtml(
             data.profile.bio?.slice(0, 200) || "A gaming portfolio on SavePoint.",
           );

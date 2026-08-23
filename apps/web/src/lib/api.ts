@@ -55,6 +55,7 @@ function mapGame(entry: ApiProfileGame, award?: ApiAward) {
     slug: entry.game.slug || slugify(entry.game.name),
     title: entry.game.name,
     cover: entry.game.cover_url ?? '',
+    banner: entry.game.banner_url ?? null,
     rating: entry.rating,
     platform: entry.platform ?? entry.game.platforms[0] ?? 'Unknown',
     status: entry.status,
@@ -186,12 +187,12 @@ export function seedFromView(view: Profile): ApiPublicProfile {
 }
 
 const demoCatalogExtra: ApiIGDBResult[] = [
-  { igdb_id: 1020, name: 'Outer Wilds', slug: 'outer-wilds', summary: null, cover_url: demoProfile.games[0].cover, release_date: '2019-05-28T00:00:00Z', genres: ['Exploration'], platforms: ['PC'] },
-  { igdb_id: 12659, name: 'Hades', slug: 'hades', summary: null, cover_url: demoProfile.games[1].cover, release_date: '2020-09-17T00:00:00Z', genres: ['Roguelike'], platforms: ['PC'] },
-  { igdb_id: 109428, name: 'Alan Wake II', slug: 'alan-wake-2', summary: null, cover_url: demoProfile.games[2].cover, release_date: '2023-10-27T00:00:00Z', genres: ['Horror'], platforms: ['PS5'] },
-  { igdb_id: 637790, name: 'Disco Elysium', slug: 'disco-elysium', summary: null, cover_url: demoProfile.games[3].cover, release_date: '2019-10-15T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
-  { igdb_id: 119459, name: "Baldur's Gate 3", slug: 'baldurs-gate-3', summary: null, cover_url: demoProfile.games[4].cover, release_date: '2023-08-03T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
-  { igdb_id: 172282, name: 'Tunic', slug: 'tunic', summary: null, cover_url: demoProfile.games[5].cover, release_date: '2022-03-24T00:00:00Z', genres: ['Adventure'], platforms: ['PC'] },
+  { igdb_id: 1020, name: 'Outer Wilds', slug: 'outer-wilds', banner_url: demoProfile.games[0].banner ?? null, summary: 'A hand-built solar system trapped in a 22-minute time loop.', cover_url: demoProfile.games[0].cover, release_date: '2019-05-28T00:00:00Z', genres: ['Exploration'], platforms: ['PC'] },
+  { igdb_id: 12659, name: 'Hades', slug: 'hades', banner_url: demoProfile.games[1].banner ?? null, summary: 'Defy the god of the dead in a rogue-like dungeon crawler where death is only the beginning.', cover_url: demoProfile.games[1].cover, release_date: '2020-09-17T00:00:00Z', genres: ['Roguelike'], platforms: ['PC'] },
+  { igdb_id: 109428, name: 'Alan Wake II', slug: 'alan-wake-2', banner_url: demoProfile.games[2].banner ?? null, summary: 'Two independent heroes in two nightmarish towns, on two haunting journeys mirroring each other.', cover_url: demoProfile.games[2].cover, release_date: '2023-10-27T00:00:00Z', genres: ['Horror'], platforms: ['PS5'] },
+  { igdb_id: 637790, name: 'Disco Elysium', slug: 'disco-elysium', banner_url: demoProfile.games[3].banner ?? null, summary: 'A groundbreaking open world role playing game with unmatched freedom of choice.', cover_url: demoProfile.games[3].cover, release_date: '2019-10-15T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
+  { igdb_id: 119459, name: "Baldur's Gate 3", slug: 'baldurs-gate-3', banner_url: demoProfile.games[4].banner ?? null, summary: 'Gather your party and return to the Forgotten Realms in a story of fellowship, betrayal, and untold power.', cover_url: demoProfile.games[4].cover, release_date: '2023-08-03T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
+  { igdb_id: 172282, name: 'Tunic', slug: 'tunic', banner_url: demoProfile.games[5].banner ?? null, summary: 'Explore a land of legends and monsters in an isometric adventure about a small fox on a big journey.', cover_url: demoProfile.games[5].cover, release_date: '2022-03-24T00:00:00Z', genres: ['Adventure'], platforms: ['PC'] },
 ];
 
 const demoClient: SavepointClient = {

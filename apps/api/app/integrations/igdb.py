@@ -11,7 +11,10 @@ from app.schemas import IGDBGame
 
 
 class IGDBClient:
-    fields = "id,name,slug,summary,first_release_date,cover.image_id,genres.name,platforms.name"
+    fields = (
+        "id,name,slug,summary,first_release_date,cover.image_id,"
+        "artworks.image_id,screenshots.image_id,genres.name,platforms.name"
+    )
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -61,10 +64,20 @@ class IGDBClient:
             raise HTTPException(status_code=502, detail="IGDB request failed") from exc
 
     @staticmethod
+    def _banner(item: dict[str, Any]) -> str | None:
+        # Wide key art for card backdrops: artwork first, then screenshots.
+        for group in ("artworks", "screenshots"):
+            entries = item.get(group) or []
+            if entries:
+                return f"https://images.igdb.com/igdb/image/upload/t_1080p/{entries[0]['image_id']}.jpg"
+        return None
+
+    @staticmethod
     def _map(item: dict[str, Any]) -> IGDBGame:
         cover = item.get("cover", {}).get("image_id")
         release = item.get("first_release_date")
         return IGDBGame(
+            banner_url=IGDBClient._banner(item),
             igdb_id=item["id"],
             name=item["name"],
             slug=item.get("slug", str(item["id"])),

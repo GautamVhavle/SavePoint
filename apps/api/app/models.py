@@ -112,6 +112,7 @@ class Game(TimestampMixin, Base):
     slug: Mapped[str] = mapped_column(String(250))
     summary: Mapped[str | None] = mapped_column(Text)
     cover_url: Mapped[str | None] = mapped_column(String(2048))
+    banner_url: Mapped[str | None] = mapped_column(String(2048))
     release_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     genres: Mapped[list[str]] = mapped_column(JSON, default=list)
     platforms: Mapped[list[str]] = mapped_column(JSON, default=list)

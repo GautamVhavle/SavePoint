@@ -24,6 +24,8 @@ export const demoProfile: Profile = {
   games: [
     {
       id: 'g1', igdbId: 1020, slug: 'outer-wilds', title: 'Outer Wilds', cover: cover('photo-1446776811953-b23d57bd21aa'),
+      banner: cover('photo-1446776811953-b23d57bd21aa'),
+      summary: 'A hand-built solar system trapped in a 22-minute time loop. The rare puzzle box where the player, not the character, does the growing.',
       rating: 5, platform: 'PC', status: 'completed',
       award: 'Changed My Brain', awardNote: 'For leaving the universe bigger than it found it.',
       review: 'A clockwork solar system where curiosity is the only upgrade. Every discovery reframes the map in your head until knowledge itself becomes the mechanic. Quiet, frightening, and profoundly humane.',
@@ -33,6 +35,8 @@ export const demoProfile: Profile = {
     },
     {
       id: 'g2', igdbId: 12659, slug: 'hades', title: 'Hades', cover: cover('photo-1518709268805-4e9042af9f23'),
+      banner: cover('photo-1511512578047-dfb367046420'),
+      summary: 'Defy the god of the dead in a rogue-like dungeon crawler where death is only the beginning of the story.',
       rating: 4.5, platform: 'Steam Deck', status: 'completed',
       award: 'Perfect Loop', awardNote: 'The run that made every return meaningful.',
       review: 'Supergiant turns repetition into intimacy. The combat sings, but it is the tiny changes in every return home that make escape feel personal.',
@@ -42,6 +46,8 @@ export const demoProfile: Profile = {
     },
     {
       id: 'g3', igdbId: 109428, slug: 'alan-wake-2', title: 'Alan Wake II', cover: cover('photo-1483347756197-71ef80e95f73'),
+      banner: cover('photo-1509281373149-e957c6296406'),
+      summary: 'Two independent heroes in two nightmarish towns, on two haunting journeys mirroring each other.',
       rating: 4.5, platform: 'PS5', status: 'completed',
       award: 'Best Art Direction', awardNote: 'Every frame carries narrative intent.',
       review: 'A daring mixed-media nightmare with two beautifully interlocked voices. Its rough edges feel like splinters from the story rather than mistakes.',
@@ -51,6 +57,8 @@ export const demoProfile: Profile = {
     },
     {
       id: 'g4', igdbId: 108692, slug: 'celeste', title: 'Celeste', cover: cover('photo-1464822759023-fed622ff2c3b'),
+      banner: cover('photo-1451187580459-43490279c0fa'),
+      summary: 'Help Madeline survive her inner demons on her journey to the top of Celeste Mountain.',
       rating: 4.5, platform: 'Switch', status: 'completed',
       review: 'Precision platforming that understands patience. A mountain made of tiny lessons, generous checkpoints, and honest emotion.',
       startedAt: '2021-08-14', completedAt: '2021-09-02', hours: 19,
@@ -59,6 +67,8 @@ export const demoProfile: Profile = {
     },
     {
       id: 'g5', igdbId: 1877, slug: 'cyberpunk-2077', title: 'Cyberpunk 2077', cover: cover('photo-1519608487953-e999c86e7455'),
+      banner: cover('photo-1515879218367-8466d910aaa4'),
+      summary: 'An open-world action-adventure set in Night City, a megalopolis obsessed with power, glamour, and body modification.',
       rating: 3.5, platform: 'PC', status: 'completed',
       review: 'Night City is at its best in the pauses: rainy drives, unanswered messages, and friendships that refuse to become quest furniture.',
       startedAt: '2023-10-01', completedAt: '2023-12-18', hours: 94,
@@ -67,6 +77,8 @@ export const demoProfile: Profile = {
     },
     {
       id: 'g6', igdbId: 251777, slug: 'silksong', title: 'Hollow Knight: Silksong', cover: cover('photo-1500530855697-b586d89ba3ee'),
+      banner: cover('photo-1531306728370-e2ebd9d7bb99'),
+      summary: 'Rise from the depths of a insect kingdom haunted by silk and song in the sequel to Hollow Knight.',
       rating: null, platform: 'PC', status: 'backlog',
       review: 'Waiting in the archive for the right quiet week.',
       hours: 0,
@@ -75,6 +87,8 @@ export const demoProfile: Profile = {
     },
     {
       id: 'g7', igdbId: 19710, slug: 'outriders', title: 'Outriders', cover: cover('photo-1542751371-adc38448a05e'),
+      banner: cover('photo-1492571350019-22de08371fd3'),
+      summary: 'Shoot and slice your way through a dying world to discover the mysterious link between Enoch and Earth.',
       rating: 2, platform: 'PC', status: 'dropped',
       review: 'Loved the first ten hours of power fantasy, then the loop showed its ceiling. No regrets, no return ticket.',
       startedAt: '2021-04-06', hours: 11,
@@ -91,4 +105,4 @@ export const demoProfile: Profile = {
 };
 
 export const demoGuideAnswer =
-  'Start with **Outer Wilds**. Your archive rewards discovery-led stories, and its 31-hour journey sits between Celeste’s focused climb and Alan Wake II’s authored mystery. Go in blind—your own notes are the best companion.';
+  'Start with **Outer Wilds**. Your archive rewards discovery-led stories, and its 31-hour journey sits between Celeste’s focused climb and Alan Wake II’s authored mystery. Go in blind. Your own notes are the best companion.';
