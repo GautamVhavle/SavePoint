@@ -24,9 +24,7 @@
     "apps/web/api/profile-html.ts": {
       "includeFiles": "apps/web/dist/index.html"
     },
-    "apps/web/api/og-image.tsx": {
-      "runtime": "edge"
-    }
+    "apps/web/api/og-image.tsx": {}
   },
   "headers": [
     {
