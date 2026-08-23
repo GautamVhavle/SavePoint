@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Static discovery seed for crawlers. When deployed, point SAVEPOINT_API_URL
+     at the FastAPI service and swap this for generated output once a public
+     profile-listing endpoint exists (documented in docs/architecture.md). -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://savepoint.vercel.app/</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://savepoint.vercel.app/u/nova</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+</urlset>
