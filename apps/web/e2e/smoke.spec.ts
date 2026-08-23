@@ -19,3 +19,26 @@ test('theme and mobile navigation work', async ({ page }) => {
   await page.getByRole('button', { name: /Switch to (light|dark) theme/ }).click();
   await expect(html).toHaveAttribute('data-theme', before === 'dark' ? 'light' : 'dark');
 });
+
+test('mobile drawer opens, locks scroll, and closes every way', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Site navigation' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('link', { name: 'Showcase' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+  // Escape closes and unlocks scrolling
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('');
+  // Reopen: tapping the scrim must also dismiss
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  await expect(dialog).toBeVisible();
+  await page.mouse.click(30, 400);
+  await expect(dialog).toHaveCount(0);
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  await expect(dialog).toBeVisible();
+  await page.getByRole('dialog', { name: 'Site navigation' }).getByLabel('Close navigation').click();
+  await expect(dialog).toHaveCount(0);
+});

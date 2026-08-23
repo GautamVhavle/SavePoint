@@ -3,7 +3,7 @@ import { CheckCircle2, Moon, Sun, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function Button({ className, children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={cn('btn', className)} {...props}>{children}</button>; }
-export function Panel({ children, className = '' }: PropsWithChildren<{ className?: string }>) { return <div className={cn('glass rounded-[22px]', className)}>{children}</div>; }
+export function Panel({ children, className = '', elemRef }: PropsWithChildren<{ className?: string; elemRef?: React.Ref<HTMLDivElement> }>) { return <div ref={elemRef} className={cn('glass rounded-[22px]', className)}>{children}</div>; }
 export function SectionHead({ kicker, title, body, action }: { kicker: string; title: ReactNode; body?: string; action?: ReactNode }) { return <div className="mb-10 flex flex-col items-start justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><div className="eyebrow">{kicker}</div><h2 className="section-title">{title}</h2>{body && <p className="muted max-w-2xl text-base leading-7">{body}</p>}</div>{action}</div>; }
 
 const ThemeContext = createContext<{ theme: string; toggle: () => void }>({ theme: 'dark', toggle: () => undefined });
@@ -23,5 +23,5 @@ export function ToastProvider({ children }: PropsWithChildren) {
 }
 export const useToast = () => useContext(ToastContext);
 
-export function CoverImage({ src, alt, className = '' }: { src: string; alt: string; className?: string }) { const [failed, setFailed] = useState(false); return <div className={cn('bg-gradient-to-br from-cyan-950 via-violet-950 to-fuchsia-950', className)}>{!failed && <img src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-cover"/>}</div>; }
+export function CoverImage({ src, alt, className = '', ...data }: { src: string; alt: string; className?: string } & Record<`data-${string}`, string | undefined>) { const [failed, setFailed] = useState(false); return <div {...data} className={cn('bg-gradient-to-br from-cyan-950 via-violet-950 to-fuchsia-950', className)}>{!failed && <img src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-cover"/>}</div>; }
 export function StatusPill({ children }: PropsWithChildren) { return <span className="inline-flex min-h-7 items-center rounded-full border border-white/10 bg-black/35 px-2.5 font-mono text-[10px] uppercase tracking-wider text-white">{children}</span>; }

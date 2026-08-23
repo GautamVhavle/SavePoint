@@ -1,33 +1,76 @@
-# SavePoint
+<div align="center">
 
-SavePoint is a collectible gaming portfolio: one public page for a player's rig, games, long-form reviews, custom awards, Hall of Fame, and profile-scoped AI Guide.
+# ▶ SavePoint
 
-It is intentionally **a portfolio, not a feed** - there are no follows, likes, comments, or timelines.
+**A collectible gaming portfolio. Not a feed.**
 
-## Workspace
+Your rig, your Hall of Fame, every save that stayed with you, presented like the museum exhibit it deserves to be.
 
-- `apps/web`, React, TypeScript, Vite, Tailwind, Framer Motion, and GSAP
-- `apps/api`, FastAPI, Pydantic v2, SQLAlchemy, Alembic, and external integrations
-- `Plan.md`, product principles, scope, and feature plan
+[![CI](https://github.com/GautamVhavle/SavePoint/actions/workflows/ci.yml/badge.svg)](https://github.com/GautamVhavle/SavePoint/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-cyan.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)](apps/web)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-3776ab?logo=python&logoColor=white)](apps/api)
+
+</div>
+
+---
+
+SavePoint is a public portfolio page for players: an art-directed archive of the games you finished, dropped, and never stopped thinking about, the machine you play on, the awards you invent for yourself, and a profile-scoped AI Guide that answers questions **using only your archive**.
+
+There are no follows, likes, comments, or timelines. One link in your bio does the talking.
+
+## Highlights
+
+| Area | What you get |
+| --- | --- |
+| Public archive | Cinematic masthead with GSAP entrance, Hall of Fame cards with holographic edges, filterable chronicle, card dossiers with IGDB key art and official descriptions |
+| Studio | Full editors for profile identity, rig + monitors + peripherals, game entries (IGDB search-as-you-type), custom awards, featured curation |
+| AI Guide | Gemini-powered answers constrained to the viewed profile, rate-limited per visitor + profile via hashed keys |
+| Metadata | Crawler-visible per-profile Open Graph HTML (bot-user-agent rewrite), dynamic 1200x630 share cards via `@vercel/og`, sitemap, manifest |
+| Trust | Auth0 JWT (JWKS, unknown-kid refresh), ownership checks on every mutation, half-star rating constraints enforced in the database |
+| Quality | 38 Playwright tests (smoke, axe WCAG scans, studio flows, responsive overflow gates, visual baselines), 14 API tests, strict mypy, zero-warning ESLint |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Client [apps/web · React + Vite]
+        UI[Snow-glass UI<br/>Framer Motion + GSAP]
+    end
+    subgraph Server [apps/api · FastAPI]
+        AUTH[Auth0 JWKS auth]
+        ROUTES[Domain routes]
+        IGDB[Twitch token cache<br/>+ IGDB v4 client]
+        GEM[Gemini Guide<br/>profile-scoped prompt]
+        UPLOAD[Supabase signed uploads]
+    end
+    DB[(Postgres / SQLite<br/>SQLAlchemy async + Alembic)]
+    UI -- REST /api/v1 --> ROUTES
+    ROUTES --> AUTH
+    ROUTES --> DB
+    ROUTES --> IGDB
+    ROUTES --> GEM
+    ROUTES --> UPLOAD
+```
 
 ## Quick start
 
-Detailed service-specific setup is documented in `apps/web/README.md` and `apps/api/README.md`.
+Prereqs: Node 22, pnpm 11, Python 3.12, [uv](https://docs.astral.sh/uv/).
 
 ```bash
-# Frontend
-pnpm install
-pnpm dev
+# Web (demo data when VITE_API_URL is unset)
+pnpm install && pnpm dev
 
-# Backend (separate terminal)
+# API
 uv sync --project apps/api --all-extras
-uv run --project apps/api alembic upgrade head
-uv run --project apps/api uvicorn app.main:app --reload
+cd apps/api
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload
 ```
 
-Copy each service's `.env.example` to `.env`, then add the relevant Auth0, Supabase/Postgres, Twitch/IGDB, and Gemini credentials. Without credentials the repository still runs: the web app falls back to safe local demo data, IGDB search returns 503 until Twitch keys exist, and the Guide returns 503 until `GEMINI_API_KEY` exists, every other feature stays live.
+Explore without any accounts at `/u/nova`. The studio works locally too: demo mode persists edits to `localStorage` through the exact same `SavepointClient` contract the live API uses.
 
-### Full-stack local run (no credentials required)
+### Full-stack local run (zero credentials)
 
 ```bash
 cd apps/api
@@ -35,43 +78,62 @@ export DATABASE_URL="sqlite+aiosqlite:///./savepoint-live.db"
 export DEV_AUTH_BYPASS=true
 export CORS_ORIGINS='["http://localhost:5174","http://127.0.0.1:5174"]'
 uv run alembic upgrade head
-uv run python -m app.seed        # creates @alex with rig, games, and an award
+uv run python -m app.seed          # creates @alex: rig, games, award
 uv run uvicorn app.main:app --port 8000
 
 # second terminal
 cd apps/web
-VITE_API_URL=http://127.0.0.1:8000/api/v1 pnpm dev --port 5174
-# open http://127.0.0.1:5174/u/alex
+VITE_API_URL=http://127.0.0.1:8000/api/v1 pnpm dev --port 5174   # open /u/alex
 ```
 
-`DEV_AUTH_BYPASS` is refused outside development/test environments; production requires Auth0 JWTs.
+`DEV_AUTH_BYPASS` is refused outside development/test environments. Production always requires real Auth0 tokens.
 
-## Quality checks
+## Environment reference
+
+Copy `apps/*/.env.example` to `.env` and fill what you need. Everything degrades safely without credentials: IGDB search and the Guide return explicit 503s while every other feature stays live.
+
+| Variable | App | Required | Purpose |
+| --- | --- | --- | --- |
+| `VITE_API_URL` | web | live mode | Base URL of the FastAPI service (`/api/v1`) |
+| `VITE_DEMO_MODE` | web | no | Force showcase mode even when an API URL exists |
+| `VITE_SUPABASE_URL` / `VITE_SUPABASE_BUCKET` | web | uploads | Public media base for uploaded images |
+| `AUTH0_DOMAIN` / `AUTH0_AUDIENCE` | api | prod | JWT validation |
+| `DATABASE_URL` | api | yes | Postgres (Supabase) or SQLite for local |
+| `IP_HASH_SECRET` | api | prod | HMAC key for privacy-preserving rate-limit keys |
+| `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` | api | IGDB | Client-credentials token for IGDB v4 |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | api | Guide | Google GenAI access, model defaults to a current Flash tier |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` | api | uploads | Signed upload URLs |
+| `SAVEPOINT_API_URL`, `SITE_URL` | web functions | deploy | Server-side OG metadata + share cards |
+| `CORS_ORIGINS` | api | prod | JSON array of allowed browser origins |
+
+## Testing
 
 ```bash
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm test:api
-pnpm build
+pnpm test            # web unit + contract fixture captured from a live response
+pnpm test:e2e        # smoke, axe WCAG A/AA, studio flows, responsive gates, visual baselines
+pnpm test:api        # FastAPI suite (auth, ownership, constraints, rate limits)
+pnpm lint && pnpm typecheck && pnpm build
 ```
 
-Browser suites (smoke, axe accessibility, studio flows, visual regression) run via `pnpm --dir apps/web test:e2e`. Visual baselines in `apps/web/e2e/visual.spec.ts-snapshots/` are pixel-curated on macOS; on other platforms the visual spec skips unless `PLAYWRIGHT_UPDATE_SNAPSHOTS=1` is set to curate fresh ones.
+Visual baselines are curated on macOS; other platforms skip unless `PLAYWRIGHT_UPDATE_SNAPSHOTS=1`.
 
-## Product constraints
+## Deployment
 
-- Public profile pages never require authentication.
-- Every mutation is authenticated and ownership-checked.
-- IGDB and Twitch credentials remain on the API server.
-- Game metadata is snapshotted when a title is added.
-- Gemini answers are constrained to the viewed public profile.
-- Chat requests are rate-limited by privacy-preserving visitor and profile keys.
-- Secrets belong only in environment variables and are never committed.
+1. **Database**: create a Supabase Postgres, set `DATABASE_URL`, run `alembic upgrade head`.
+2. **Storage**: one public Supabase bucket; put its name in both apps' env.
+3. **API**: deploy `apps/api` to any ASGI host (FastAPI Cloud, Fly, Railway). Set `CORS_ORIGINS` to your web origin.
+4. **Web**: deploy `apps/web` to Vercel. Set `SAVEPOINT_API_URL` and `SITE_URL` so crawler rewrites and OG image generation activate. `vercel.json` already excludes bot user-agents from the SPA rewrite and ships the share-card function.
 
-## Deployment targets
+## Roadmap
 
-- Frontend: Vercel
-- API: FastAPI Cloud or another ASGI host
-- Database and media: Supabase Postgres and Storage
+- `/explore`: public directory of archives so players discover each other
+- Import from Steam/PSN to beat the blank-page problem
+- Share-card themes per profile; printable year-in-saves export
 
-See each application README for environment variables, migrations, Auth0 callback/audience settings, storage setup, and deployment commands.
+## Contributing
+
+PRs welcome! Start with [CONTRIBUTING.md](CONTRIBUTING.md) for setup, conventions, and the definition of done. Security issues: see [SECURITY.md](SECURITY.md); please do not open public issues for them.
+
+## License
+
+[MIT](LICENSE) © Gautam Vhavle
