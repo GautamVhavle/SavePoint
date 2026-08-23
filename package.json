@@ -16,8 +16,5 @@
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
-  },
-  "dependencies": {
-    "@vercel/og": "1.0.1"
   }
 }

@@ -24,7 +24,7 @@
     "api/profile-html.ts": {
       "includeFiles": "apps/web/dist/index.html"
     },
-    "api/og-image.tsx": {
+    "api/og-image.ts": {
       "maxDuration": 15
     }
   },
