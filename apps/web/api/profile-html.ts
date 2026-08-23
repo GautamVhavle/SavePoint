@@ -42,7 +42,7 @@ export default async function handler(
         });
         if (response.ok) {
           const data = (await response.json()) as ProfilePayload;
-          const siteUrl = process.env.SITE_URL ?? "https://savepoint.vercel.app";
+          const siteUrl = process.env.SITE_URL ?? "https://savepointarchive.vercel.app";
           const url = `${siteUrl}/u/${data.profile.handle}`;
           const displayName = data.profile.display_name;
           const title = escapeHtml(`${displayName} (@${data.profile.handle}), SavePoint`);
