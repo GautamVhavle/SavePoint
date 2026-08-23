@@ -1,0 +1,33 @@
+# Dependencies and build output
+node_modules/
+dist/
+.vite/
+coverage/
+playwright-report/
+test-results/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+*.egg-info/
+
+# Local data and environment
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+*.log
+pnpm-debug.log*

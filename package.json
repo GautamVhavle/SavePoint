@@ -1,0 +1,20 @@
+{
+  "name": "savepoint",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A collectible gaming portfolio for your rig, chronicle, and personal reviews.",
+  "scripts": {
+    "dev": "pnpm --dir apps/web dev",
+    "dev:web": "pnpm --dir apps/web dev",
+    "build": "pnpm --dir apps/web build",
+    "lint": "pnpm --dir apps/web lint",
+    "typecheck": "pnpm --dir apps/web typecheck",
+    "test": "pnpm --dir apps/web test",
+    "test:api": "uv run --project apps/api pytest",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:api && pnpm build"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}

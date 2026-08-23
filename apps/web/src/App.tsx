@@ -1,0 +1,12 @@
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { ArchiveX, LoaderCircle } from 'lucide-react';
+import { Shell } from './components/Shell';
+import { Button } from './components/ui';
+import { useAuth } from './lib/auth';
+
+const Landing=lazy(()=>import('./pages/Landing'));const PublicProfile=lazy(()=>import('./pages/PublicProfile'));const Dashboard=lazy(()=>import('./pages/Dashboard'));const Editors=lazy(()=>import('./pages/Editors'));const Onboarding=lazy(()=>import('./pages/Onboarding'));
+function Loading(){return <div className="grid min-h-[60vh] place-items-center" role="status"><LoaderCircle className="animate-spin text-cyan-300"/><span className="sr-only">Loading route</span></div>}
+function Protected({children}:{children:React.ReactNode}){const auth=useAuth(),location=useLocation();if(auth.isLoading)return <Loading/>;if(!auth.isAuthenticated)return <div className="container-shell grid min-h-[70vh] place-items-center text-center"><div><div className="eyebrow justify-center">Private collection</div><h1 className="mt-5 text-5xl font-bold">Curator access required.</h1><p className="muted mt-4">Sign in with Auth0 to enter your studio. Server permissions protect every write.</p><Button className="btn-primary mt-7" onClick={()=>auth.login(location.pathname)}>Continue securely</Button></div></div>;return children}
+function NotFound(){return <div className="container-shell grid min-h-[70vh] place-items-center text-center"><div><ArchiveX className="mx-auto text-violet-300" size={42}/><div className="eyebrow mt-7 justify-center">404 · Lost sector</div><h1 className="mt-5 text-5xl font-bold">No save exists here.</h1><p className="muted mt-3">Return to the archive before the signal fades.</p><a className="btn btn-primary mt-7" href="/">Return home</a></div></div>}
+export default function App(){return <Suspense fallback={<Loading/>}><Routes><Route element={<Shell/>}><Route index element={<Landing/>}/><Route path="u/:handle" element={<PublicProfile/>}/><Route path="demo" element={<Navigate to="/u/nova" replace/>}/><Route path="onboarding" element={<Onboarding/>}/><Route path="dashboard" element={<Protected><Dashboard/></Protected>}/><Route path="dashboard/:editor" element={<Protected><Editors/></Protected>}/><Route path="auth/callback" element={<Loading/>}/><Route path="*" element={<NotFound/>}/></Route></Routes></Suspense>}

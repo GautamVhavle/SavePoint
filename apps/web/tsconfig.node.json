@@ -1,0 +1,4 @@
+{
+  "compilerOptions": { "composite": true, "skipLibCheck": true, "target": "ES2022", "lib": ["ES2022", "DOM"], "jsx": "react-jsx", "module": "ESNext", "moduleResolution": "Bundler", "noEmit": true },
+  "include": ["vite.config.ts", "playwright.config.ts", "api/**/*.ts", "api/**/*.tsx"]
+}

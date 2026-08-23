@@ -1,0 +1,94 @@
+import type { Profile } from '../types';
+
+const cover = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=82`;
+
+export const demoProfile: Profile = {
+  handle: 'nova',
+  displayName: 'Nova Reyes',
+  location: 'Lisbon · UTC+1',
+  bio: 'Archivist of strange worlds, impossible machines, and the stories we carry out of them.',
+  avatar: cover('photo-1535713875002-d1d0cf377fde'),
+  banner: cover('photo-1511512578047-dfb367046420'),
+  since: 2023,
+  themePreference: 'dark',
+  isPublic: true,
+  rigHero: cover('photo-1591488320449-011701bb6704'),
+  rig: [
+    { id: 'r1', category: 'SYSTEM', name: 'Obsidian SFF', detail: 'Ryzen 9 7900 · RTX 4080 Super · 32 GB DDR5' },
+    { id: 'r2', category: 'DISPLAY', name: 'Odyssey OLED G8', detail: '34″ ultrawide · 175 Hz · 0.03 ms' },
+    { id: 'r3', category: 'KEYBOARD', name: 'Wooting 60HE+', detail: 'Lekker switches · custom PBT caps' },
+    { id: 'r4', category: 'AUDIO', name: 'Audeze Maxwell', detail: 'Planar magnetic · wireless' },
+    { id: 'r5', category: 'MOUSE', name: 'Superlight 2', detail: '44 g · 32K DPI wireless' },
+    { id: 'r6', category: 'CHAIR', name: 'Embody Gaming', detail: 'Pixelated support · 12-year warranty' },
+  ],
+  games: [
+    {
+      id: 'g1', igdbId: 1020, slug: 'outer-wilds', title: 'Outer Wilds', cover: cover('photo-1446776811953-b23d57bd21aa'),
+      rating: 5, platform: 'PC', status: 'completed',
+      award: 'Changed My Brain', awardNote: 'For leaving the universe bigger than it found it.',
+      review: 'A clockwork solar system where curiosity is the only upgrade. Every discovery reframes the map in your head until knowledge itself becomes the mechanic. Quiet, frightening, and profoundly humane.',
+      startedAt: '2023-01-08', completedAt: '2023-01-29', hours: 31,
+      genres: ['Exploration', 'Puzzle', 'Narrative'], platforms: ['PC', 'PS5', 'Xbox Series S/X', 'Switch'],
+      year: 2019, featured: true, featuredOrder: 0, featuredNote: 'The one I press into every stranger’s hands.',
+    },
+    {
+      id: 'g2', igdbId: 12659, slug: 'hades', title: 'Hades', cover: cover('photo-1518709268805-4e9042af9f23'),
+      rating: 4.5, platform: 'Steam Deck', status: 'completed',
+      award: 'Perfect Loop', awardNote: 'The run that made every return meaningful.',
+      review: 'Supergiant turns repetition into intimacy. The combat sings, but it is the tiny changes in every return home that make escape feel personal.',
+      startedAt: '2022-05-12', completedAt: '2022-07-01', hours: 118,
+      genres: ['Roguelike', 'Action'], platforms: ['PC', 'Switch', 'PS5', 'Xbox Series S/X'],
+      year: 2020, featured: true, featuredOrder: 1, featuredNote: 'Best “one more run” engine ever built.',
+    },
+    {
+      id: 'g3', igdbId: 109428, slug: 'alan-wake-2', title: 'Alan Wake II', cover: cover('photo-1483347756197-71ef80e95f73'),
+      rating: 4.5, platform: 'PS5', status: 'completed',
+      award: 'Best Art Direction', awardNote: 'Every frame carries narrative intent.',
+      review: 'A daring mixed-media nightmare with two beautifully interlocked voices. Its rough edges feel like splinters from the story rather than mistakes.',
+      startedAt: '2024-02-03', completedAt: '2024-02-21', hours: 27,
+      genres: ['Horror', 'Narrative'], platforms: ['PC', 'PS5'],
+      year: 2023, featured: true, featuredOrder: 2,
+    },
+    {
+      id: 'g4', igdbId: 108692, slug: 'celeste', title: 'Celeste', cover: cover('photo-1464822759023-fed622ff2c3b'),
+      rating: 4.5, platform: 'Switch', status: 'completed',
+      review: 'Precision platforming that understands patience. A mountain made of tiny lessons, generous checkpoints, and honest emotion.',
+      startedAt: '2021-08-14', completedAt: '2021-09-02', hours: 19,
+      genres: ['Platformer', 'Indie'], platforms: ['PC', 'Switch', 'PS4', 'Xbox One'],
+      year: 2018,
+    },
+    {
+      id: 'g5', igdbId: 1877, slug: 'cyberpunk-2077', title: 'Cyberpunk 2077', cover: cover('photo-1519608487953-e999c86e7455'),
+      rating: 3.5, platform: 'PC', status: 'completed',
+      review: 'Night City is at its best in the pauses: rainy drives, unanswered messages, and friendships that refuse to become quest furniture.',
+      startedAt: '2023-10-01', completedAt: '2023-12-18', hours: 94,
+      genres: ['RPG', 'Open World'], platforms: ['PC', 'PS5', 'Xbox Series S/X'],
+      year: 2020,
+    },
+    {
+      id: 'g6', igdbId: 251777, slug: 'silksong', title: 'Hollow Knight: Silksong', cover: cover('photo-1500530855697-b586d89ba3ee'),
+      rating: null, platform: 'PC', status: 'backlog',
+      review: 'Waiting in the archive for the right quiet week.',
+      hours: 0,
+      genres: ['Metroidvania'], platforms: ['PC', 'Switch', 'PS5', 'Xbox Series S/X'],
+      year: 2025,
+    },
+    {
+      id: 'g7', igdbId: 19710, slug: 'outriders', title: 'Outriders', cover: cover('photo-1542751371-adc38448a05e'),
+      rating: 2, platform: 'PC', status: 'dropped',
+      review: 'Loved the first ten hours of power fantasy, then the loop showed its ceiling. No regrets, no return ticket.',
+      startedAt: '2021-04-06', hours: 11,
+      genres: ['Shooter', 'RPG'], platforms: ['PC', 'PS5', 'Xbox Series S/X'],
+      year: 2021,
+    },
+  ],
+  awards: [
+    { id: 'a1', title: 'Changed My Brain', gameId: 'g1', year: 2023, note: 'For leaving the universe bigger than it found it.' },
+    { id: 'a2', title: 'Perfect Loop', gameId: 'g2', year: 2022, note: 'The run that made every return meaningful.' },
+    { id: 'a3', title: 'Best Art Direction', gameId: 'g3', year: 2024, note: 'Every frame carries narrative intent.' },
+  ],
+  featuredOrder: ['g1', 'g2', 'g3'],
+};
+
+export const demoGuideAnswer =
+  'Start with **Outer Wilds**. Your archive rewards discovery-led stories, and its 31-hour journey sits between Celeste’s focused climb and Alan Wake II’s authored mystery. Go in blind—your own notes are the best companion.';
