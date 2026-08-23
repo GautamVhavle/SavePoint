@@ -2,7 +2,7 @@
 @tailwind base; @tailwind components; @tailwind utilities;
 
 :root { color-scheme: dark; --canvas: 6 10 20; --ink: 235 242 255; --muted: 151 164 190; --panel: 17 24 40; --line: 255 255 255; --glass: rgba(15,22,38,.72); --cyan:#58e8ff; --violet:#a78bfa; --magenta:#ff66c4; --shadow:rgba(0,0,0,.42); }
-[data-theme="light"] { color-scheme: light; --canvas: 244 239 230; --ink: 31 29 38; --muted: 91 85 103; --panel: 255 252 247; --line: 35 28 53; --glass:rgba(255,252,247,.77); --cyan:#007f93; --violet:#6850b7; --magenta:#b52c7c; --shadow:rgba(77,59,39,.14); }
+[data-theme="light"] { color-scheme: light; --canvas: 244 239 230; --ink: 31 29 38; --muted: 91 85 103; --panel: 255 252 247; --line: 35 28 53; --glass:rgba(255,252,247,.77); --cyan:#006980; --violet:#6850b7; --magenta:#b52c7c; --shadow:rgba(77,59,39,.14); }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; background:rgb(var(--canvas)); }
 body { margin:0; min-width:320px; background:rgb(var(--canvas)); color:rgb(var(--ink)); font-family:'Space Grotesk',sans-serif; -webkit-font-smoothing:antialiased; }
@@ -33,4 +33,14 @@ textarea.field { min-height:120px; resize:vertical; } .field::placeholder{color:
 .skeleton { background:linear-gradient(90deg,rgba(var(--line)/.05),rgba(var(--line)/.12),rgba(var(--line)/.05)); background-size:200% 100%; animation:shimmer 1.4s infinite; }
 @keyframes shimmer{to{background-position:-200% 0}}
 @media(max-width:700px){.container-shell{width:min(100% - 20px,1240px)}.section{padding:62px 0}.section-title{letter-spacing:-.04em}}
+/* Legibility floor: muted text keeps ≥3:1 on glass surfaces */
+.text-ink\/40 { color: rgba(var(--ink)/.64); }
+.text-ink\/50 { color: rgba(var(--ink)/.7); }
+.text-ink\/60 { color: rgba(var(--ink)/.74); }
+/* Hardcoded dark-palette accents re-map to theme-aware tokens in light mode */
+[data-theme="light"] .text-cyan-100, [data-theme="light"] .text-cyan-200, [data-theme="light"] .text-cyan-300 { color: var(--cyan); }
+[data-theme="light"] .text-violet-200, [data-theme="light"] .text-violet-300 { color: var(--violet); }
+[data-theme="light"] .text-fuchsia-300, [data-theme="light"] .text-pink-300 { color: var(--magenta); }
+[data-theme="light"] .border-violet-400\/20, [data-theme="light"] .border-violet-400\/30 { border-color: color-mix(in srgb,var(--violet) 35%,transparent); }
+[data-theme="light"] .bg-violet-400\/10 { background: color-mix(in srgb,var(--violet) 12%,transparent); }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

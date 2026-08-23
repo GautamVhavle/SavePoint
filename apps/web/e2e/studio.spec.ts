@@ -1,0 +1,40 @@
+import { expect, test, type Page } from '@playwright/test';
+
+/**
+ * Studio editor flow exercised against the in-browser demo backend
+ * (same SavepointClient contract as the live FastAPI integration).
+ */
+async function openStudioGames(page: Page) {
+  await page.goto('/dashboard/games');
+  await page.getByLabel('SEARCH IGDB').waitFor();
+}
+
+test('curator can search IGDB and add a game to the chronicle', async ({ page }) => {
+  await openStudioGames(page);
+  const before = await page
+    .getByRole('heading', { name: /Your library \(\d+\)/ })
+    .textContent();
+
+  await page.getByLabel('SEARCH IGDB').fill('disco elysium');
+  const result = page.getByRole('option', { name: /Disco Elysium/ }).first();
+  await result.click();
+
+  await page.getByLabel('RATING').selectOption('4.5');
+  await page.getByLabel('PLATFORM PLAYED').fill('Steam Deck');
+  await page.getByLabel('REVIEW').fill('Repetition turned into intimacy; every return home lands differently.');
+  await page.getByRole('button', { name: 'Add to chronicle' }).click();
+
+  await expect(page.getByRole('heading', { name: /Your library \(\d+\)/ })).not.toHaveText(before ?? '');
+  const row = page.locator('li', { has: page.getByRole('button', { name: 'Edit Disco Elysium' }) });
+  await expect(row).toBeVisible();
+  await expect(row).toContainText('4.5★');
+});
+
+test('duplicate IGDB additions are rejected with a visible reason', async ({ page }) => {
+  await openStudioGames(page);
+  // Hades ships inside the seeded demo archive, so re-adding must fail loudly.
+  await page.getByLabel('SEARCH IGDB').fill('hades');
+  await page.getByRole('option', { name: /Hades/ }).first().click();
+  await page.getByRole('button', { name: 'Add to chronicle' }).click();
+  await expect(page.locator('.toast')).toContainText(/already exists/i);
+});

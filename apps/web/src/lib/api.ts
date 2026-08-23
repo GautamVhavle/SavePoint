@@ -189,6 +189,9 @@ const demoCatalogExtra: ApiIGDBResult[] = [
   { igdb_id: 1020, name: 'Outer Wilds', slug: 'outer-wilds', summary: null, cover_url: demoProfile.games[0].cover, release_date: '2019-05-28T00:00:00Z', genres: ['Exploration'], platforms: ['PC'] },
   { igdb_id: 12659, name: 'Hades', slug: 'hades', summary: null, cover_url: demoProfile.games[1].cover, release_date: '2020-09-17T00:00:00Z', genres: ['Roguelike'], platforms: ['PC'] },
   { igdb_id: 109428, name: 'Alan Wake II', slug: 'alan-wake-2', summary: null, cover_url: demoProfile.games[2].cover, release_date: '2023-10-27T00:00:00Z', genres: ['Horror'], platforms: ['PS5'] },
+  { igdb_id: 637790, name: 'Disco Elysium', slug: 'disco-elysium', summary: null, cover_url: demoProfile.games[3].cover, release_date: '2019-10-15T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
+  { igdb_id: 119459, name: "Baldur's Gate 3", slug: 'baldurs-gate-3', summary: null, cover_url: demoProfile.games[4].cover, release_date: '2023-08-03T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
+  { igdb_id: 172282, name: 'Tunic', slug: 'tunic', summary: null, cover_url: demoProfile.games[5].cover, release_date: '2022-03-24T00:00:00Z', genres: ['Adventure'], platforms: ['PC'] },
 ];
 
 const demoClient: SavepointClient = {
