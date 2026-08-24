@@ -36,3 +36,17 @@ def test_upload_request_rejects_unknown_purpose() -> None:
         UploadRequest(
             filename="photo.png", content_type="image/png", size=100, purpose="../../other"
         )
+
+
+def test_wildcard_cors_is_refused_outside_development(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Credentials are always on; a wildcard grant must never reach production."""
+    from app.core.config import Settings
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.setenv("DEV_AUTH_BYPASS", "false")
+    monkeypatch.setenv("AUTH0_DOMAIN", "tenant.auth0.com")
+    monkeypatch.setenv("AUTH0_AUDIENCE", "https://api.example")
+    monkeypatch.setenv("IP_HASH_SECRET", "x" * 32)
+    monkeypatch.setenv("CORS_ORIGINS", '["*"]')
+    with pytest.raises(ValueError, match="explicit origins"):
+        Settings()

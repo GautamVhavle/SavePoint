@@ -58,6 +58,11 @@ class Settings(BaseSettings):
                 raise ValueError(f"Missing required settings: {', '.join(missing)}")
             if "development-only" in self.ip_hash_secret:
                 raise ValueError("IP_HASH_SECRET must be changed outside development")
+            if "*" in self.cors_origins:
+                raise ValueError(
+                    "CORS_ORIGINS must list explicit origins outside development "
+                    "(credentials are enabled, so wildcards are unsafe)"
+                )
         return self
 
     @property
