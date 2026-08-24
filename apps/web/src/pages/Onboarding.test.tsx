@@ -1,12 +1,15 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { ToastProvider } from '../components/ui';
 import Onboarding from './Onboarding';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 function renderPage() {
   return render(
@@ -73,5 +76,19 @@ describe('Onboarding', () => {
     expect(await screen.findByText(/Your archive URL is ready/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(await screen.findByText('Step 2 of 3')).toBeInTheDocument();
+  });
+
+  it('copies the archive URL from the finish step', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn(async () => undefined);
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+    renderPage();
+    await user.type(screen.getByPlaceholderText('Nova Reyes'), 'Nova Reyes');
+    await user.type(screen.getByPlaceholderText('nova'), 'nova');
+    await user.click(screen.getByRole('button', { name: /Continue/ }));
+    await user.click(await screen.findByRole('button', { name: /Continue/ }));
+    await user.click(await screen.findByRole('button', { name: /Copy link/ }));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/u/nova'));
+    expect(await screen.findByText('Archive URL copied.')).toBeInTheDocument();
   });
 });

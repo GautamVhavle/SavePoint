@@ -1,3 +1,4 @@
+import httpx
 import pytest
 from pydantic import ValidationError
 
@@ -50,3 +51,10 @@ def test_wildcard_cors_is_refused_outside_development(monkeypatch: pytest.Monkey
     monkeypatch.setenv("CORS_ORIGINS", '["*"]')
     with pytest.raises(ValueError, match="explicit origins"):
         Settings()
+
+
+@pytest.mark.asyncio
+async def test_igdb_search_limit_is_bounded(client: httpx.AsyncClient) -> None:
+    await client.post("/api/v1/me/profile", json={"handle": "bounded", "display_name": "B"})
+    response = await client.get("/api/v1/igdb/search", params={"q": "zelda", "limit": "99"})
+    assert response.status_code == 422
