@@ -1,4 +1,4 @@
-import { Archive, ChevronRight, LogIn, Menu, X } from 'lucide-react';
+import { Archive, ChevronRight, LogIn, Menu, X, ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
@@ -132,15 +132,23 @@ export function Shell() {
     </header>
     <MobileNav open={open} close={() => setOpen(false)} />
     <main id="main"><Outlet /></main>
-    <footer className="container-shell flex flex-col gap-4 border-t border-white/10 py-10 text-sm text-ink/60 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col gap-2">
-        <span>© {new Date().getFullYear()} SavePoint Archive</span>
-        <Link to="/onboarding" style={{ color: 'var(--cyan)' }} className="group inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[.18em] transition hover:opacity-80">
-          Want your own? Make yours
-          <ChevronRight size={13} className="transition group-hover:translate-x-0.5" />
-        </Link>
+    <footer className="border-t border-white/10">
+      <div className="container-shell py-16 sm:py-24">
+        <div className="eyebrow">Every player keeps something worth keeping</div>
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-8">
+          <h2 className="max-w-3xl text-[clamp(2.6rem,7vw,6rem)] font-bold leading-[.94] tracking-[-.05em]">
+            Your archive<br />
+            <span className="serif-accent font-normal text-gradient">awaits.</span>
+          </h2>
+          <Link to="/onboarding" className="btn btn-primary !px-7 !py-3.5 text-base">
+            Start yours free <ArrowRight size={18} />
+          </Link>
+        </div>
+        <div className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-ink/60 sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} SavePoint Archive</span>
+          <span className="font-mono text-xs tracking-wider">BUILT FOR THE GAMES THAT STAY</span>
+        </div>
       </div>
-      <span className="font-mono text-xs">BUILT FOR THE GAMES THAT STAY</span>
     </footer>
   </>;
 }

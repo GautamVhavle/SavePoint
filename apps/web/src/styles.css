@@ -80,3 +80,14 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
 .ticker:hover .ticker-track { animation-play-state: paused; }
 @keyframes ticker-roll { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
+
+/* Editorial art direction */
+.serif-accent { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -.015em; }
+.section-title { font-size: clamp(2.5rem, 5.6vw, 4.6rem) !important; line-height: .96 !important; }
+.watermark {
+  position: absolute; inset-inline: 0; top: -0.06em; z-index: 0; text-align: center;
+  font-size: clamp(5.5rem, 17vw, 15rem); font-weight: 700; line-height: 1;
+  letter-spacing: -.05em; white-space: nowrap; color: transparent;
+  -webkit-text-stroke: 1.5px rgba(var(--ink)/.06);
+  pointer-events: none; user-select: none;
+}
