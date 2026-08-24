@@ -11,7 +11,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api.routes import router
 from app.core.config import get_settings
-from app.core.errors import install_error_handlers
+from app.core.errors import install_error_handlers, problem
 from app.core.logging import configure_logging
 from app.db import engine
 
@@ -58,44 +58,16 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
         # from ever reaching handlers if auth ever moves off bearer tokens.
         content_type = request.headers.get("content-type", "")
         if content_type and "application/json" not in content_type:
-            from fastapi.responses import JSONResponse
-
-            return JSONResponse(
-                status_code=415,
-                content={
-                    "type": "about:blank", "title": "Unsupported Media Type",
-                    "status": 415, "detail": "Expected application/json",
-                    "instance": str(request.url.path),
-                },
-                media_type="application/problem+json",
-            )
+            return problem(415, "Unsupported Media Type", "Expected application/json", request)
         content_length = request.headers.get("content-length")
         # A declared length is required so the cap cannot be sidestepped
         # with chunked transfer encoding.
         if not content_length or not content_length.isdigit():
-            from fastapi.responses import JSONResponse
-
-            return JSONResponse(
-                status_code=411,
-                content={
-                    "type": "about:blank", "title": "Length Required", "status": 411,
-                    "detail": "Content-Length is required", "instance": str(request.url.path),
-                },
-                media_type="application/problem+json",
-            )
+            return problem(411, "Length Required", "Content-Length is required", request)
         body_bytes = int(content_length)
         if body_bytes > settings.max_body_bytes:
-            from fastapi.responses import JSONResponse
-
             logger.warning("request_too_large", path=request.url.path, size=body_bytes)
-            return JSONResponse(
-                status_code=413,
-                content={
-                    "type": "about:blank", "title": "Payload Too Large", "status": 413,
-                    "detail": "Request body is too large", "instance": str(request.url.path),
-                },
-                media_type="application/problem+json",
-            )
+            return problem(413, "Payload Too Large", "Request body is too large", request)
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))[:100]
     # Keep control characters and spoofed formats out of structured logs.
     request_id = re.sub(r"[^\w-]", "", request_id) or str(uuid.uuid4())
