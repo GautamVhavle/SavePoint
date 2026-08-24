@@ -11,7 +11,7 @@ from app.api.deps import enforce_guide_limit, enforce_scope_limit, owner_profile
 from app.core.auth import Principal, current_principal
 from app.core.config import Settings, get_settings
 from app.db import get_session
-from app.integrations.gemini import GeminiGuide
+from app.integrations.gemini import GeminiGuide, get_gemini
 from app.integrations.igdb import IGDBClient, get_igdb
 from app.integrations.storage import SupabaseStorageClient
 from app.models import Award, Game, Peripheral, Profile, ProfileGame, Rig
@@ -379,7 +379,8 @@ async def sign_upload(
 
 @router.post("/profiles/{handle}/guide", response_model=GuideResponse, tags=["guide"])
 async def guide(
-    handle: str, payload: GuideRequest, request: Request, session: Session, settings: SettingsDep
+    handle: str, payload: GuideRequest, request: Request, session: Session,
+    settings: SettingsDep, gemini: Annotated[GeminiGuide, Depends(get_gemini)],
 ) -> GuideResponse:
     profile = await load_public(session, handle)
     if profile is None:
@@ -391,6 +392,6 @@ async def guide(
     context = public.model_dump(
         mode="json", exclude={"profile": {"auth0_sub", "created_at", "updated_at"}}
     )
-    answer = await GeminiGuide(settings).answer(payload.question, context)
+    answer = await gemini.answer(payload.question, context)
     await session.commit()
     return GuideResponse(answer=answer)
