@@ -4,6 +4,26 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2, Sparkles } from 'lucide-react';
 import { api, isDemoMode } from '../lib/api';
 import { Button, PageFade, Panel } from '../components/ui';
+import { useEffect, useState } from 'react';
+
+/** Counts a number up on mount; instant under reduced motion. */
+function useCountUp(target: number, duration = 700): number {
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  const [value, setValue] = useState(reduce ? target : 0);
+  useEffect(() => {
+    if (reduce) { setValue(target); return; }
+    let frame = 0;
+    const startedAt = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      setValue(Math.round(target * (1 - Math.pow(1 - progress, 3))));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, duration, reduce]);
+  return value;
+}
 
 const tools=[
   {to:'/dashboard/profile',icon:CircleUserRound,title:'Identity',text:'Name, story, avatar and public handle'},
@@ -26,6 +46,10 @@ export default function Dashboard(){
   const featured=p?.games.filter(entry=>entry.featured).length??0;
   const health=[Boolean(p?.profile.avatar_url),Boolean(p?.rig),gameCount>0,reviews>0,featured>0];
   const score=Math.round(health.filter(Boolean).length/health.length*100);
+  const animatedScore=useCountUp(score);
+  const animatedGames=useCountUp(gameCount);
+  const animatedHours=useCountUp(hours);
+  const animatedAwards=useCountUp(p?.awards.length??0);
   return <PageFade className="container-shell py-12">
     <Helmet><title>Studio · SavePoint</title><meta name="robots" content="noindex"/></Helmet>
     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -60,7 +84,7 @@ export default function Dashboard(){
       {isLoading ? <SnapshotSkeleton/> : <div className="space-y-4">
         <Panel className="p-6">
           <span className="label">ARCHIVE HEALTH</span>
-          <div className="mt-5 flex items-end justify-between"><b className="text-5xl tabular-nums">{score}<span className="text-xl text-ink/40">%</span></b><Settings2 className="text-cyan-300"/></div>
+          <div className="mt-5 flex items-end justify-between"><b className="text-5xl tabular-nums">{animatedScore}<span className="text-xl text-ink/40">%</span></b><Settings2 className="text-cyan-300"/></div>
           <div role="meter" aria-label="Archive health" aria-valuemin={0} aria-valuemax={100} aria-valuenow={score} className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-violet-400 transition-[width] duration-700 ease-out" style={{width:`${score}%`}}/></div>
           <p className="muted mt-3 text-xs leading-5">Score reflects your avatar, rig, catalog size, written reviews, and featured picks.</p>
           <ul className="muted mt-5 space-y-3 text-sm">{checklist({hasAvatar:Boolean(p?.profile.avatar_url),gameCount,reviewCount:reviews}).map(item=>(
@@ -73,8 +97,8 @@ export default function Dashboard(){
         <Panel className="p-6">
           <span className="label">COLLECTION SNAPSHOT</span>
           <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
-            {[['Games',gameCount],['Hours',hours],['Awards',p?.awards.length??0]].map(([label,value])=>(
-              <div key={String(label)} className="rounded-xl border border-white/10 p-3"><dt className="muted font-mono text-[9px] uppercase tracking-wider">{label}</dt><dd className="mt-1 text-2xl tabular-nums">{Number(value).toLocaleString('en-US')}</dd></div>
+            {([['Games',animatedGames],['Hours',animatedHours],['Awards',animatedAwards]] as Array<[string, number]>).map(([label,value])=>(
+              <div key={label} className="rounded-xl border border-white/10 p-3"><dt className="muted font-mono text-[9px] uppercase tracking-wider">{label}</dt><dd className="mt-1 text-2xl tabular-nums">{value.toLocaleString('en-US')}</dd></div>
             ))}
           </dl>
         </Panel>

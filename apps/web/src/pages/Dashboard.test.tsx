@@ -54,7 +54,8 @@ describe('Dashboard', () => {
   it('scores archive health across avatar, rig, games, reviews, and featured', async () => {
     mocks.me.mockResolvedValue(fixture);
     renderPage();
-    expect(await screen.findByText(String(score))).toBeInTheDocument();
+    // The number animates up; the meter carries the settled value now.
+    expect(await screen.findByRole('meter')).toHaveAttribute('aria-valuenow', String(score));
     expect(screen.getByText(`${gameCount} game${gameCount === 1 ? '' : 's'} cataloged`)).toBeInTheDocument();
     // Checklist mirrors fixture reality: avatar done only when one exists.
     expect(screen.getByText(fixture.profile.avatar_url ? 'Avatar uploaded' : 'Upload an avatar')).toBeInTheDocument();
