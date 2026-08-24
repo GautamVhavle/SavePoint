@@ -137,7 +137,7 @@ export const GrandExhibit = memo(function GrandExhibit({ game, onOpen }: { game:
             <Stars value={game.rating} />
             <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[11px] text-white/85">{game.platform}</span>
             {game.featuredNote && <p className="hidden max-w-md text-sm italic leading-6 text-white/70 lg:block">“{game.featuredNote}”</p>}
-            <span className="ml-auto hidden items-center gap-2 font-mono text-[10px] uppercase tracking-[.22em] text-cyan-200 opacity-0 transition duration-300 group-hover:opacity-100 sm:flex">
+            <span className="ml-auto hidden items-center gap-2 font-mono text-[10px] uppercase tracking-[.22em] text-cyan-200 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 sm:flex">
               Open the dossier <ArrowUpRight size={16} />
             </span>
           </div>
