@@ -50,7 +50,7 @@ export default function Onboarding(){
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-300/10 text-cyan-300">{step===2?<Check/>:step===1?<Sparkles/>:<Gamepad2/>}</div>
         <h1 className="mt-6 text-4xl font-bold tracking-[-.05em] sm:text-6xl">{steps[step].title}</h1>
         <p className="muted mt-4 text-lg leading-8">{steps[step].body}</p>
-        {step===0&&<div className="mt-8 grid gap-4 sm:grid-cols-2">
+        {step===0&&<div className="mt-8 grid gap-4 sm:grid-cols-2" onKeyDown={event=>{if(event.key==='Enter'&&displayName.trim().length>=2&&handle.trim().length>=3){event.preventDefault();setStep(1);}}}>
           <label><span className="label">DISPLAY NAME</span><input className="field" value={displayName} onChange={event=>setName(event.target.value)} placeholder="Nova Reyes" maxLength={60}/>
             {displayName.trim().length>0&&displayName.trim().length<2&&<p className="field-error">At least 2 characters.</p>}
           </label>

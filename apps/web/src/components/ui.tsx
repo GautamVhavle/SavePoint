@@ -9,9 +9,23 @@ export function SectionHead({ kicker, title, body, action }: { kicker: string; t
 
 const ThemeContext = createContext<{ theme: string; toggle: () => void }>({ theme: 'dark', toggle: () => undefined });
 export function ThemeProvider({ children }: PropsWithChildren) {
-  const [theme, setTheme] = useState(() => localStorage.getItem('savepoint-theme') ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
-  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem('savepoint-theme', theme); }, [theme]);
-  return <ThemeContext.Provider value={{ theme, toggle: () => setTheme(v => v === 'dark' ? 'light' : 'dark') }}>{children}</ThemeContext.Provider>;
+  const media = matchMedia('(prefers-color-scheme: light)');
+  // 'system' tracks the OS live; only explicit toggles are persisted.
+  const [preference, setPreference] = useState<'light' | 'dark' | 'system'>(
+    () => (localStorage.getItem('savepoint-theme') as 'light' | 'dark' | null) ?? 'system');
+  const [system, setSystem] = useState<'light' | 'dark'>(media.matches ? 'light' : 'dark');
+  useEffect(() => {
+    const onChange = (event: MediaQueryListEvent) => setSystem(event.matches ? 'light' : 'dark');
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, [media]);
+  const theme = preference === 'system' ? system : preference;
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    if (preference === 'system') localStorage.removeItem('savepoint-theme');
+    else localStorage.setItem('savepoint-theme', preference);
+  }, [theme, preference]);
+  return <ThemeContext.Provider value={{ theme, toggle: () => setPreference(theme === 'dark' ? 'light' : 'dark') }}>{children}</ThemeContext.Provider>;
 }
 export function ThemeToggle() { const { theme, toggle } = useContext(ThemeContext); return <Button className="icon-btn" onClick={toggle} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>{theme === 'dark' ? <Sun size={18}/> : <Moon size={18}/>}</Button>; }
 

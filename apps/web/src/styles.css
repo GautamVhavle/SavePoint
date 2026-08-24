@@ -91,3 +91,13 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
   -webkit-text-stroke: 1.5px rgba(var(--ink)/.06);
   pointer-events: none; user-select: none;
 }
+
+/* Status hues: tuned per theme so small text always clears contrast */
+:root {
+  --status-playing:#58e8ff; --status-completed:#b18cff;
+  --status-backlog:#8fa0bd; --status-dropped:#ff7d92;
+}
+[data-theme="light"] {
+  --status-playing:#006980; --status-completed:#6850b7;
+  --status-backlog:#5b6472; --status-dropped:#b3125f;
+}
