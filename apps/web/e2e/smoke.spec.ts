@@ -20,6 +20,12 @@ test('unknown routes render the 404 screen with a working SPA return home', asyn
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
 
+test('auth callback renders a recovery screen when sign-in fails', async ({ page }) => {
+  await page.goto('/auth/callback?error=access_denied&error_description=User+cancelled+the+flow');
+  await expect(page.getByRole('alert')).toContainText('The gate did not open.');
+  await expect(page.getByRole('alert')).toContainText('User cancelled the flow');
+});
+
 test('theme and mobile navigation work', async ({ page }) => {
   await page.goto('/');
   const html = page.locator('html');
