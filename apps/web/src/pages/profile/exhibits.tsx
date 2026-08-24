@@ -1,11 +1,15 @@
-import { memo, useMemo, useRef, type ReactNode } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { clsx as cn } from 'clsx';
 import { ArrowUpRight, Medal, Star } from 'lucide-react';
 import type { Game } from '../../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../../types';
 import { CoverImage } from '../../components/ui';
 import { Stars } from './Stars';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export const MotionSection = ({ children, className = '', id, watermark }: { children: React.ReactNode; className?: string; id?: string; watermark?: string }) => { const reduce = useReducedMotion(); return <motion.section id={id} className={cn('relative', className)} initial={reduce ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .55 }}>{watermark && <span aria-hidden className="watermark">{watermark}</span>}{children}</motion.section>; };
 
@@ -102,89 +106,132 @@ export function TickerStrip({ games }: { games: Game[] }) {
   );
 }
 
-/** Desktop-only: the first inductee gets the pedestal. */
-export const GrandExhibit = memo(function GrandExhibit({ game, onOpen }: { game: Game; onOpen: (game: Game) => void }) {
-  const tone = STATUS_COLORS[game.status];
-  return (
-    <motion.button
-      onClick={() => onOpen(game)}
-      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`} aria-haspopup="dialog"
-      className="holo-ring group relative block w-full overflow-hidden rounded-[28px] text-left shadow-card"
-      whileHover={{ y: -6 }}
-      whileTap={{ scale: 0.985 }}
-      transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-    >
-      <div className="relative min-h-[380px] lg:min-h-[460px]">
-        <CoverImage src={game.banner || game.cover} alt="" className="absolute inset-0 transition duration-[1200ms] group-hover:scale-[1.04]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#04060d] via-[#04060d]/45 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#04060d]/80 via-transparent to-transparent" />
-        <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: `linear-gradient(180deg, ${tone.core}, transparent 75%)` }} />
-        {game.award && (
-          <span className="absolute right-6 top-6 flex items-center gap-2 rounded-full border border-amber-200/40 bg-black/55 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.2em] text-amber-200 backdrop-blur-sm">
-            <Medal size={14} /> {game.award}
-          </span>
-        )}
-        <span className="absolute left-7 top-7 hidden font-mono text-[10px] uppercase tracking-[.34em] text-white/70 [writing-mode:vertical-rl] lg:block">
-          Grand exhibit · Nº 001
-        </span>
-        <div className="absolute inset-x-0 bottom-0 p-7 sm:p-10">
-          <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[.26em]" style={{ color: tone.core }}>
-            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: tone.core, boxShadow: `0 0 10px ${tone.core}` }} />
-            {STATUS_LABELS[game.status]} · Est. {game.year} · {game.hours} hrs logged
-          </span>
-          <h3 className="mt-3 max-w-4xl text-[clamp(2.2rem,5vw,4.5rem)] font-bold leading-[.92] tracking-[-.05em] text-white">{game.title}</h3>
-          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Stars value={game.rating} />
-            <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[11px] text-white/85">{game.platform}</span>
-            {game.featuredNote && <p className="hidden max-w-md text-sm italic leading-6 text-white/70 lg:block">“{game.featuredNote}”</p>}
-            <span className="ml-auto hidden items-center gap-2 font-mono text-[10px] uppercase tracking-[.22em] text-cyan-200 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 sm:flex">
-              Open the dossier <ArrowUpRight size={16} />
-            </span>
-          </div>
-        </div>
-      </div>
-    </motion.button>
-  );
-});
+/**
+ * GalleryWall: the Hall of Fame as a scroll-scrubbed exhibition rail.
+ * lg+ pins the stage and translates the track horizontally as you scroll;
+ * smaller screens get a native snap carousel of the same posters.
+ */
+export function GalleryWall({ games, onOpen }: { games: Game[]; onOpen: (game: Game) => void }) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLSpanElement>(null);
+  const reduce = useReducedMotion();
+  const [pinned, setPinned] = useState(false);
 
-/** Desktop-only plaque: art above, engraved nameplate below. */
-export const HallPlaque = memo(function HallPlaque({ game, index, onOpen }: { game: Game; index: number; onOpen: (game: Game) => void }) {
+  useEffect(() => {
+    if (!stageRef.current || !trackRef.current || reduce) return;
+    if (!window.matchMedia('(min-width:1024px)').matches) return;
+    setPinned(true);
+    const ctx = gsap.context((self) => {
+      const stage = self.selector!('[data-wall-stage]')[0] as HTMLElement;
+      const track = self.selector!('[data-wall-track]')[0] as HTMLElement;
+      const distance = () => Math.max(0, track.scrollWidth - stage.clientWidth + window.innerWidth * 0.12);
+      gsap.to(track, {
+        x: () => -distance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: stage, start: 'top top', end: () => '+=' + distance(),
+          scrub: 0.6, pin: true, anticipatePin: 1, invalidateOnRefresh: true,
+          onUpdate: (self2) => { if (barRef.current) barRef.current.style.transform = `scaleX(${self2.progress})`; },
+        },
+      });
+    }, stageRef);
+    return () => { ctx.revert(); setPinned(false); };
+  }, [reduce]);
+
+  if (!games.length) return null;
+  return (
+    <div ref={stageRef} data-wall-stage className={cn('relative', 'hidden sm:block', pinned ? 'lg:h-screen' : '')}>
+      <div
+        ref={trackRef} data-wall-track
+        className={cn(
+          'flex items-center gap-[4vw] px-[7vw]',
+          pinned ? 'lg:h-screen lg:flex-nowrap lg:overflow-visible' : 'snap-x snap-mandatory overflow-x-auto pb-8',
+        )}
+      >
+        <IntroPanel count={games.length} />
+        {games.map((game, i) => (
+          <GalleryPoster key={game.id} game={game} index={i + 1} grand={i === 0} onOpen={() => onOpen(game)} />
+        ))}
+      </div>
+      <span aria-hidden className="absolute inset-x-[7vw] bottom-10 hidden h-px bg-white/10 lg:block">
+        <span ref={barRef} className="block h-full origin-left scale-x-0 bg-cyan-300/80" style={{ transform: 'scaleX(0)' }} />
+      </span>
+    </div>
+  );
+}
+
+function PosterShell({ game, index, grand, onOpen, children, className }: {
+  game: Game; index: number; grand: boolean; onOpen: () => void; children: React.ReactNode; className?: string;
+}) {
   const tone = STATUS_COLORS[game.status];
   return (
     <motion.button
-      onClick={() => onOpen(game)}
+      onClick={onOpen}
       aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`} aria-haspopup="dialog"
-      className="card-sheen group relative overflow-hidden rounded-[24px] border border-white/10 bg-panel text-left shadow-card transition-colors hover:border-cyan-300/30"
-      whileHover={{ y: -6 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+      whileTap={{ scale: 0.985 }}
+      className={cn(
+        'group relative shrink-0 snap-center overflow-hidden rounded-[26px] text-left shadow-card ring-1 ring-white/10',
+        'transition-shadow duration-500 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300',
+        grand ? 'w-[80vw] sm:w-[62vw] lg:w-[46vw]' : 'w-[70vw] sm:w-[44vw] lg:w-[30vw]',
+        'h-[64vh] sm:h-[68vh] lg:h-[74vh]',
+        className,
+      )}
     >
-      <div className="relative aspect-[16/9] overflow-hidden">
-        <CoverImage src={game.banner || game.cover} alt="" className="absolute inset-0 transition duration-700 group-hover:scale-[1.06]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-        <motion.span aria-hidden initial={{scaleY:0}} whileInView={{scaleY:1}} viewport={{once:true}} transition={{duration:.5,ease:"easeOut"}} className="absolute inset-y-0 left-0 w-[3px] origin-top" style={{ background: `linear-gradient(180deg, ${tone.core}, transparent 70%)` }} />
-        {game.award && (
-          <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-amber-200/40 bg-black/55 text-amber-200" title={game.award}>
-            <Medal size={14} />
-          </span>
-        )}
-        <span className="absolute bottom-3 left-4 font-mono text-[9px] uppercase tracking-[.26em]" style={{ color: tone.core }}>
-          Induction Nº {String(index + 1).padStart(3, '0')}
+      {children}
+      <span aria-hidden className="pointer-events-none absolute -left-2 -top-7 select-none text-[clamp(5rem,9vw,9rem)] font-bold leading-none tracking-tighter text-transparent opacity-90 [-webkit-text-stroke:1.5px_rgba(255,255,255,.28)]">
+        {String(index).padStart(2, '0')}
+      </span>
+      {game.award && (
+        <span className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-full border border-amber-200/40 bg-black/55 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-amber-200 backdrop-blur-sm">
+          <Medal size={13} /> {game.award}
         </span>
-      </div>
-      <div className="flex items-center justify-between gap-3 border-t border-white/10 bg-black/30 px-4 py-3.5 backdrop-blur-sm">
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold text-white">{game.title}</h3>
-          <p className="muted mt-0.5 font-mono text-[10px] uppercase tracking-wider">{STATUS_LABELS[game.status]} · {game.year}</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2.5">
+      )}
+      <span aria-hidden className="absolute inset-x-0 top-0 h-[3px]" style={{ background: `linear-gradient(90deg, ${tone.core}, transparent 60%)` }} />
+      {/* meta */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-16 sm:p-7">
+        <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[.24em]" style={{ color: tone.core }}>
+          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: tone.core, boxShadow: `0 0 10px ${tone.core}` }} />
+          Nº {String(index).padStart(3, '0')} · {STATUS_LABELS[game.status]} · Est. {game.year}
+        </span>
+        <h3 className={cn('mt-2 font-bold leading-[.95] tracking-[-.04em] text-white', grand ? 'text-[clamp(2.4rem,4.2vw,3.8rem)]' : 'text-[clamp(1.7rem,2.4vw,2.4rem)]')}>
+          {game.title}
+        </h3>
+        {grand && game.featuredNote && (
+          <p className="serif-accent mt-3 max-w-xl text-lg leading-7 text-white/75 sm:text-xl">\u201c{game.featuredNote}\u201d</p>
+        )}
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
           <Stars value={game.rating} />
-          <span className="rounded-full border border-white/12 bg-black/35 px-2 py-0.5 font-mono text-[10px] text-white/75">{game.platform}</span>
+          <span className="rounded-full border border-white/15 bg-black/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-white/80">{game.platform}</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-white/50">{game.hours} hrs</span>
+          <span className="ml-auto hidden items-center gap-1.5 font-mono text-[10px] uppercase tracking-[.2em] text-cyan-200 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 sm:flex">
+            Dossier <ArrowUpRight size={14} />
+          </span>
         </div>
       </div>
     </motion.button>
   );
-});
+}
+
+function GalleryPoster({ game, index, grand, onOpen }: { game: Game; index: number; grand: boolean; onOpen: () => void }) {
+  return (
+    <PosterShell game={game} index={index} grand={grand} onOpen={onOpen}>
+      <CoverImage src={game.banner || game.cover} alt="" className="absolute inset-0 transition duration-[1100ms] ease-out group-hover:scale-[1.05]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+    </PosterShell>
+  );
+}
+
+function IntroPanel({ count }: { count: number }) {
+  return (
+    <div aria-hidden className="hidden shrink-0 select-none flex-col justify-end pb-10 pr-[2vw] lg:flex">
+      <span className="font-mono text-[10px] uppercase tracking-[.34em] text-white/45">The wall of</span>
+      <span className="mt-2 block text-[clamp(3rem,5vw,5.4rem)] font-bold leading-[.9] tracking-[-.05em] text-white">Induction<span className="serif-accent font-normal text-gradient">s</span></span>
+      <span className="mt-4 max-w-[220px] font-mono text-[11px] uppercase leading-relaxed tracking-[.2em] text-white/45">{count} pieces · scroll to walk the wall</span>
+    </div>
+  );
+}
+
 
 export function TiltCard({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
