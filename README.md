@@ -26,7 +26,7 @@ There are no follows, likes, comments, or timelines. One link in your bio does t
 | Public archive | Cinematic masthead with GSAP entrance, Hall of Fame cards with holographic edges, filterable chronicle, card dossiers with IGDB key art and official descriptions |
 | Studio | Full editors for profile identity, rig + monitors + peripherals, game entries (IGDB search-as-you-type), custom awards, featured curation |
 | AI Guide | Gemini-powered answers constrained to the viewed profile, rate-limited per visitor + profile via hashed keys |
-| Metadata | Crawler-visible per-profile Open Graph HTML (bot-user-agent rewrite), dynamic 1200x630 share cards via `@vercel/og`, sitemap, manifest |
+| Metadata | Crawler-visible per-profile Open Graph HTML (bot-user-agent rewrite), 1200x630 share cards resolving to the curator's best artwork, sitemap, manifest |
 | Trust | Auth0 JWT (JWKS, unknown-kid refresh), ownership checks on every mutation, half-star rating constraints enforced in the database |
 | Quality | 20 Playwright tests (smoke, axe WCAG scans, studio flows, responsive overflow gates, visual baselines), 20 API tests, 33 web unit/contract tests, strict mypy, zero-warning ESLint |
 
