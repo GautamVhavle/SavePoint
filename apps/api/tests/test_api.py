@@ -7,6 +7,7 @@ import pytest
 
 from app.db import SessionLocal
 from app.integrations.gemini import GeminiGuide
+from app.integrations.igdb import IGDBClient
 from app.models import Game, GameStatus, ProfileGame
 
 
@@ -257,3 +258,34 @@ async def test_duplicate_addition_rejected_before_upstream_igdb_call(
         json={"igdb_id": 119133, "status": "playing"},
     )
     assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_igdb_search_is_rate_limited(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    await client.post("/api/v1/me/profile", json={"handle": "searcher", "display_name": "Seeker"})
+    monkeypatch.setattr(IGDBClient, "search", AsyncMock(return_value=[]))
+    for _ in range(2):
+        response = await client.get("/api/v1/igdb/search?q=zelda")
+        assert response.status_code == 200
+    limited = await client.get("/api/v1/igdb/search?q=zelda")
+    assert limited.status_code == 429
+    assert "Retry-After" in limited.headers
+
+
+@pytest.mark.asyncio
+async def test_upload_signing_is_rate_limited(client: httpx.AsyncClient) -> None:
+    await client.post("/api/v1/me/profile", json={"handle": "uploader", "display_name": "Filer"})
+    payload = {
+        "filename": "battlestation.png",
+        "content_type": "image/png",
+        "size": 1024,
+        "purpose": "rig",
+    }
+    # Storage is unconfigured here (503) but every attempt still counts.
+    for _ in range(2):
+        response = await client.post("/api/v1/me/uploads/sign", json=payload)
+        assert response.status_code == 503
+    limited = await client.post("/api/v1/me/uploads/sign", json=payload)
+    assert limited.status_code == 429

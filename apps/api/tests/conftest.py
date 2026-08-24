@@ -8,6 +8,8 @@ os.environ.update(
         "DEV_AUTH_BYPASS": "true",
         "IP_HASH_SECRET": "test-secret-at-least-thirty-two-characters",
         "GUIDE_RATE_LIMIT": "2",
+        "IGDB_RATE_LIMIT": "2",
+        "UPLOAD_RATE_LIMIT": "2",
     }
 )
 

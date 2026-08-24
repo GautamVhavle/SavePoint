@@ -58,7 +58,10 @@ async def enforce_scope_limit(
             headers={"Retry-After": str(window)},
         )
     session.add(RateLimitEvent(scope=scope, profile_id=profile_id, ip_hash=digest))
-    await session.flush()
+    # Commit immediately: endpoints that never write anything else (IGDB
+    # search, upload signing) would otherwise roll the event back on session
+    # close and never accumulate a count.
+    await session.commit()
 
 
 async def enforce_guide_limit(

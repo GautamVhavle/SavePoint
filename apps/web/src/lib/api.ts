@@ -21,12 +21,18 @@ export function configureAuthToken(provider: () => Promise<string | undefined>) 
 
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+/** Hung connections must never spin the UI forever; caller aborts still win. */
+const REQUEST_TIMEOUT_MS = 20_000;
+
 async function request<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
   if (!API_URL) throw new ApiError('API is not configured', 503);
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
       ...init,
+      signal,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -34,8 +40,10 @@ async function request<T>(path: string, init: RequestInit = {}, token?: string):
         ...init.headers,
       },
     });
-  } catch {
-    // Normalize transport failures so callers never see raw TypeErrors.
+  } catch (error) {
+    // A caller-initiated abort propagates so react-query can cancel quietly;
+    // anything else (timeout included) normalizes into a transport failure.
+    if (init.signal?.aborted) throw error;
     throw new ApiError('Could not reach the archive. Check your connection.', 0);
   }
   if (!response.ok) {
@@ -331,5 +339,7 @@ const realClient: SavepointClient = {
 };
 
 export const api: SavepointClient = isDemoMode ? demoClient : realClient;
+/** Direct handle on the network client so transport tests bypass demo mode. */
+export const realApi = realClient;
 
 export type { PeripheralInput };

@@ -372,8 +372,13 @@ async def delete_award(item_id: uuid.UUID, profile: Owner, session: Session) -> 
 
 @router.post("/me/uploads/sign", response_model=SignedUpload, tags=["media"])
 async def sign_upload(
-    payload: UploadRequest, profile: Owner, settings: SettingsDep
+    payload: UploadRequest, profile: Owner, request: Request,
+    session: Session, settings: SettingsDep,
 ) -> SignedUpload:
+    # Signed-URL generation is an upstream round trip; keep it throttled too.
+    await enforce_scope_limit(
+        request, "uploads", profile.id, session, settings, limit=settings.upload_rate_limit
+    )
     return await SupabaseStorageClient(settings).create_signed_upload(profile.id, payload)
 
 
@@ -393,5 +398,4 @@ async def guide(
         mode="json", exclude={"profile": {"auth0_sub", "created_at", "updated_at"}}
     )
     answer = await gemini.answer(payload.question, context)
-    await session.commit()
     return GuideResponse(answer=answer)
