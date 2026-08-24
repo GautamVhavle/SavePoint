@@ -1,13 +1,13 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx as cn } from 'clsx';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import gsap from 'gsap';
 import { ArrowUpRight, Bot, Check, ChevronDown, Cpu, Gamepad2, MapPin, Medal, Search, Share2, SlidersHorizontal, Sparkles, Star, X, Zap } from 'lucide-react';
-import { api, ApiError } from '../lib/api';
+import { api, ApiError, isDemoMode } from '../lib/api';
 import type { Game } from '../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../types';
 import { formatDate } from '../lib/utils';
@@ -327,7 +327,9 @@ export default function PublicProfile() {
   // Stable identities so memoized exhibit cards skip re-render while filters/search type.
   const open=useCallback((g:Game)=>navigate({search:`?game=${g.slug}`},{replace:false}),[navigate]);
   const close=useCallback(()=>navigate({search:''},{replace:true}),[navigate]);
-  if(query.isPending)return <LoadingProfile/>; if(query.isError){const notFound=query.error instanceof ApiError&&query.error.status===404;return <div className="container-shell grid min-h-[65vh] place-items-center text-center"><div><div className="eyebrow justify-center">{notFound?'404 · Uncharted player':'Signal interrupted'}</div><h1 className="mt-5 text-5xl font-bold">{notFound?'This archive is sealed.':'Could not reach the archive.'}</h1><p className="muted mt-4">{notFound?'Check the handle and try another route.':'Your connection may have drifted. Retry when ready.'}</p><Button className="mt-7" onClick={()=>query.refetch()}>{notFound?'Try demo archive':'Retry'}</Button></div></div>};
+  if(query.isPending)return <LoadingProfile/>; if(query.isError){const notFound=query.error instanceof ApiError&&query.error.status===404;return <div className="container-shell grid min-h-[65vh] place-items-center text-center"><div><div className="eyebrow justify-center">{notFound?'404 · Uncharted player':'Signal interrupted'}</div><h1 className="mt-5 text-5xl font-bold">{notFound?'This archive is sealed.':'Could not reach the archive.'}</h1><p className="muted mt-4">{notFound?'Check the handle and try another route.':'Your connection may have drifted. Retry when ready.'}</p><div className="mt-7 flex flex-wrap justify-center gap-3">{notFound
+    ? <><Link className="btn btn-primary" to="/">Return home</Link>{isDemoMode&&<Link className="btn" to="/u/nova">Try the showcase archive</Link>}</>
+    : <Button className="btn-primary" onClick={()=>query.refetch()}>Retry</Button>}</div></div></div>};
   const p=query.data; const featured=p.featuredOrder.map(id=>p.games.find(g=>g.id===id)).filter(Boolean) as Game[];
   
   const shareProfile=async()=>{const url=`${location.origin}/u/${p.handle}`;try{ if(navigator.share){await navigator.share({title:`${p.displayName} on SavePoint`,text:`${p.displayName}'s gaming archive`,url});}else{await navigator.clipboard.writeText(url);setCopied(true);setTimeout(()=>setCopied(false),1800);} }catch{/* dismissed */} };
