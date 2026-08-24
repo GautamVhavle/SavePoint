@@ -95,12 +95,17 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
   contain: paint;
 }
 
-/* Status hues: tuned per theme so small text always clears contrast */
+/* Status hues: tuned per theme so small text always clears contrast.
+   Single source of truth — types.ts STATUS_COLORS references these vars. */
 :root {
   --status-playing:#58e8ff; --status-completed:#b18cff;
   --status-backlog:#8fa0bd; --status-dropped:#ff7d92;
+  --status-playing-soft:rgba(88,232,255,.18); --status-completed-soft:rgba(177,140,255,.18);
+  --status-backlog-soft:rgba(143,160,189,.14); --status-dropped-soft:rgba(255,125,146,.14);
 }
 [data-theme="light"] {
   --status-playing:#006980; --status-completed:#6850b7;
   --status-backlog:#5b6472; --status-dropped:#b3125f;
+  --status-playing-soft:rgba(0,105,128,.12); --status-completed-soft:rgba(104,80,183,.12);
+  --status-backlog-soft:rgba(91,100,114,.10); --status-dropped-soft:rgba(179,18,95,.10);
 }

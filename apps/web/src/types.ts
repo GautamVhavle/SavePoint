@@ -10,12 +10,13 @@ export const STATUS_LABELS: Record<GameStatus, string> = {
 
 export const STATUS_ORDER: GameStatus[] = ['playing', 'completed', 'backlog', 'dropped'];
 
-/** Accent per play state, shared by cards, spines, and dialog ribbons. */
+/** Accent per play state. Values reference the theme-tuned --status-* custom
+ *  properties in styles.css so spines, dots, and washes adapt to light mode. */
 export const STATUS_COLORS: Record<GameStatus, { core: string; soft: string }> = {
-  playing: { core: '#58e8ff', soft: 'rgba(88,232,255,.14)' },
-  completed: { core: '#b18cff', soft: 'rgba(177,140,255,.14)' },
-  backlog: { core: '#8fa0bd', soft: 'rgba(143,160,189,.12)' },
-  dropped: { core: '#ff7d92', soft: 'rgba(255,125,146,.10)' },
+  playing: { core: 'var(--status-playing)', soft: 'var(--status-playing-soft)' },
+  completed: { core: 'var(--status-completed)', soft: 'var(--status-completed-soft)' },
+  backlog: { core: 'var(--status-backlog)', soft: 'var(--status-backlog-soft)' },
+  dropped: { core: 'var(--status-dropped)', soft: 'var(--status-dropped-soft)' },
 };
 
 /** View model consumed by pages (camelCase, presentation-ready). */

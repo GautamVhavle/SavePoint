@@ -91,7 +91,7 @@ const GameCard = memo(function GameCard({ game, onOpen }: { game: Game; onOpen: 
       <CoverImage src={game.cover} alt={`${game.title} cover artwork`} className="absolute inset-0 transition duration-700 group-hover:scale-[1.05]" />
       <CoverImage src={game.banner || game.cover} alt="" className="absolute inset-0 hidden sm:block" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#05070f]/85 via-transparent to-black/10 sm:from-[#05070f] sm:via-[#05070f]/30" />
-      <motion.div aria-hidden style={{ backgroundImage: `linear-gradient(150deg, ${tone.core}2e, transparent 46%)` }} className="absolute inset-0 opacity-80" />
+      <motion.div aria-hidden style={{ backgroundImage: `linear-gradient(150deg, ${tone.soft}, transparent 46%)` }} className="absolute inset-0 opacity-80" />
 
       {/* Status spine reads at every size without stealing attention. */}
       <motion.span aria-hidden initial={{scaleY:0}} whileInView={{scaleY:1}} viewport={{once:true}} transition={{duration:.5,ease:"easeOut"}} className="absolute inset-y-0 left-0 w-[3px] origin-top" style={{ background: `linear-gradient(180deg, ${tone.core}, transparent 72%)` }} />
