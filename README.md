@@ -135,7 +135,7 @@ Visual baselines are curated on macOS; other platforms skip unless `PLAYWRIGHT_U
 
 ## Contributing
 
-PRs welcome! Start with [CONTRIBUTING.md](CONTRIBUTING.md) for setup, conventions, and the definition of done. Security issues: see [SECURITY.md](SECURITY.md); please do not open public issues for them.
+PRs welcome! Start with [CONTRIBUTING.md](CONTRIBUTING.md) for setup, conventions, and the definition of done. Threat model and control inventory: [docs/security-posture.md](docs/security-posture.md). Reporting: [SECURITY.md](SECURITY.md); please do not open public issues for them.
 
 ## License
 
