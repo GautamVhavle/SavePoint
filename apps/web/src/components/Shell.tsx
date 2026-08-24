@@ -90,7 +90,7 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
                       {label}<ChevronRight size={20} className="text-cyan-200 transition group-hover:translate-x-1" />
                     </a>
                   ) : (
-                    <Link to={to} onClick={close} className="group flex min-h-16 items-center justify-between border-b border-white/10 text-[1.65rem] font-semibold tracking-tight">
+                    <Link to={to} onClick={close} aria-current={location.pathname === to ? 'page' : undefined} className={`group flex min-h-16 items-center justify-between border-b border-white/10 text-[1.65rem] font-semibold tracking-tight ${location.pathname === to ? 'text-cyan-300' : ''}`}>
                       {label}<ChevronRight size={20} className="text-cyan-200 transition group-hover:translate-x-1" />
                     </Link>
                   )}
