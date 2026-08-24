@@ -259,10 +259,15 @@ function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(peripherals.find(item => item.id === editingId)?.photo_url ?? null);
   const form = useForm<PeripheralForm>({ resolver: zodResolver(peripheralSchema) as unknown as Resolver<PeripheralForm>, defaultValues: { type: '', displayName: '', brandModel: '', notes: '' } });
-  const openEditor = (item?: typeof peripherals[number]) => {
+  const openEditor = (item?: typeof peripherals[number], focus = false) => {
     setEditingId(item?.id ?? null);
     setPhotoUrl(item?.photo_url ?? null);
     form.reset({ type: item?.type ?? '', displayName: item?.display_name ?? '', brandModel: item?.brand_model ?? '', notes: item?.notes ?? '' });
+    if (focus) {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      document.getElementById('peripheral-form')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+      document.getElementById('field-type')?.focus({ preventScroll: true });
+    }
   };
   const submit = async (v: PeripheralForm) => {
     const payload = { type: v.type, display_name: v.displayName, brand_model: v.brandModel || null, notes: v.notes || null, photo_url: photoUrl, sort_order: editingId ? (peripherals.find(item => item.id === editingId)?.sort_order ?? 0) : peripherals.length };
@@ -278,14 +283,14 @@ function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
         <span className="rounded-lg bg-white/5 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-cyan-200">{item.type}</span>
         <b className="flex-1">{item.display_name}<small className="muted ml-2 font-normal">{item.brand_model}</small></b>
         {item.photo_url && <BadgeCheck size={17} className="text-emerald-300"/>}
-        <Button className="icon-btn" aria-label={`Edit ${item.display_name}`} onClick={() => openEditor(item)}><Pencil size={16}/></Button>
+        <Button className="icon-btn" aria-label={`Edit ${item.display_name}`} onClick={() => openEditor(item, true)}><Pencil size={16}/></Button>
         <Button className="icon-btn" aria-label={`Remove ${item.display_name}`} onClick={() => {
           if (confirm(`Remove ${item.display_name} from your rig?`)) void run(() => api.deletePeripheral(item.id), 'Peripheral removed.');
         }}><Trash2 size={16}/></Button>
       </li>)}
       {!ordered.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">Nothing documented yet, add your first piece below.</li>}
     </ul>
-    <form className="mt-5 grid gap-4 rounded-2xl border border-white/10 bg-white/[.02] p-4 sm:grid-cols-2" onSubmit={form.handleSubmit(submit)}>
+    <form id="peripheral-form" className="mt-5 grid gap-4 rounded-2xl border border-white/10 bg-white/[.02] p-4 sm:grid-cols-2" onSubmit={form.handleSubmit(submit)}>
       <Field label="TYPE" name="type" form={form} placeholder="keyboard, mouse, headset…"/>
       <Field label="NAME" name="displayName" form={form} placeholder="Wooting 60HE+"/>
       <Field label="BRAND / MODEL" name="brandModel" form={form} placeholder="Optional detail"/>
