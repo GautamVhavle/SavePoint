@@ -3,13 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <script>
-      // Apply the theme before first paint so system-light visitors never
-      // see the dark canvas flash; mirrors ThemeProvider's resolution order.
+      // Apply the saved/system theme before first paint and pull the font
+      // stylesheet off the critical path. This is the page's ONLY inline
+      // script; its sha256 is pinned in vercel.json's Content-Security-Policy
+      // and asserted by src/index-html.security.test.ts.
       try {
         var theme = localStorage.getItem('savepoint-theme');
         if (!theme) theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         document.documentElement.dataset.theme = theme;
       } catch (e) { /* storage blocked: CSS default (dark) still applies */ }
+      var fonts = document.createElement('link');
+      fonts.rel = 'stylesheet';
+      fonts.href = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+      document.head.appendChild(fonts);
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#070a12" />
@@ -25,9 +31,8 @@
     <link rel="preconnect" href="https://images.igdb.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Font CSS loads off the critical path; swap keeps text visible meanwhile. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <!-- Font stylesheet is injected by the bootstrap script above (CSP: no
+         inline handlers). noscript keeps fonts for JS-disabled visitors. -->
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap" /></noscript>
     <title>SavePoint · Your gaming legacy</title>
   </head>
