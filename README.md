@@ -55,7 +55,7 @@ flowchart LR
 
 ## Quick start
 
-Prereqs: Node 22, pnpm 11, Python 3.12, [uv](https://docs.astral.sh/uv/).
+Prereqs: Node 22+, pnpm 10+, Python 3.12, [uv](https://docs.astral.sh/uv/).
 
 ```bash
 # Web (demo data when VITE_API_URL is unset)
