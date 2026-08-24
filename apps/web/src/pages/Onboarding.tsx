@@ -65,7 +65,7 @@ export default function Onboarding(){
             <p id="handle-hint" className={`mt-1.5 font-mono text-[11px] ${onboardingSchema.shape.handle.safeParse(handle).success?'text-emerald-300':'muted'}`}>{onboardingSchema.shape.handle.safeParse(handle).success?'Looks good · reserved when you finish':'3+ characters · lowercase letters, numbers, _ or - (must end with a letter or number)'}</p>
           </label>
         </div>}
-        {step===1&&<div className="mt-8"><label><span className="label">WHAT DO YOU PLAY FOR?</span><textarea className="field" value={bio} onChange={event=>setBio(event.target.value)} maxLength={2000} placeholder="Discovery, atmosphere, and stories that trust me to pay attention."/><p aria-hidden className="muted mt-1 text-right font-mono text-[10px]">{2000-bio.length} left</p></label></div>}
+        {step===1&&<div className="mt-8"><label><span className="label">WHAT DO YOU PLAY FOR?</span><textarea className="field" value={bio} onChange={event=>setBio(event.target.value)} maxLength={2000} placeholder="Discovery, atmosphere, and stories that trust me to pay attention." aria-describedby="bio-count"/><p id="bio-count" className="muted mt-1 text-right font-mono text-[10px]">{2000-bio.length} characters left</p></label></div>}
         {step===2&&<div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-5"><b>Your archive URL is ready</b><p className="muted mt-1 break-all font-mono text-sm">{window.location.origin}/u/{handle||'your-handle'}</p></div>}
       </motion.div></AnimatePresence>
       {formError&&<p className="field-error" role="alert">{formError}</p>}
