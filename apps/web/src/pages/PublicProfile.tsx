@@ -225,8 +225,8 @@ function TiltCard({ children }: { children: ReactNode }) {
   );
 }
 
-/** Long archives deserve a quick way home; appears past the masthead. */
-function BackToTop() {
+/** Long archives deserve quick actions; both appear past the masthead. */
+function FloatingActions({ onShare }: { onShare?: () => void }) {
   const reduce = useReducedMotion();
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -236,13 +236,24 @@ function BackToTop() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   return <AnimatePresence>{visible && (
+    <div className="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3">
+    {onShare && (
+      <motion.button
+        type="button" aria-label="Share this archive"
+        initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 14 }}
+        transition={{ duration: reduce ? 0 : .25 }}
+        onClick={onShare}
+        className="glass icon-btn rounded-full text-cyan-200"
+      ><Share2 size={18} /></motion.button>
+    )}
     <motion.button
       type="button" aria-label="Back to top"
       initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 14 }}
       transition={{ duration: reduce ? 0 : .25 }}
       onClick={() => window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })}
-      className="glass icon-btn fixed bottom-5 right-5 z-[70] rounded-full"
+      className="glass icon-btn rounded-full"
     ><ChevronDown size={19} className="rotate-180" /></motion.button>
+    </div>
   )}</AnimatePresence>;
 }
 
@@ -295,5 +306,5 @@ export default function PublicProfile() {
   <MotionSection id="chronicle" className="section cv-auto container-shell" watermark="THE CHRONICLE"><SectionHead kicker="03 · Chronicle" title="Every save tells a story." body="The complete play history, arranged as a living catalog." action={<div className="flex gap-2"><span aria-live="polite" role="status" className="btn"><SlidersHorizontal size={15}/>{games.length} entries</span></div>}/><Panel className="p-4 sm:p-6"><div className="mb-7 grid gap-3 md:grid-cols-[1fr_auto_auto]"><label className="relative"><span className="sr-only">Search games</span><Search className="absolute left-3 top-3.5 text-ink/40" size={17}/><input className="field pl-10" placeholder="Search the chronicle" value={search} onChange={e=>setSearch(e.target.value)}/></label><select className="field min-w-40" aria-label="Filter by status" value={filter} onChange={e=>setFilter(e.target.value)}>{(['all',...STATUS_ORDER] as Array<'all'|GameStatus>).map(x=><option key={x} value={x}>{x==='all'?'All':STATUS_LABELS[x]}</option>)}</select><select className="field min-w-40" aria-label="Sort games" value={sort} onChange={e=>setSort(e.target.value)}><option>Newest</option><option>Rating</option><option>Title</option></select></div><motion.div layout className="grid gap-3">{games.map(g=><ChronicleRow key={g.id} game={g} onOpen={open}/>)}{!games.length&&<div className="py-16 text-center"><Gamepad2 className="mx-auto text-ink/30"/><h3 className="mt-4 text-xl">No saves found</h3><p className="muted mt-2">Change the filter or search phrase.</p></div>}</motion.div></Panel></MotionSection>
   <MotionSection id="guide" className="section cv-auto container-shell"><SectionHead kicker="04 · AI Guide" title={<>A compass for your <span className="text-gradient">next world</span>.</>} body="Questions answered from this portfolio, never from the wider internet."/><Guide handle={p.handle}/></MotionSection>
   <AnimatePresence>{selected&&<GameDetail game={selected} close={close} onStep={stepGame} showStepper={p.games.length>1}/>}</AnimatePresence>
-  <BackToTop/></>;
+  <FloatingActions onShare={shareProfile}/></>;
 }
