@@ -142,10 +142,20 @@ const GameCard = memo(function GameCard({ game, onOpen }: { game: Game; onOpen: 
   );
 });
 
-function GameDetail({ game, close }: { game: Game; close: () => void }) {
+function GameDetail({ game, close, onStep, children }: { game: Game; close: () => void; onStep?: (delta: number) => void; children?: React.ReactNode }) {
   const panel = useRef<HTMLDivElement>(null); const reduce = useReducedMotion();
   // Traps focus, occludes the archive behind, locks scroll, closes on Escape.
   useDialogA11y(panel, true, close);
+  // Arrow keys browse the collection like gallery walls.
+  useEffect(() => {
+    if (!onStep) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight') { event.preventDefault(); onStep(1); }
+      if (event.key === 'ArrowLeft') { event.preventDefault(); onStep(-1); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onStep]);
   useEffect(() => {
     if (!panel.current || reduce) return;
     let ctx: { revert: () => void } | undefined;
@@ -161,7 +171,7 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
   const contentStagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.07 } } };
   const rise = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: .45, ease: [.22,.61,.36,1] } } };
   return (
-    <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" aria-describedby={game.summary ? 'game-summary' : undefined} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>
+    <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" aria-describedby={game.summary ? 'game-summary' : undefined} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>{children}
       <div ref={panel} className="glass relative mx-auto max-w-5xl overflow-hidden rounded-[28px]">
         <div className="relative">
           <div aria-hidden className="pointer-events-none"><CoverImage src={game.banner || game.cover} alt="" priority className="pointer-events-none aspect-[4/3] max-h-[300px] w-full sm:aspect-[21/8] sm:max-h-[360px]" /></div>
@@ -359,6 +369,12 @@ export default function PublicProfile() {
   // Stable identities so memoized exhibit cards skip re-render while filters/search type.
   const open=useCallback((g:Game)=>navigate({search:`?game=${g.slug}`},{replace:false}),[navigate]);
   const close=useCallback(()=>navigate({search:''},{replace:true}),[navigate]);
+  // Gallery-style browsing: step through the curated collection with wrap-around.
+  const stepGame=useCallback((delta:number)=>{
+    const doc=query.data; if(!doc||!selected)return;
+    const total=doc.games.length; const idx=doc.games.findIndex(g=>g.id===selected.id);
+    open(doc.games[(idx+delta+total)%total]);
+  },[query.data,selected,open]);
   if(query.isPending)return <LoadingProfile/>; if(query.isError){const notFound=query.error instanceof ApiError&&query.error.status===404;return <div className="container-shell grid min-h-[65vh] place-items-center text-center"><div><div className="eyebrow justify-center">{notFound?'404 · Uncharted player':'Signal interrupted'}</div><h1 className="mt-5 text-5xl font-bold">{notFound?'This archive is sealed.':'Could not reach the archive.'}</h1><p className="muted mt-4">{notFound?'Check the handle and try another route.':'Your connection may have drifted. Retry when ready.'}</p><div className="mt-7 flex flex-wrap justify-center gap-3">{notFound
     ? <><Link className="btn btn-primary" to="/">Return home</Link>{isDemoMode&&<Link className="btn" to="/u/nova">Try the showcase archive</Link>}</>
     : <Button className="btn-primary" onClick={()=>query.refetch()}>Retry</Button>}</div></div></div>};
@@ -388,6 +404,11 @@ export default function PublicProfile() {
 <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: `linear-gradient(180deg, ${STATUS_COLORS[g.status].core}, transparent)`, opacity:.85 }} />
 <CoverImage src={g.banner || g.cover} alt="" className="h-20 rounded-xl"/><div><h3 className="font-semibold">{g.title}</h3><p className="muted mt-1 font-mono text-[10px]"><span style={{color:`var(--status-${g.status})`}}>{STATUS_LABELS[g.status]}</span> · {g.platform} · {g.year}</p></div><p className="muted hidden truncate text-sm sm:block">{g.genres.join(' · ')}</p><div className="flex items-center gap-3 text-right"><div><Stars value={g.rating} /><p className="muted mt-1 text-xs">{g.hours ?? 0} hrs</p></div><ArrowUpRight size={16} className="text-cyan-200 opacity-0 transition group-hover:opacity-100"/></div></motion.button>)}{!games.length&&<div className="py-16 text-center"><Gamepad2 className="mx-auto text-ink/30"/><h3 className="mt-4 text-xl">No saves found</h3><p className="muted mt-2">Change the filter or search phrase.</p></div>}</motion.div></Panel></MotionSection>
   <MotionSection id="guide" className="section cv-auto container-shell"><SectionHead kicker="04 · AI Guide" title={<>A compass for your <span className="text-gradient">next world</span>.</>} body="Questions answered from this portfolio, never from the wider internet."/><Guide handle={p.handle}/></MotionSection>
-  <AnimatePresence>{selected&&<GameDetail game={selected} close={close}/>}</AnimatePresence>
+  <AnimatePresence>{selected&&<GameDetail game={selected} close={close} onStep={stepGame}>
+      {p.games.length>1&&<>
+        <button type="button" aria-label="Previous game" onClick={()=>stepGame(-1)} className="icon-btn glass fixed left-3 top-1/2 z-[90] -translate-y-1/2 rounded-full max-sm:hidden"><ChevronDown size={19} className="rotate-90"/></button>
+        <button type="button" aria-label="Next game" onClick={()=>stepGame(1)} className="icon-btn glass fixed right-3 top-1/2 z-[90] -translate-y-1/2 rounded-full max-sm:hidden"><ChevronDown size={19} className="-rotate-90"/></button>
+      </>}
+    </GameDetail>}</AnimatePresence>
   <BackToTop/></>;
 }
