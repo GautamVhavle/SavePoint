@@ -62,13 +62,16 @@ export function ToastProvider({ children }: PropsWithChildren) {
 }
 export const useToast = () => useContext(ToastContext);
 
-export function CoverImage({ src, alt, className = '', priority = false, ...data }: { src: string; alt: string; className?: string; priority?: boolean } & Record<`data-${string}`, string | undefined>) {
+export function CoverImage({ src, alt, className = '', priority = false, mobileSrc, ...data }: { src: string; alt: string; className?: string; priority?: boolean; mobileSrc?: string } & Record<`data-${string}`, string | undefined>) {
   const [failed, setFailed] = useState(false); const [loaded, setLoaded] = useState(false);
   // React 18's typings predate fetchPriority; the lowercase DOM form avoids
   // the unknown-prop warning while still raising scheduler priority.
   const fetchHint = priority ? ({ fetchpriority: 'high' } as Record<string, string>) : {};
+  const image = <img src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async" {...fetchHint} onLoad={() => setLoaded(true)} onError={() => setFailed(true)}
+    className={cn('h-full w-full object-cover transition-opacity duration-700', loaded ? 'opacity-100' : 'opacity-0')} />;
   return <div {...data} className={cn('bg-gradient-to-br from-cyan-950 via-violet-950 to-fuchsia-950 overflow-hidden', className)}>
-    {!failed && <img src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async" {...fetchHint} onLoad={() => setLoaded(true)} onError={() => setFailed(true)}
-      className={cn('h-full w-full object-cover transition-opacity duration-700', loaded ? 'opacity-100' : 'opacity-0')} />}
+    {!failed && (mobileSrc && mobileSrc !== src
+      ? <picture><source media="(max-width: 639px)" srcSet={mobileSrc} />{image}</picture>
+      : image)}
   </div>; }
 export function StatusPill({ children }: PropsWithChildren) { return <span className="inline-flex min-h-7 items-center rounded-full border border-white/10 bg-black/35 px-2.5 font-mono text-[10px] uppercase tracking-wider text-white">{children}</span>; }

@@ -19,6 +19,9 @@ a { color:inherit; text-decoration:none; } button,input,textarea,select { font:i
 .eyebrow::before { content:''; width:28px; height:1px; background:currentColor; box-shadow:0 0 10px currentColor; }
 .text-gradient { background:linear-gradient(115deg,var(--cyan),var(--violet) 52%,var(--magenta)); -webkit-background-clip:text; color:transparent; }
 .section { padding:88px 0; scroll-margin-top:76px; }
+/* Below-the-fold sections skip offscreen rendering until approached.
+   Intrinsic size keeps anchors and scroll height honest while deferred. */
+.cv-auto { content-visibility:auto; contain-intrinsic-size:auto 900px; }
 .section-title { margin:12px 0 16px; font-size:clamp(2rem,5vw,4.5rem); line-height:.95; letter-spacing:-.055em; }
 .muted { color:rgb(var(--muted)); }
 .btn { min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:0 17px; border-radius:13px; border:1px solid rgba(var(--line)/.14); font-weight:600; cursor:pointer; transition:.18s ease; background:rgba(var(--line)/.055); }
