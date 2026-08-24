@@ -152,7 +152,11 @@ export function Shell() {
         </div>
         <div className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-ink/60 sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} SavePoint Archive</span>
-          <span className="font-mono text-xs tracking-wider">BUILT FOR THE GAMES THAT STAY</span>
+          <span className="flex items-center gap-5">
+            <Link to="/u/nova" className="transition hover:text-cyan-300">Showcase</Link>
+            <Link to="/onboarding" className="transition hover:text-cyan-300">Start yours</Link>
+            <span className="hidden font-mono text-xs tracking-wider sm:inline">BUILT FOR THE GAMES THAT STAY</span>
+          </span>
         </div>
       </div>
     </footer>
