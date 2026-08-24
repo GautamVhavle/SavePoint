@@ -13,12 +13,10 @@ Production-oriented FastAPI service for a public gaming portfolio. It exposes a 
 
 ```bash
 cd apps/api
-python -m venv .venv
-source .venv/bin/activate
-pip install -e '.[dev]'
+uv sync --all-extras
 cp .env.example .env
-alembic upgrade head
-uvicorn app.main:app --reload
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload
 ```
 
 Set `DEV_AUTH_BYPASS=true` only for local development or tests. It is rejected by configuration validation in staging/production. When enabled, owner endpoints use `X-Dev-Auth-Sub` (or `DEV_AUTH_SUB`). Never enable it in a deployed environment.
@@ -26,7 +24,7 @@ Set `DEV_AUTH_BYPASS=true` only for local development or tests. It is rejected b
 Seed a realistic portfolio after migrating:
 
 ```bash
-savepoint-seed --auth0-sub 'auth0|local-developer' --handle alex
+uv run savepoint-seed --auth0-sub 'auth0|local-developer' --handle alex
 ```
 
 API docs are available at `/docs` outside production. Health probes are `GET /api/v1/health` and `GET /api/v1/ready`.
