@@ -313,3 +313,18 @@ async def test_authenticated_responses_are_private_and_uncached(client: httpx.As
     assert me_response.headers["cache-control"] == "private, no-store"
     search_response = await client.get("/api/v1/igdb/search", params={"q": "zelda"})
     assert search_response.headers["cache-control"] == "private, no-store"
+
+
+@pytest.mark.asyncio
+async def test_public_profile_revalidates_with_etag(client: httpx.AsyncClient) -> None:
+    await client.post("/api/v1/me/profile", json={"handle": "etagged", "display_name": "Tag"})
+    first = await client.get("/api/v1/profiles/etagged")
+    assert first.status_code == 200
+    etag = first.headers["etag"]
+
+    revalidate = await client.get("/api/v1/profiles/etagged", headers={"if-none-match": etag})
+    assert revalidate.status_code == 304
+
+    # A different etag never short-circuits.
+    miss = await client.get("/api/v1/profiles/etagged", headers={"if-none-match": 'W/"nope"'})
+    assert miss.status_code == 200

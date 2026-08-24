@@ -74,11 +74,19 @@ async def ready(session: Session) -> dict[str, str]:
 
 
 @router.get("/profiles/{handle}", response_model=PublicProfile, tags=["public"])
-async def public_profile(handle: str, session: Session, response: Response) -> PublicProfile:
+async def public_profile(
+    handle: str, request: Request, session: Session, response: Response
+) -> PublicProfile | Response:
     profile = await load_public(session, handle)
     if profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
     response.headers["Cache-Control"] = "public, max-age=60, stale-while-revalidate=300"
+    # Cheap revalidation once freshness lapses: unchanged archives 304.
+    touched = int(profile.updated_at.timestamp()) if profile.updated_at else 0
+    etag = f'W/"{profile.id}-{touched}-{len(profile.games)}"'
+    response.headers["ETag"] = etag
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers=dict(response.headers))
     return serialize_composite(profile)
 
 
