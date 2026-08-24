@@ -20,5 +20,5 @@ test('onboarding completes into the studio with the claimed identity', async ({ 
 
   // The claimed handle must resolve as a public archive too.
   await page.goto(`/u/${handle}`);
-  await expect(page.getByText('\@' + handle)).toBeVisible();
+  await expect(page.getByText('@' + handle)).toBeVisible();
 });

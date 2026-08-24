@@ -27,6 +27,8 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   const theme = preference === 'system' ? system : preference;
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    // Address-bar chrome follows the RESOLVED theme, not just the OS scheme.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f4efe6' : '#070a12');
     if (preference === 'system') localStorage.removeItem('savepoint-theme');
     else localStorage.setItem('savepoint-theme', preference);
   }, [theme, preference]);

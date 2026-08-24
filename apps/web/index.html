@@ -11,6 +11,8 @@
         var theme = localStorage.getItem('savepoint-theme');
         if (!theme) theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         document.documentElement.dataset.theme = theme;
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = theme === 'light' ? '#f4efe6' : '#070a12';
       } catch (e) { /* storage blocked: CSS default (dark) still applies */ }
       var fonts = document.createElement('link');
       fonts.rel = 'stylesheet';
@@ -18,8 +20,7 @@
       document.head.appendChild(fonts);
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#070a12" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4efe6" />
+<meta name="theme-color" content="#070a12" />
     <meta name="description" content="SavePoint turns your gaming history into a collectible portfolio: your rig, Hall of Fame, reviews, awards, and the stories behind every save." />
     <meta name="application-name" content="SavePoint" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
