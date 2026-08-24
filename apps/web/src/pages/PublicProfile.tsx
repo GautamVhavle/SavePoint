@@ -229,14 +229,21 @@ function TiltCard({ children }: { children: ReactNode }) {
 function FloatingActions({ onShare }: { onShare?: () => void }) {
   const reduce = useReducedMotion();
   const [visible, setVisible] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > window.innerHeight * 1.5);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  // If a control here holds focus while hiding, hand focus back cleanly.
+  useEffect(() => {
+    if (visible) return;
+    const active = document.activeElement;
+    if (wrapRef.current && active instanceof HTMLElement && wrapRef.current.contains(active)) active.blur();
+  }, [visible]);
   return <AnimatePresence>{visible && (
-    <div className="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3">
+    <div ref={wrapRef} className="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3">
     {onShare && (
       <motion.button
         type="button" aria-label="Share this archive"
