@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2, Sparkles } from 'lucide-react';
 import { api, isDemoMode } from '../lib/api';
+import { prefetchRoute } from '../lib/use-intent-prefetch';
 import { Button, PageFade, Panel } from '../components/ui';
 import { useEffect, useState } from 'react';
 
@@ -40,6 +41,8 @@ const checklist=({hasAvatar,gameCount,reviewCount}:{hasAvatar:boolean;gameCount:
 function SnapshotSkeleton(){return <div role="status"><span className="sr-only">Loading your studio…</span><div aria-hidden className="space-y-4"><div className="glass rounded-[22px] p-6"><div className="skeleton h-3 w-28 rounded-full"/><div className="mt-5 skeleton h-9 w-24 rounded-xl"/><div className="mt-5 skeleton h-1.5 w-full rounded-full"/><div className="mt-6 space-y-3">{[1,2,3].map(i=><div key={i} className="skeleton h-3 rounded-full" style={{width:`${88-i*14}%`}}/>)}</div></div><div className="glass rounded-[22px] p-6"><div className="skeleton h-3 w-32 rounded-full"/><div className="mt-4 grid grid-cols-3 gap-3">{[1,2,3].map(i=><div key={i} className="skeleton h-16 rounded-xl"/>)}</div></div></div></div>;}
 export default function Dashboard(){
   const query=useQuery({queryKey:['me'],queryFn:()=>api.me()});
+  // Warm the public-archive chunk so View archive resolves instantly.
+  useEffect(()=>{ prefetchRoute('/u/preview'); },[]);
   const p=query.data; const isLoading=query.isPending;  const gameCount=p?.games.length??0;
   const hours=Math.round((p?.games.reduce((sum,entry)=>sum+(entry.hours_played??0),0))??0);
   const reviews=p?.games.filter(entry=>(entry.review?.length??0)>0).length??0;
