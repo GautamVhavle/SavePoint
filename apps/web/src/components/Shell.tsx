@@ -43,17 +43,8 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
   const links = drawerLinks(location.pathname);
   const auth = useAuth();
   const drawerRef = useRef<HTMLDivElement>(null);
+  // The hook also traps focus, occludes the page, and locks body scroll.
   useDialogA11y(drawerRef, open, close);
-
-  // Lock body scroll while the drawer owns the screen.
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [open]);
 
   return (
     <AnimatePresence>

@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'rea
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldValues, type Path, type Resolver, type UseFormReturn } from 'react-hook-form';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useReducedMotion } from 'framer-motion';
 import {
   ArrowDown, ArrowLeft, ArrowUp, BadgeCheck, Check, LoaderCircle, Pencil, Plus, Save,
   Search, Star, Trash2, UploadCloud, X,
@@ -263,6 +264,7 @@ function RigEditor() {
 
 function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
   const run = useArchiveAction();
+  const reduce = useReducedMotion();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(peripherals.find(item => item.id === editingId)?.photo_url ?? null);
   const form = useForm<PeripheralForm>({ resolver: zodResolver(peripheralSchema) as unknown as Resolver<PeripheralForm>, defaultValues: { type: '', displayName: '', brandModel: '', notes: '' } });
@@ -271,7 +273,6 @@ function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
     setPhotoUrl(item?.photo_url ?? null);
     form.reset({ type: item?.type ?? '', displayName: item?.display_name ?? '', brandModel: item?.brand_model ?? '', notes: item?.notes ?? '' });
     if (focus) {
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       document.getElementById('peripheral-form')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
       document.getElementById('field-type')?.focus({ preventScroll: true });
     }
@@ -324,6 +325,7 @@ const RATING_OPTIONS: Array<[string, string]> = [['', 'Unrated'], ...Array.from(
 function GameEditor() {
   const { data, isLoading: libraryLoading } = useMe();
   const run = useArchiveAction();
+  const reduce = useReducedMotion();
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [selected, setSelected] = useState<ApiIGDBResult | null>(null);
@@ -349,7 +351,6 @@ function GameEditor() {
       review: entry.review ?? '', featured: entry.featured, featuredOrder: entry.featured_order ?? undefined,
       featuredNote: entry.featured_note ?? '',
     });
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.getElementById('game-editor-form')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
     // Move focus with the scroll so screen readers land in the editing form.
     document.getElementById('field-status')?.focus({ preventScroll: true });

@@ -7,7 +7,8 @@ const FOCUSABLE = [
 
 /**
  * Dialog keyboard semantics: moves focus into `container` on open, traps Tab/Shift+Tab
- * inside it, closes on Escape, and restores focus to the trigger on close.
+ * inside it, closes on Escape, occludes the page behind it, locks body scroll,
+ * and restores focus to the trigger on close.
  */
 export function useDialogA11y(
   container: RefObject<HTMLElement | null>,
@@ -20,6 +21,8 @@ export function useDialogA11y(
     if (!active) return;
     const node = container.current;
     const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     // Screen-reader virtual cursors ignore focus traps, so occlude every
     // sibling branch behind the dialog with [inert] and restore on close.
     const inerted: HTMLElement[] = [];
@@ -64,6 +67,7 @@ export function useDialogA11y(
       cancelAnimationFrame(raf);
       document.removeEventListener('keydown', onKeyDown, true);
       inerted.forEach(el => el.removeAttribute('inert'));
+      document.body.style.overflow = previousOverflow;
       previouslyFocused?.focus();
     };
   }, [active, container]);
