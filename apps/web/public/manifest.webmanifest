@@ -1,5 +1,5 @@
 {
-  "name": "SavePoint · Player Archives",
+  "name": "SavePoint \u00b7 Player Archives",
   "short_name": "SavePoint",
   "description": "A collectible gaming portfolio: rig, games, reviews, awards, and a profile-scoped AI Guide.",
   "start_url": "/",
@@ -7,7 +7,23 @@
   "background_color": "#070a12",
   "theme_color": "#070a12",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
