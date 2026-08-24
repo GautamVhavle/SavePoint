@@ -102,6 +102,9 @@ function useArchiveAction() {
     try {
       await action();
       await client.invalidateQueries({ queryKey: ME_KEY });
+      // Public pages must reflect curator edits immediately, never within the
+      // staleTime window.
+      await client.invalidateQueries({ queryKey: ['public-profile'] });
       if (doneMessage) toast.show(doneMessage);
       return true;
     } catch (error) {
