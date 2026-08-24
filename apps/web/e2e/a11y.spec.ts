@@ -4,8 +4,10 @@ import { expect, test, type Page } from '@playwright/test';
 async function scan(page: Page, path: string, theme: 'dark' | 'light') {
   await page.addInitScript(themeValue => localStorage.setItem('savepoint-theme', themeValue), theme);
   await page.goto(path);
-  // Allow entrance animations to settle so elements are visible for axe.
-  await page.waitForTimeout(900);
+  // Let the network settle, then give entrance animations time to finish
+  // so every element is visible for axe.
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(700);
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   return results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact ?? ''));
 }
