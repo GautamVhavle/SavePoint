@@ -27,7 +27,7 @@ There are no follows, likes, comments, or timelines. One link in your bio does t
 | Studio | Full editors for profile identity, rig + monitors + peripherals, game entries (IGDB search-as-you-type), custom awards, featured curation |
 | AI Guide | Gemini-powered answers constrained to the viewed profile, rate-limited per visitor + profile via hashed keys |
 | Metadata | Crawler-visible per-profile Open Graph HTML (bot-user-agent rewrite), 1200x630 share cards resolving to the curator's best artwork, sitemap, manifest |
-| Trust | Auth0 JWT (JWKS, unknown-kid refresh), ownership checks on every mutation, half-star rating constraints enforced in the database |
+| Trust | Auth0 JWT (JWKS, unknown-kid refresh), ownership checks on every mutation, enforced CSP with pinned inline-script hash, request-body/media-type guards, rate limits on Guide/search/uploads, half-star rating constraints enforced in the database |
 | Quality | 24 Playwright tests (smoke, axe WCAG scans, CSP enforcement, studio flows, responsive overflow gates, visual baselines), 24 API tests, 54 web unit/contract tests, strict mypy, zero-warning ESLint |
 
 ## Architecture
