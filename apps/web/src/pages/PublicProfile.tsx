@@ -10,6 +10,7 @@ import { api, ApiError } from '../lib/api';
 import type { Game } from '../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../types';
 import { formatDate } from '../lib/utils';
+import { useDialogA11y } from '../lib/useDialogA11y';
 import { Button, CoverImage, Panel, SectionHead, StatusPill } from '../components/ui';
 
 const MotionSection = ({ children, className = '', id }: { children: React.ReactNode; className?: string; id?: string }) => { const reduce = useReducedMotion(); return <motion.section id={id} className={className} initial={reduce ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .55 }}>{children}</motion.section>; };
@@ -66,8 +67,9 @@ function Reveal({ children, delay = 0, className }: { children: React.ReactNode;
 
 function Stars({ value }: { value: number | null }) {
   if (value == null) return <span className="font-mono text-[10px] uppercase tracking-wider text-white/55">Unrated</span>;
-  return <span className="flex items-center gap-0.5" aria-label={`Rated ${value} out of 5`}>{[1,2,3,4,5].map(n => (
-    <Star key={n} size={12} aria-hidden className={n <= Math.round(value) ? 'text-amber-300' : 'text-white/25'} fill={n <= Math.round(value) ? 'currentColor' : 'none'} />
+  const filled = Math.round(value);
+  return <span className="flex items-center gap-0.5" role="img" aria-label={`Rated ${value} out of 5`}>{[1,2,3,4,5].map(n => (
+    <Star key={n} size={12} aria-hidden className={n <= filled ? 'text-amber-300' : 'text-white/25'} fill={n <= filled ? 'currentColor' : 'none'} />
   ))}</span>;
 }
 
@@ -129,8 +131,8 @@ function GameCard({ game, onOpen }: { game: Game; onOpen: () => void }) {
 
 function GameDetail({ game, close }: { game: Game; close: () => void }) {
   const panel = useRef<HTMLDivElement>(null); const reduce = useReducedMotion();
+  useDialogA11y(panel, true, close);
   useEffect(() => { if (!panel.current || reduce) return; const ctx = gsap.context(() => { gsap.fromTo(panel.current, { rotationY: -92, transformPerspective: 1400, opacity: .4 }, { rotationY: 0, opacity: 1, duration: .72, ease: 'power3.out' }); }, panel); return () => ctx.revert(); }, [game.id, reduce]);
-  useEffect(() => { const previous = document.activeElement as HTMLElement; const handler=(e:KeyboardEvent)=>{if(e.key==='Escape')close()}; addEventListener('keydown',handler); return()=>{removeEventListener('keydown',handler);previous?.focus()}; }, [close]);
   const tone = STATUS_COLORS[game.status];
   const accession = `SP-${game.year ?? '????'}-${game.id.replaceAll('-','').slice(0,6).toUpperCase()}`;
   const contentStagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.07 } } };
@@ -141,7 +143,7 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
         <div className="relative">
           <CoverImage src={game.banner || game.cover} alt="" className="aspect-[4/3] max-h-[300px] w-full sm:aspect-[21/8] sm:max-h-[360px]" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1e] via-[#0a0f1e]/35 to-transparent" />
-          <Button className="icon-btn absolute right-4 top-4 z-10 bg-black/55 text-white" onClick={close} aria-label="Close game details" autoFocus><X size={20}/></Button>
+          <Button className="icon-btn absolute right-4 top-4 z-10 bg-black/55 text-white" onClick={close} aria-label="Close game details" data-autofocus><X size={20}/></Button>
           <motion.div className="absolute bottom-0 left-0 right-0 p-5 sm:p-9" variants={contentStagger} initial="hidden" animate="show">
             <motion.div variants={rise} className="eyebrow">Accession {accession}</motion.div>
             <motion.h2 variants={rise} id="game-title" className="mt-3 max-w-3xl text-3xl font-bold leading-[.95] tracking-[-.04em] text-white sm:text-6xl">{game.title}</motion.h2>

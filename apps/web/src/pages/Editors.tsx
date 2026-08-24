@@ -46,8 +46,8 @@ function SelectField({ label, name, form, options }: { label: string; name: stri
   const id = `field-${name}`;
   return <label className="block">
     <span className="label">{label}</span>
-    <select id={id} className="field" aria-invalid={!!error} {...form.register(name)}>{options.map(([value, text]) => <option key={value} value={value}>{text}</option>)}</select>
-    {error && <span className="field-error">{error}</span>}
+    <select id={id} className="field" aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)}>{options.map(([value, text]) => <option key={value} value={value}>{text}</option>)}</select>
+    {error && <span id={`${id}-error`} className="field-error">{error}</span>}
   </label>;
 }
 
@@ -111,7 +111,7 @@ function UploadCard({ purpose, title, hint, current, onUploaded }: {
   };
   return <div>
     <span className="label">{title}</span>
-    <label className={`flex min-h-40 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/20 bg-white/[.025] text-center transition hover:border-cyan-300/40 ${busy ? 'opacity-60' : ''}`}>
+    <label className={`flex min-h-40 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/20 bg-white/[.025] text-center transition focus-within:border-cyan-300/60 focus-within:bg-cyan-300/5 hover:border-cyan-300/40 ${busy ? 'opacity-60' : ''}`}>
       {preview
         ? <div className="flex items-center gap-4 p-4"><img className="h-24 w-24 rounded-xl object-cover" src={preview} alt="Uploaded media"/><div className="text-left"><b>{busy ? 'Archiving…' : 'Stored'}</b><p className="muted mt-1 text-sm">Choose another file to replace.</p></div></div>
         : <div className="p-4"><UploadCloud className="mx-auto text-cyan-300"/><b className="mt-3 block">Drop or choose an image</b><p className="muted mt-1 text-sm">{hint}</p></div>}

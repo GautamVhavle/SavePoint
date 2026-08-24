@@ -1,9 +1,10 @@
 import { Archive, ChevronRight, LogIn, Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
 import { isDemoMode } from '../lib/api';
 import { useAuth } from '../lib/auth';
+import { useDialogA11y } from '../lib/useDialogA11y';
 import { Button, ThemeToggle } from './ui';
 
 /** Hairline reading-progress bar pinned under the header. */
@@ -31,6 +32,8 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
   const location = useLocation();
   const links = drawerLinks(location.pathname);
   const auth = useAuth();
+  const drawerRef = useRef<HTMLDivElement>(null);
+  useDialogA11y(drawerRef, open, close);
 
   // Lock body scroll while the drawer owns the screen.
   useEffect(() => {
@@ -41,13 +44,6 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
       document.body.style.overflow = previous;
     };
   }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
-    addEventListener('keydown', onKey);
-    return () => removeEventListener('keydown', onKey);
-  }, [open, close]);
 
   return (
     <AnimatePresence>
@@ -61,6 +57,7 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
         >
           <button aria-label="Close navigation" className="absolute inset-0 bg-[#04060d]/70 backdrop-blur-md" onClick={close} />
           <motion.div
+            ref={drawerRef}
             role="dialog"
             aria-modal="true"
             aria-label="Site navigation"

@@ -27,7 +27,9 @@ a.btn { user-select:none; }
 .btn-primary { border:0; color:#061018; background:linear-gradient(120deg,#6aebff,#b8a2ff); box-shadow:0 8px 30px rgba(88,232,255,.18); }
 .icon-btn { width:44px; height:44px; padding:0; }
 .field { width:100%; min-height:46px; border:1px solid rgba(var(--line)/.14); border-radius:12px; color:rgb(var(--ink)); background:rgba(var(--line)/.045); padding:11px 13px; }
-textarea.field { min-height:120px; resize:vertical; } .field::placeholder{color:rgb(var(--muted))}.field-error{font-size:12px;color:#ff7cae;margin-top:5px}
+textarea.field { min-height:120px; resize:vertical; } .field::placeholder{color:rgb(var(--muted))}
+.field-error { font-size:12px; color:#ff7cae; margin-top:5px; }
+[data-theme="light"] .field-error { color:#b3125f; }
 .label { display:block; margin-bottom:7px; font:500 12px 'IBM Plex Mono'; letter-spacing:.06em; color:rgb(var(--muted)); }
 .card-sheen { position:relative; overflow:hidden; } .card-sheen::after { content:''; position:absolute; inset:-100% 30%; transform:rotate(22deg); background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); pointer-events:none; transition:transform .7s; }.card-sheen:hover::after{transform:translateX(160%) rotate(22deg)}
 .prose-review { font-size:1.04rem; line-height:1.75; color:rgb(var(--ink)/.86); }
