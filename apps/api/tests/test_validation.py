@@ -58,3 +58,10 @@ async def test_igdb_search_limit_is_bounded(client: httpx.AsyncClient) -> None:
     await client.post("/api/v1/me/profile", json={"handle": "bounded", "display_name": "B"})
     response = await client.get("/api/v1/igdb/search", params={"q": "zelda", "limit": "99"})
     assert response.status_code == 422
+
+
+def test_cors_origins_lose_trailing_slashes() -> None:
+    from app.core.config import Settings
+
+    settings = Settings(cors_origins=["https://example.com/", "http://localhost:5174"])
+    assert settings.cors_origins == ["https://example.com", "http://localhost:5174"]

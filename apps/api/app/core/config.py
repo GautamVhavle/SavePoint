@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     max_body_bytes: int = Field(default=1024 * 1024, ge=1024, le=100 * 1024 * 1024)
     log_level: str = "INFO"
 
+    @field_validator("cors_origins")
+    @classmethod
+    def normalize_cors_origins(cls, value: list[str]) -> list[str]:
+        # Browsers send Origin without a trailing slash; keep both sides equal.
+        return [origin.rstrip("/") for origin in value]
+
     @field_validator("database_url")
     @classmethod
     def normalize_database_driver(cls, value: str) -> str:
