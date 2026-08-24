@@ -73,3 +73,25 @@ Production origins, callback URLs, API audience, database migrations, storage bu
 - `src/lib/api.ts` — the transport facade: request handling with timeout + abort normalization, the real client, and the `isDemoMode` selection. DTO→view mapping lives in `api-mapping.ts`; the localStorage showcase backend in `demo-backend.ts`. Import paths stay on `lib/api` so demo and live modes remain swappable.
 - `src/lib/useDialogA11y.ts` — one hook for modal semantics: focus trap, Escape, `[inert]` occlusion of the page (with an optional overlay boundary), body-scroll lock, and focus restoration.
 - Inline scripts in `index.html` are pinned by hash in `vercel.json`'s Content-Security-Policy; `src/index-html.security.test.ts` fails the build if they drift, and `e2e/csp.spec.ts` enforces the header end to end.
+
+## Performance budget (gzip, current baseline)
+
+Eagerly loaded JavaScript per visit (entry + framework + motion + query):
+
+| Chunk | Size |
+| --- | --- |
+| entry (`index-*.js`) | ~28 KB |
+| `framework` (React, ReactDOM, router) | ~57 KB |
+| `motion` (framer-motion) | ~39 KB |
+| `query` (@tanstack/react-query) | ~9 KB |
+| **Eager total** | **~133 KB gzip** |
+
+Deferred by design — do not merge these into eager chunks:
+
+- `gsap` + `ScrollTrigger` (~44 KB gzip): loads only when a public profile mounts.
+- `auth0` (~61 KB gzip): loads only in live mode via `lib/auth0-bridge`.
+- `schemas`/`zod` (~22 KB gzip): studio routes only.
+- Route chunks themselves are lazy; `lib/use-intent-prefetch.ts` warms them on hover/focus.
+
+When adding a dependency, check which bucket it lands in (`vite.config.ts`
+`manualChunks`) and keep the eager total from creeping past ~150 KB gzip.
