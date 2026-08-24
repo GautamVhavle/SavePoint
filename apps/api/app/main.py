@@ -45,7 +45,8 @@ app.add_middleware(
     expose_headers=["X-Request-ID", "Retry-After"],
 )
 # Composite profile JSON compresses ~5-8x; skip bodies already tiny.
-app.add_middleware(GZipMiddleware, minimum_size=600)
+# Level 6: ~95% of the size win at a fraction of the level-9 CPU cost.
+app.add_middleware(GZipMiddleware, minimum_size=600, compresslevel=6)
 
 
 @app.middleware("http")
