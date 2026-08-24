@@ -148,7 +148,7 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
     <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>
       <div ref={panel} className="glass relative mx-auto max-w-5xl overflow-hidden rounded-[28px]">
         <div className="relative">
-          <div aria-hidden className="pointer-events-none"><CoverImage src={game.banner || game.cover} alt="" className="pointer-events-none aspect-[4/3] max-h-[300px] w-full sm:aspect-[21/8] sm:max-h-[360px]" /></div>
+          <div aria-hidden className="pointer-events-none"><CoverImage src={game.banner || game.cover} alt="" priority className="pointer-events-none aspect-[4/3] max-h-[300px] w-full sm:aspect-[21/8] sm:max-h-[360px]" /></div>
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a0f1e] via-[#0a0f1e]/35 to-transparent" />
           <Button className="icon-btn absolute right-4 top-4 z-10 bg-black/55 text-white" onClick={close} aria-label="Close game details" data-autofocus><X size={20}/></Button>
           <motion.div className="absolute bottom-0 left-0 right-0 p-5 sm:p-9" variants={contentStagger} initial="hidden" animate="show">
