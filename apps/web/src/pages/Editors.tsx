@@ -474,6 +474,7 @@ function FeaturedEditor() {
   const { data } = useMe();
   const run = useArchiveAction();
   const [drafts, setDrafts] = useState<Record<string, { featured: boolean; order: number | null; note: string }>>({});
+  const [moveAnnouncement, setMoveAnnouncement] = useState('');
   const entries = useMemo(() => [...(data?.games ?? [])]
     .sort((a, b) => Number(b.featured) - Number(a.featured) || (a.featured_order ?? 99) - (b.featured_order ?? 99) || a.game.name.localeCompare(b.game.name)), [data]);
   const draftOf = (entry: ApiProfileGame) => drafts[entry.id] ?? { featured: entry.featured, order: entry.featured_order, note: entry.featured_note ?? '' };
@@ -486,6 +487,8 @@ function FeaturedEditor() {
     if (!target || !swapWith) return;
     update(target.id, { order: draftOf(swapWith).order ?? index + delta });
     update(swapWith.id, { order: draftOf(target).order ?? index });
+    const direction = delta < 0 ? 'up' : 'down';
+    setMoveAnnouncement(`${target.game.name} moved ${direction} to position ${index + delta + 1}.`);
   };
   const publish = async () => {
     const ok = await run(async () => {
@@ -503,6 +506,7 @@ function FeaturedEditor() {
     if (ok) setDrafts({});
   };
   return <EditorShell title="Arrange the front shelf." eyebrow="Hall of Fame curator">
+    <p aria-live="polite" className="sr-only" role="status">{moveAnnouncement}</p>
     <p className="muted mb-6">Toggle entries, assign an explicit order, and add a curator’s note. The rail renders top-down.</p>
     <ol className="space-y-3">
       {entries.map((entry, index) => {

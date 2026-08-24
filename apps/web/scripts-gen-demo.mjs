@@ -24,7 +24,7 @@ const authored = {
 };
 
 const slugs = {
-  p5r: 'persona-5-royal', bg3: 'baldurs-gate-3', cyberpunk: 'cyberpunk-2077', stardew: 'stardew-valley',
+  p5r: 'persona-5-royal', 'baldurs gate 3': 'baldurs-gate-3', cyberpunk: 'cyberpunk-2077', stardew: 'stardew-valley',
   'obra dinn': 'return-of-the-obra-dinn', ragnarok: 'god-of-war-ragnarok', tunic: 'tunic',
   'elden ring': 'elden-ring', inscryption: 'inscryption', 'hollow knight': 'hollow-knight',
   hades: 'hades', rdr2: 'red-dead-redemption-2', celeste: 'celeste',

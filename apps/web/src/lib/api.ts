@@ -150,7 +150,7 @@ export function seedFromView(view: Profile): ApiPublicProfile {
   const created = `${view.since}-01-15T12:00:00Z`;
   const gameMetas = view.games.map(game => ({
     igdb_id: game.igdbId ?? 1, name: game.title, slug: game.slug, summary: game.summary ?? null,
-    cover_url: game.cover, release_date: game.year ? `${game.year}-01-01T00:00:00Z` : null,
+    cover_url: game.cover, banner_url: game.banner ?? null, release_date: game.year ? `${game.year}-01-01T00:00:00Z` : null,
     genres: game.genres, platforms: game.platforms.length ? game.platforms : [game.platform],
   }));
   const entries: ApiProfileGame[] = view.games.map((game, index) => ({
@@ -186,13 +186,27 @@ export function seedFromView(view: Profile): ApiPublicProfile {
 }
 
 const demoCatalogExtra: ApiIGDBResult[] = [
-  { igdb_id: 1020, name: 'Outer Wilds', slug: 'outer-wilds', banner_url: demoProfile.games[0].banner ?? null, summary: 'A hand-built solar system trapped in a 22-minute time loop.', cover_url: demoProfile.games[0].cover, release_date: '2019-05-28T00:00:00Z', genres: ['Exploration'], platforms: ['PC'] },
-  { igdb_id: 12659, name: 'Hades', slug: 'hades', banner_url: demoProfile.games[1].banner ?? null, summary: 'Defy the god of the dead in a rogue-like dungeon crawler where death is only the beginning.', cover_url: demoProfile.games[1].cover, release_date: '2020-09-17T00:00:00Z', genres: ['Roguelike'], platforms: ['PC'] },
-  { igdb_id: 109428, name: 'Alan Wake II', slug: 'alan-wake-2', banner_url: demoProfile.games[2].banner ?? null, summary: 'Two independent heroes in two nightmarish towns, on two haunting journeys mirroring each other.', cover_url: demoProfile.games[2].cover, release_date: '2023-10-27T00:00:00Z', genres: ['Horror'], platforms: ['PS5'] },
-  { igdb_id: 637790, name: 'Disco Elysium', slug: 'disco-elysium', banner_url: demoProfile.games[3].banner ?? null, summary: 'A groundbreaking open world role playing game with unmatched freedom of choice.', cover_url: demoProfile.games[3].cover, release_date: '2019-10-15T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
-  { igdb_id: 119459, name: "Baldur's Gate 3", slug: 'baldurs-gate-3', banner_url: demoProfile.games[4].banner ?? null, summary: 'Gather your party and return to the Forgotten Realms in a story of fellowship, betrayal, and untold power.', cover_url: demoProfile.games[4].cover, release_date: '2023-08-03T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
-  { igdb_id: 172282, name: 'Tunic', slug: 'tunic', banner_url: demoProfile.games[5].banner ?? null, summary: 'Explore a land of legends and monsters in an isometric adventure about a small fox on a big journey.', cover_url: demoProfile.games[5].cover, release_date: '2022-03-24T00:00:00Z', genres: ['Adventure'], platforms: ['PC'] },
-];
+  { igdb_id: 1020, name: 'Outer Wilds', slug: 'outer-wilds',
+    banner_url: demoProfile.games.find(g => g.slug === 'outer-wilds')?.banner ?? null,
+    cover_url: demoProfile.games.find(g => g.slug === 'outer-wilds')!.cover,
+    summary: 'A hand-built solar system trapped in a 22-minute time loop.',
+    release_date: '2019-05-28T00:00:00Z', genres: ['Exploration'], platforms: ['PC'] },
+  { igdb_id: 12659, name: 'Hades', slug: 'hades',
+    banner_url: demoProfile.games.find(g => g.slug === 'hades')?.banner ?? null,
+    cover_url: demoProfile.games.find(g => g.slug === 'hades')!.cover,
+    summary: 'Defy the god of the dead in a rogue-like dungeon crawler where death is only the beginning.',
+    release_date: '2020-09-17T00:00:00Z', genres: ['Roguelike'], platforms: ['PC'] },
+  { igdb_id: 119171, name: "Baldur's Gate 3", slug: 'baldurs-gate-3',
+    banner_url: demoProfile.games.find(g => g.slug === 'baldurs-gate-3')?.banner ?? null,
+    cover_url: demoProfile.games.find(g => g.slug === 'baldurs-gate-3')!.cover,
+    summary: 'Gather your party and return to the Forgotten Realms in a story of fellowship, betrayal, and untold power.',
+    release_date: '2023-08-03T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
+  { igdb_id: 637790, name: 'Disco Elysium', slug: 'disco-elysium',
+    banner_url: 'https://images.igdb.com/igdb/image/upload/t_1080p/eqqVVh1o7BOt9yMmMOLkFA.jpg',
+    cover_url: 'https://images.igdb.com/igdb/image/upload/t_cover_big/bibjufyvdmrmfgg5ehu0.jpg',
+    summary: 'A groundbreaking open world role playing game with unmatched freedom of choice.',
+    release_date: '2019-10-15T00:00:00Z', genres: ['RPG'], platforms: ['PC'] },
+]
 
 const demoClient: SavepointClient = {
   async publicProfile(handle, signal) {

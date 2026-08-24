@@ -34,7 +34,7 @@ export const demoProfile: Profile = {
       year: 2019, featured: true, featuredOrder: 5, featuredNote: 'One hundred hours of style with zero fat.',
     },
     {
-      id: 'g2', igdbId: 119171, slug: 'undefined', title: 'Baldur\'s Gate III',
+      id: 'g2', igdbId: 119171, slug: 'baldurs-gate-3', title: 'Baldur\'s Gate III',
       cover: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co670h.jpg',
       banner: 'https://images.igdb.com/igdb/image/upload/t_1080p/ar3n2t.jpg',
       rating: 4.5,
@@ -198,7 +198,7 @@ export const demoProfile: Profile = {
     { id: 'a3', title: 'Sharpest mystery', gameId: 'g5', year: 2025, note: 'Fourteen hours, sixty souls, zero hand-holding.' },
     { id: 'a4', title: 'Most played', gameId: 'g4', year: 2018, note: 'Seven farms and counting.' },
   ],
-  featuredOrder: ['g12','g8','g1','g10','g13','g1','g6'],
+  featuredOrder: ['g12','g8','g2','g10','g13','g1','g6'],
 };
 
 export const demoGuideAnswer =
