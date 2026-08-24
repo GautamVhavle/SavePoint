@@ -9,7 +9,7 @@ import { useDialogA11y } from '../../lib/useDialogA11y';
 import { Button, CoverImage, StatusPill } from '../../components/ui';
 import { loadGsap } from './load-gsap';
 
-export function GameDetail({ game, close, onStep, showStepper = false }: { game: Game; close: () => void; onStep?: (delta: number) => void; showStepper?: boolean }) {
+export function GameDetail({ game, close, onStep, showStepper = false, position = 0, total = 0 }: { game: Game; close: () => void; onStep?: (delta: number) => void; showStepper?: boolean; position?: number; total?: number }) {
   const panel = useRef<HTMLDivElement>(null); const reduce = useReducedMotion();
   // Traps focus, occludes the archive behind, locks scroll, closes on Escape.
   useDialogA11y(panel, true, close);
@@ -50,7 +50,7 @@ export function GameDetail({ game, close, onStep, showStepper = false }: { game:
           </>}
           <p role="status" className="sr-only">{game.title}</p>
           <motion.div className="absolute bottom-0 left-0 right-0 p-5 sm:p-9" variants={contentStagger} initial="hidden" animate="show">
-            <motion.div variants={rise} className="eyebrow">Accession {accession}</motion.div>
+            <motion.div variants={rise} className="eyebrow">Accession {accession}{showStepper && <> · Nº {String(position + 1).padStart(2, '0')} of {String(total).padStart(2, '0')}</>}</motion.div>
             <motion.h2 variants={rise} id="game-title" className="mt-3 max-w-3xl text-3xl font-bold leading-[.95] tracking-[-.04em] text-white sm:text-6xl">{game.title}</motion.h2>
           </motion.div>
         </div>
