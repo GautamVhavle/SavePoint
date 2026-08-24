@@ -1,7 +1,7 @@
 {
   "name": "savepoint",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A collectible gaming portfolio for your rig, chronicle, and personal reviews.",
   "scripts": {
     "dev": "pnpm --dir apps/web dev",
