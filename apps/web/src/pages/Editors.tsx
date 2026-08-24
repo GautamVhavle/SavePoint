@@ -377,10 +377,10 @@ function GameEditor() {
           onChange={event => { setQuery(event.target.value); if (!editingId) setSelected(null); }}
         />
       </div>
-      {debounced.length >= 2 && <div className="mt-2 grid gap-2" role="listbox" aria-label="IGDB search results">
+      {debounced.length >= 2 && <div className="mt-2 grid gap-2" role="group" aria-label="IGDB search results">
         {results.isFetching && <p className="muted px-2 text-sm">Searching the archive…</p>}
         {results.data?.map(meta => <button
-          key={meta.igdb_id} type="button" role="option" aria-selected={selected?.igdb_id === meta.igdb_id}
+          key={meta.igdb_id} type="button" aria-pressed={selected?.igdb_id === meta.igdb_id}
           className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${selected?.igdb_id === meta.igdb_id ? 'border-cyan-300/60 bg-cyan-300/10' : 'border-white/10 bg-white/[.02] hover:border-cyan-300/30'}`}
           onClick={() => { setSelected(meta); if (!editingId) form.setValue('igdbId', meta.igdb_id); }}
         >
