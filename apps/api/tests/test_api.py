@@ -304,3 +304,12 @@ async def test_oversized_bodies_are_rejected_before_parsing(client: httpx.AsyncC
     assert response.status_code == 413
     body = response.json()
     assert "x" * 100 not in str(body)
+
+
+@pytest.mark.asyncio
+async def test_authenticated_responses_are_private_and_uncached(client: httpx.AsyncClient) -> None:
+    await client.post("/api/v1/me/profile", json={"handle": "cachecheck", "display_name": "Cache"})
+    me_response = await client.get("/api/v1/me/composite")
+    assert me_response.headers["cache-control"] == "private, no-store"
+    search_response = await client.get("/api/v1/igdb/search", params={"q": "zelda"})
+    assert search_response.headers["cache-control"] == "private, no-store"

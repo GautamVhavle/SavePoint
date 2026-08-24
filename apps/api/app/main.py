@@ -81,6 +81,10 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    # Authenticated payloads must never linger in shared or local caches;
+    # public profiles set their own explicit caching policy.
+    if request.url.path.startswith("/api/v1/me") or request.url.path.startswith("/api/v1/igdb"):
+        response.headers["Cache-Control"] = "private, no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     if settings.environment in {"staging", "production"}:
