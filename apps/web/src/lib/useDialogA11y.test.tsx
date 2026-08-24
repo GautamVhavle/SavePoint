@@ -18,6 +18,27 @@ function DialogSurface({ open, onClose }: { open: boolean; onClose: () => void }
   );
 }
 
+/** Mirrors the Shell: overlay sits beside header/main, owning a backdrop. */
+function OverlayHarness({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useDialogA11y(drawerRef, open, onClose, overlayRef);
+  return (
+    <div>
+      <header><a href="/">Behind the dialog</a></header>
+      {open && (
+        <div ref={overlayRef}>
+          <button type="button" aria-label="Close via backdrop">Backdrop</button>
+          <div role="dialog" aria-modal="true" aria-label="Test dialog" ref={drawerRef}>
+            <button type="button">Drawer link</button>
+          </div>
+        </div>
+      )}
+      <main><p>Page content</p></main>
+    </div>
+  );
+}
+
 function Harness({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <div>
@@ -59,5 +80,15 @@ describe('useDialogA11y', () => {
     render(<Harness open onClose={() => { closed = true; }} />);
     await user.keyboard('{Escape}');
     expect(closed).toBe(true);
+  });
+
+  it('keeps overlay-internal backdrops live while occluding the page', () => {
+    render(<OverlayHarness open onClose={() => undefined} />);
+    // The click-away backdrop inside the boundary must NOT be inert...
+    expect(screen.getByRole('button', { name: 'Close via backdrop' })).not.toHaveAttribute('inert');
+    expect(screen.getByRole('dialog')).not.toHaveAttribute('inert');
+    // ...while sibling branches of the overlay stay occluded.
+    expect(screen.getByRole('link', { name: 'Behind the dialog' }).closest('header')).toHaveAttribute('inert');
+    expect(screen.getByText('Page content').closest('main')).toHaveAttribute('inert');
   });
 });

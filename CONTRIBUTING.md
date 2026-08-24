@@ -35,7 +35,7 @@ Additional expectations:
 - **Responsive**: nothing may introduce horizontal overflow at 320px. The `responsive.spec.ts` gates exist for a reason.
 - **Motion**: respect `prefers-reduced-motion`. Framer: gate on `useReducedMotion()`. GSAP: branch inside the timeline setup.
 - **Data contracts**: API DTOs are snake_case and mirrored in `apps/web/src/types.ts`. If you change a Pydantic schema, update the view-model mapper in `apps/web/src/lib/api.ts` and, when relevant, regenerate `src/lib/__fixtures__/public-profile.json` from a live response so the contract test stays honest.
-- **Database**: schema changes need an Alembic revision (`alembic revision -m "..."`) plus a model update. Never edit `0001` or `0002`.
+- **Database**: schema changes need an Alembic revision (`alembic revision -m "..."`) plus a model update. Never edit an existing revision — always add a new one on top.
 
 ## Design system notes
 
