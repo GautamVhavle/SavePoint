@@ -52,7 +52,7 @@ export default function Onboarding(){
         <div className="eyebrow">Onboarding · 0{step+1}</div><span aria-live="polite" role="status" className="font-mono text-xs text-ink/40">Step {step+1} of 3</span>
       </div>
       <AnimatePresence mode="wait"><motion.div key={step} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}}>
-        <motion.div initial={reduce?false:{scale:.8}} animate={{scale:1}} transition={{type:'spring',stiffness:320,damping:18}} className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-300/10 text-cyan-300">{step===2?<Check/>:step===1?<Sparkles/>:<Gamepad2/>}</motion.div>
+        <motion.div aria-hidden initial={reduce?false:{scale:.8}} animate={{scale:1}} transition={{type:'spring',stiffness:320,damping:18}} className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-300/10 text-cyan-300">{step===2?<Check/>:step===1?<Sparkles/>:<Gamepad2/>}</motion.div>
         <h1 className="mt-6 text-4xl font-bold tracking-[-.05em] sm:text-6xl">{steps[step].title}</h1>
         <p className="muted mt-4 text-lg leading-8">{steps[step].body}</p>
         {step===0&&<div className="mt-8 grid gap-4 sm:grid-cols-2" onKeyDown={event=>{if(event.key==='Enter'&&nameOk&&handleOk){event.preventDefault();setStep(1);}}}>
