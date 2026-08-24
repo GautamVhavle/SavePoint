@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { HelmetProvider } from 'react-helmet-async';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -55,7 +55,9 @@ describe('Dashboard', () => {
     mocks.me.mockResolvedValue(fixture);
     renderPage();
     // The number animates up; the meter carries the settled value now.
-    expect(await screen.findByRole('meter')).toHaveAttribute('aria-valuenow', String(score));
+    // Count-up animation may still be running under load; poll for the meter.
+    const meter = await screen.findByRole('meter', {}, { timeout: 4000 });
+    await waitFor(() => expect(meter).toHaveAttribute('aria-valuenow', String(score)));
     expect(screen.getByText(`${gameCount} game${gameCount === 1 ? '' : 's'} cataloged`)).toBeInTheDocument();
     // Checklist mirrors fixture reality: avatar done only when one exists.
     expect(screen.getByText(fixture.profile.avatar_url ? 'Avatar uploaded' : 'Upload an avatar')).toBeInTheDocument();
