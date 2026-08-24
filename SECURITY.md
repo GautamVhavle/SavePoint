@@ -16,6 +16,8 @@ Please include reproduction steps, affected routes/components, and any proof-of-
 - IGDB/Twitch, Gemini, and Supabase service credentials live only in server-side environment variables and are never exposed to the browser bundle.
 - Guide rate limiting uses HMAC-hashed visitor IPs, never raw addresses.
 - Uploaded media flows through Supabase signed URLs with purpose-scoped paths.
+- Request bodies above `MAX_BODY_BYTES` are rejected before parsing; upload
+  signing, IGDB search, and Guide calls each carry their own rate limits.
 - The crawler-facing HTML function only fetches from `SAVEPOINT_API_URL` with handle allowlisting and timeouts.
 
 ## Supported versions

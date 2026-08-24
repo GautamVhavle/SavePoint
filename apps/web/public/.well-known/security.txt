@@ -1,0 +1,6 @@
+Contact: https://github.com/GautamVhavle/SavePoint/security/advisories/new
+Contact: https://github.com/GautamVhavle
+Expires: 2027-01-01T00:00:00.000Z
+Preferred-Languages: en
+Policy: https://github.com/GautamVhavle/SavePoint/blob/main/SECURITY.md
+Canonical: https://savepointarchive.vercel.app/.well-known/security.txt
