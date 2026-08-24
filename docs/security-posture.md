@@ -19,6 +19,8 @@ reporting vulnerabilities see [SECURITY.md](../SECURITY.md).
 | IGDB search | 60 / profile+visitor / hour | Events survive rollback because the limiter commits its own insert |
 | Upload signing | 30 / profile+visitor / window | Throttles Supabase round trips |
 | Request bodies | 1 MiB before parsing (`MAX_BODY_BYTES`) | 413 short-circuits in middleware |
+| Mutation media type | `application/json` only | 415 for anything else, pre-parse |
+| Mutation framing | Explicit `Content-Length` required | 411 blocks chunked-transfer bypass |
 
 Visitor identity is an HMAC-SHA256 of the socket address keyed by
 `IP_HASH_SECRET`; raw addresses are never stored. The window cleanup deletes
@@ -49,6 +51,7 @@ is not a billing meter).
 ## Supply chain
 
 - `gitleaks` scans full history on every push/PR.
+- `pip-audit` gates API lockfile dependencies; npm audit gates production web deps.
 - Dependabot watches npm, pip, and Actions; CI fails on high/critical npm
   audit findings in production dependencies.
 
