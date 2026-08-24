@@ -88,8 +88,7 @@ export const ME_KEY = ['me'] as const;
 
 export function useMe() { return useQuery({ queryKey: ME_KEY, queryFn: () => api.me() }); }
 
-export function useArchiveAction() {
-  const toast = useToast();
+export function useArchiveAction() {  const toast = useToast();
   const client = useQueryClient();
   return async (action: () => Promise<void>, doneMessage?: string) => {
     try {

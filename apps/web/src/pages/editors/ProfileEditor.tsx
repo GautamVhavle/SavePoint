@@ -1,10 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CoverImage, Panel } from '../../components/ui';
+import { Check, Link2 } from 'lucide-react';
+import { Button, CoverImage, Panel, useToast } from '../../components/ui';
 import { api } from '../../lib/api';
 import { profileSchema, type ProfileForm } from '../../lib/schemas';
 import { EditorShell, Field, SaveBar, SelectField, UploadCard, useArchiveAction, useMe } from './shared';
+
+function PublicUrlCard({ handle }: { handle: string }) {
+  const [copied, setCopied] = useState(false);
+  const toast = useToast();
+  const url = `${window.location.origin}/u/${handle || '…'}`;
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.show('Profile URL copied to your clipboard.');
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.show('Copying is unavailable in this browser.', 'error');
+    }
+  };
+  return <Panel className="p-5">
+    <span className="label">PUBLIC URL</span>
+    <p className="break-all font-mono text-sm">{url}</p>
+    <Button className="btn mt-4 w-full" onClick={() => void copy()}>
+      {copied ? <Check size={16}/> : <Link2 size={16}/>}
+      {copied ? 'Copied' : 'Copy link'}
+    </Button>
+    <hr className="my-5 border-white/10"/>
+    <p className="muted text-sm leading-6">The first 160 characters of your statement become the public share description.</p>
+  </Panel>;
+}
 
 export function ProfileEditor() {
   const { data } = useMe();
@@ -31,12 +58,7 @@ export function ProfileEditor() {
     }), 'Identity archived successfully.');
     form.reset(v);
   };
-  return <EditorShell title="Shape your identity." eyebrow="Profile editor" aside={<Panel className="p-5">
-    <span className="label">PUBLIC URL</span>
-    <p className="break-all font-mono text-sm">{window.location.origin}/u/{form.watch('handle') || '…'}</p>
-    <hr className="my-5 border-white/10"/>
-    <p className="muted text-sm leading-6">The first 160 characters of your statement become the public share description.</p>
-  </Panel>}>
+  return <EditorShell title="Shape your identity." eyebrow="Profile editor" aside={<PublicUrlCard handle={form.watch('handle')}/>}>
     {data && <div className="mb-7 flex items-center gap-4">
       <CoverImage src={data.profile.avatar_url ?? ''} alt="" className="h-16 w-16 rounded-2xl"/>
       <div><b>{data.profile.display_name}</b><p className="muted font-mono text-xs">@{data.profile.handle}</p></div>
