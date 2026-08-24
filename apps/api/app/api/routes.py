@@ -7,7 +7,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import enforce_guide_limit, owner_profile
+from app.api.deps import enforce_guide_limit, enforce_scope_limit, owner_profile
 from app.core.auth import Principal, current_principal
 from app.core.config import Settings, get_settings
 from app.db import get_session
@@ -209,12 +209,17 @@ async def delete_peripheral(item_id: uuid.UUID, profile: Owner, session: Session
 
 @router.get("/igdb/search", response_model=list[IGDBGame], tags=["games"])
 async def search_igdb(
+    request: Request,
     igdb: Annotated[IGDBClient, Depends(get_igdb)],
-    principal: Annotated[Principal, Depends(current_principal)],
+    profile: Owner,
+    session: Session,
+    settings: SettingsDep,
     q: str = Query(min_length=2, max_length=100),
     limit: int = Query(10, ge=1, le=20),
 ) -> list[IGDBGame]:
-    del principal  # Authentication is required; identity is not sent upstream.
+    await enforce_scope_limit(
+        request, "igdb", profile.id, session, settings, limit=settings.igdb_rate_limit
+    )
     return await igdb.search(q, limit)
 
 

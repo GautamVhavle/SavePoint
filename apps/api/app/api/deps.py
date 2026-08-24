@@ -28,6 +28,39 @@ def client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
+async def enforce_scope_limit(
+    request: Request,
+    scope: str,
+    profile_id: uuid.UUID,
+    session: AsyncSession,
+    settings: Settings,
+    limit: int | None = None,
+) -> None:
+    """Database-backed per-(profile, hashed-IP) window counter for a named scope."""
+    digest = hmac.new(
+        settings.ip_hash_secret.encode(), client_ip(request).encode(), hashlib.sha256
+    ).hexdigest()
+    window = settings.guide_rate_window_seconds
+    cutoff = datetime.now(UTC) - timedelta(seconds=window)
+    await session.execute(delete(RateLimitEvent).where(RateLimitEvent.created_at < cutoff))
+    count = await session.scalar(
+        select(func.count(RateLimitEvent.id)).where(
+            RateLimitEvent.scope == scope,
+            RateLimitEvent.profile_id == profile_id,
+            RateLimitEvent.ip_hash == digest,
+            RateLimitEvent.created_at >= cutoff,
+        )
+    )
+    if (count or 0) >= (limit if limit is not None else settings.guide_rate_limit):
+        raise HTTPException(
+            status_code=429,
+            detail=f"{scope} rate limit exceeded",
+            headers={"Retry-After": str(window)},
+        )
+    session.add(RateLimitEvent(scope=scope, profile_id=profile_id, ip_hash=digest))
+    await session.flush()
+
+
 async def enforce_guide_limit(
     request: Request,
     profile_id: uuid.UUID,
@@ -35,25 +68,4 @@ async def enforce_guide_limit(
     settings: Settings | None = None,
 ) -> None:
     config = settings or get_settings()
-    digest = hmac.new(
-        config.ip_hash_secret.encode(), client_ip(request).encode(), hashlib.sha256
-    ).hexdigest()
-    cutoff = datetime.now(UTC) - timedelta(seconds=config.guide_rate_window_seconds)
-    await session.execute(delete(RateLimitEvent).where(RateLimitEvent.created_at < cutoff))
-    count = await session.scalar(
-        select(func.count(RateLimitEvent.id)).where(
-            RateLimitEvent.scope == "guide",
-            RateLimitEvent.profile_id == profile_id,
-            RateLimitEvent.ip_hash == digest,
-            RateLimitEvent.created_at >= cutoff,
-        )
-    )
-    if (count or 0) >= config.guide_rate_limit:
-        retry_after = str(config.guide_rate_window_seconds)
-        raise HTTPException(
-            status_code=429,
-            detail="Guide rate limit exceeded",
-            headers={"Retry-After": retry_after},
-        )
-    session.add(RateLimitEvent(scope="guide", profile_id=profile_id, ip_hash=digest))
-    await session.flush()
+    await enforce_scope_limit(request, "guide", profile_id, session, config)

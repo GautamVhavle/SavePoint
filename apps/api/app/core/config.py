@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     ip_hash_secret: str = Field(default="development-only-ip-hash-secret-change-me", min_length=32)
     guide_rate_limit: int = Field(default=10, ge=1, le=1000)
     guide_rate_window_seconds: int = Field(default=3600, ge=60, le=86400)
+    igdb_rate_limit: int = Field(default=60, ge=1, le=10000)
     max_upload_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=100 * 1024 * 1024)
     log_level: str = "INFO"
 

@@ -38,7 +38,8 @@ app.add_middleware(
     allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Dev-Auth-Sub"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID"]
+    + ([] if settings.environment in {"staging", "production"} else ["X-Dev-Auth-Sub"]),
     expose_headers=["X-Request-ID", "Retry-After"],
 )
 
