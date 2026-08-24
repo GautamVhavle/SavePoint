@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { Check, Link2 } from 'lucide-react';
 import { Button, CoverImage, Panel, useToast } from '../../components/ui';
 import { api } from '../../lib/api';
 import { copyToClipboard } from '../../lib/clipboard';
 import { profileSchema, type ProfileForm } from '../../lib/schemas';
-import { EditorShell, Field, SaveBar, SelectField, UploadCard, useArchiveAction, useMe } from './shared';
+import { EditorShell, Field, SaveBar, SelectField, UploadCard, useArchiveAction, useMe , zodResolverFor } from './shared';
 
 function PublicUrlCard({ handle }: { handle: string }) {
   const [copied, setCopied] = useState(false);
@@ -36,7 +35,7 @@ export function ProfileEditor() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const hydrated = useRef<string | null>(null);
   const form = useForm<ProfileForm>({
-    resolver: zodResolver(profileSchema) as unknown as Resolver<ProfileForm>,
+    resolver: zodResolverFor(profileSchema),
     defaultValues: { displayName: '', handle: '', bio: '', location: '', themePreference: 'system' },
   });
   useEffect(() => {

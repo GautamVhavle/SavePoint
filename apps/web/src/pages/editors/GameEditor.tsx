@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { useReducedMotion } from 'framer-motion';
 import { Check, LoaderCircle, Pencil, Save, Search, Trash2, X } from 'lucide-react';
@@ -9,7 +8,7 @@ import { api } from '../../lib/api';
 import { gameSchema, type GameForm } from '../../lib/schemas';
 import { STATUS_LABELS, STATUS_ORDER, type ApiIGDBResult, type ApiProfileGame } from '../../types';
 import { Button } from '../../components/ui';
-import { EditorShell, Field, SelectField, useArchiveAction, useMe } from './shared';
+import { EditorShell, Field, SelectField, useArchiveAction, useMe , zodResolverFor } from './shared';
 
 // Half-star scale from 1.0 to 5.0; '' renders the "Unrated" option.
 const RATING_OPTIONS: Array<[string, string]> = [['', 'Unrated'], ...Array.from({ length: 9 }, (_, i) => {
@@ -31,7 +30,7 @@ export function GameEditor() {
     enabled: debounced.length >= 2,
   });
   const form = useForm<GameForm>({
-    resolver: zodResolver(gameSchema) as unknown as Resolver<GameForm>,
+    resolver: zodResolverFor(gameSchema),
     defaultValues: { igdbId: 0, status: 'playing', rating: undefined, hours: undefined, platform: '', startedOn: '', completedOn: '', review: '', featured: false, featuredOrder: undefined, featuredNote: '' },
   });
   const entries = useMemo(() => [...(data?.games ?? [])].sort((a, b) => a.game.name.localeCompare(b.game.name)), [data]);

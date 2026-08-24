@@ -1,17 +1,16 @@
 import { useMemo } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { Plus, Star, Trash2 } from 'lucide-react';
 import { Panel, Button } from '../../components/ui';
 import { api } from '../../lib/api';
 import { awardSchema, type AwardForm } from '../../lib/schemas';
 import { STATUS_LABELS } from '../../types';
-import { EditorShell, Field, SelectField, useArchiveAction, useMe } from './shared';
+import { EditorShell, Field, SelectField, useArchiveAction, useMe , zodResolverFor } from './shared';
 
 export function AwardEditor() {
   const { data } = useMe();
   const run = useArchiveAction();
-  const form = useForm<AwardForm>({ resolver: zodResolver(awardSchema) as unknown as Resolver<AwardForm>, defaultValues: { profileGameId: '', title: '', description: '', awardedOn: '' } });
+  const form = useForm<AwardForm>({ resolver: zodResolverFor(awardSchema), defaultValues: { profileGameId: '', title: '', description: '', awardedOn: '' } });
   const entries = useMemo(() => [...(data?.games ?? [])].sort((a, b) => a.game.name.localeCompare(b.game.name)), [data]);
   const submit = async (v: AwardForm) => {
     const ok = await run(() => api.createAward({

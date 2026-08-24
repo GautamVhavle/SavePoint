@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { useReducedMotion } from 'framer-motion';
 import { BadgeCheck, Pencil, Plus, Save, Trash2, X } from 'lucide-react';
 import { Button, CoverImage } from '../../components/ui';
 import { api } from '../../lib/api';
 import { peripheralSchema, rigSchema, type PeripheralForm, type RigForm } from '../../lib/schemas';
 import type { ApiPeripheral } from '../../types';
-import { EditorShell, Field, SaveBar, UploadCard, useArchiveAction, useMe } from './shared';
+import { EditorShell, Field, SaveBar, UploadCard, useArchiveAction, useMe, zodResolverFor } from './shared';
 
 const RIG_FIELDS: Array<[keyof RigForm, string]> = [
   ['cpu', 'CPU'], ['gpu', 'GPU'], ['memory', 'Memory'], ['motherboard', 'Motherboard'],
@@ -19,7 +18,7 @@ export function RigEditor() {
   const run = useArchiveAction();
   const hydrated = useRef(false);
   const form = useForm<RigForm>({
-    resolver: zodResolver(rigSchema) as unknown as Resolver<RigForm>,
+    resolver: zodResolverFor(rigSchema),
     defaultValues: { name: 'Main Rig', cpu: '', gpu: '', memory: '', motherboard: '', storage: '', caseField: '', psu: '', cooling: '', os: '', notes: '' },
   });
   useEffect(() => {
@@ -61,7 +60,7 @@ function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
   const reduce = useReducedMotion();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(peripherals.find(item => item.id === editingId)?.photo_url ?? null);
-  const form = useForm<PeripheralForm>({ resolver: zodResolver(peripheralSchema) as unknown as Resolver<PeripheralForm>, defaultValues: { type: '', displayName: '', brandModel: '', notes: '' } });
+  const form = useForm<PeripheralForm>({ resolver: zodResolverFor(peripheralSchema), defaultValues: { type: '', displayName: '', brandModel: '', notes: '' } });
   const openEditor = (item?: typeof peripherals[number], focus = false) => {
     setEditingId(item?.id ?? null);
     setPhotoUrl(item?.photo_url ?? null);

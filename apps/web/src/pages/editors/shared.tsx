@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import type { FieldValues, Path, UseFormReturn } from 'react-hook-form';
+import type { FieldValues, Path, Resolver, UseFormReturn } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Save, UploadCloud } from 'lucide-react';
@@ -9,6 +10,11 @@ import { preprocessImage } from '../../lib/image';
 import { Button, PageFade, Panel, useToast } from '../../components/ui';
 
 /* ------------------------------- shared chrome ------------------------------- */
+
+/** One home for the react-hook-form/zod resolver cast. */
+export function zodResolverFor<T extends FieldValues>(schema: Parameters<typeof zodResolver>[0]): Resolver<T> {
+  return zodResolver(schema) as unknown as Resolver<T>;
+}
 
 export function EditorShell({ title, eyebrow, children, aside }: { title: string; eyebrow: string; children: ReactNode; aside?: ReactNode }) {
   return <PageFade className="container-shell py-10">
