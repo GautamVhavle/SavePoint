@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2 } from 'lucide-react';
 import { api, isDemoMode } from '../lib/api';
@@ -26,6 +27,7 @@ export default function Dashboard(){
   const health=[Boolean(p?.profile.avatar_url),Boolean(p?.rig),gameCount>0,reviews>0,featured>0];
   const score=Math.round(health.filter(Boolean).length/health.length*100);
   return <div className="container-shell py-12">
+    <Helmet><title>Studio · SavePoint</title></Helmet>
     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
         <div className="eyebrow">Curator studio</div>
