@@ -364,3 +364,13 @@ async def test_oversized_subject_claims_are_auth_failures_not_db_errors(
         headers={"X-Dev-Auth-Sub": "x" * 300},
     )
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_patch_profile_normalizes_handle_to_lowercase(
+    client: httpx.AsyncClient,
+) -> None:
+    await client.post("/api/v1/me/profile", json={"handle": "normalize", "display_name": "N"})
+    response = await client.patch("/api/v1/me/profile", json={"handle": "MixedCase"})
+    assert response.status_code == 200
+    assert response.json()["handle"] == "mixedcase"
