@@ -62,6 +62,7 @@ export default function Dashboard(){
           <span className="label">ARCHIVE HEALTH</span>
           <div className="mt-5 flex items-end justify-between"><b className="text-5xl tabular-nums">{score}<span className="text-xl text-ink/40">%</span></b><Settings2 className="text-cyan-300"/></div>
           <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-violet-400 transition-[width] duration-700 ease-out" style={{width:`${score}%`}}/></div>
+          <p className="muted mt-3 text-xs leading-5">Score reflects your avatar, rig, catalog size, written reviews, and featured picks.</p>
           <ul className="muted mt-5 space-y-3 text-sm">{checklist({hasAvatar:Boolean(p?.profile.avatar_url),gameCount,reviewCount:reviews}).map(item=>(
             <li key={item.todo} className="flex items-center gap-2.5">
               {item.done ? <CheckCircle2 size={16} className="shrink-0 text-emerald-300"/> : <Circle size={16} className="shrink-0 opacity-50"/>}

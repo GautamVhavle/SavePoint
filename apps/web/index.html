@@ -2,6 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Apply the theme before first paint so system-light visitors never
+      // see the dark canvas flash; mirrors ThemeProvider's resolution order.
+      try {
+        var theme = localStorage.getItem('savepoint-theme');
+        if (!theme) theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+      } catch (e) { /* storage blocked: CSS default (dark) still applies */ }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#070a12" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4efe6" />
@@ -22,5 +31,5 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap" /></noscript>
     <title>SavePoint · Your gaming legacy</title>
   </head>
-  <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
+  <body><div id="root"></div><noscript><div style="min-height:100vh;display:grid;place-items:center;font-family:sans-serif;color:#97a4be;background:#060a14;padding:24px;text-align:center"><div><p style="font-size:1.2rem;color:#ebf2ff;margin:0 0 8px">SavePoint needs JavaScript.</p><p style="margin:0">Your gaming archive is rendered entirely in the browser — enable JavaScript to enter.</p></div></div></noscript><script type="module" src="/src/main.tsx"></script></body>
 </html>
