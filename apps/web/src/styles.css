@@ -130,3 +130,10 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
   .text-gradient { background: none; color: CanvasText; }
   .watermark { display: none; }
 }
+
+/* Signature gradients drift slowly so the brand feels alive; static when
+   the visitor prefers reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .text-gradient { background-size: 220% auto; animation: gradient-drift 9s ease-in-out infinite alternate; }
+}
+@keyframes gradient-drift { from { background-position: 0% center; } to { background-position: 100% center; } }
