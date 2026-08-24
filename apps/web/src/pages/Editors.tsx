@@ -336,7 +336,7 @@ function GameEditor() {
     });
     document.getElementById('game-editor-form')?.scrollIntoView({ behavior: 'smooth' });
   };
-  const cancelEdit = () => { setEditingId(null); setSelected(null); form.reset({ igdbId: 0, status: 'playing', rating: undefined, hours: undefined, platform: '', startedOn: '', completedOn: '', review: '', featured: false, featuredOrder: undefined, featuredNote: '' }); };
+  const cancelEdit = () => { setEditingId(null); setSelected(null); setQuery(''); setDebounced(''); form.reset({ igdbId: 0, status: 'playing', rating: undefined, hours: undefined, platform: '', startedOn: '', completedOn: '', review: '', featured: false, featuredOrder: undefined, featuredNote: '' }); };
   const submit = async (v: GameForm) => {
     const igdbId = editingId ? v.igdbId : selected?.igdb_id ?? v.igdbId;
     if (!igdbId) return;
