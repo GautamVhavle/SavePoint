@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2 } from 'lucide-react';
 import { api, isDemoMode } from '../lib/api';
-import { Button, Panel } from '../components/ui';
+import { Button, PageFade, Panel } from '../components/ui';
 
 const tools=[
   {to:'/dashboard/profile',icon:CircleUserRound,title:'Identity',text:'Name, story, avatar and public handle'},
@@ -26,7 +26,7 @@ export default function Dashboard(){
   const featured=p?.games.filter(entry=>entry.featured).length??0;
   const health=[Boolean(p?.profile.avatar_url),Boolean(p?.rig),gameCount>0,reviews>0,featured>0];
   const score=Math.round(health.filter(Boolean).length/health.length*100);
-  return <div className="container-shell py-12">
+  return <PageFade className="container-shell py-12">
     <Helmet><title>Studio · SavePoint</title><meta name="robots" content="noindex"/></Helmet>
     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
@@ -77,5 +77,5 @@ export default function Dashboard(){
         <Panel className="p-6"><Bot className="text-violet-300"/><h2 className="mt-8 text-xl font-semibold">Guide is listening</h2><p className="muted mt-2 text-sm leading-6">Longer reviews make profile-scoped recommendations more precise.</p>{p&&<Link className="btn mt-5 w-full" to={`/u/${p.profile.handle}#guide`}>Try it on your archive <ArrowUpRight size={16}/></Link>}</Panel>
       </div>}
     </div>
-  </div>;
+  </PageFade>;
 }

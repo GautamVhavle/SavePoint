@@ -16,12 +16,12 @@ import {
   type AwardForm, type GameForm, type PeripheralForm, type ProfileForm, type RigForm,
 } from '../lib/schemas';
 import { STATUS_LABELS, STATUS_ORDER, type ApiIGDBResult, type ApiPeripheral, type ApiProfileGame } from '../types';
-import { Button, CoverImage, Panel, useToast } from '../components/ui';
+import { Button, CoverImage, PageFade, Panel, useToast } from '../components/ui';
 
 /* ------------------------------- shared chrome ------------------------------- */
 
 function EditorShell({ title, eyebrow, children, aside }: { title: string; eyebrow: string; children: ReactNode; aside?: ReactNode }) {
-  return <div className="container-shell py-10">
+  return <PageFade className="container-shell py-10">
     <Helmet><title>{title} · SavePoint Studio</title><meta name="robots" content="noindex"/></Helmet>
     <Link to="/dashboard" className="btn mb-8"><ArrowLeft size={16}/> Studio</Link>
     <div className="mb-8"><div className="eyebrow">{eyebrow}</div><h1 className="mt-4 text-4xl font-bold tracking-[-.045em] sm:text-6xl">{title}</h1></div>
@@ -29,7 +29,7 @@ function EditorShell({ title, eyebrow, children, aside }: { title: string; eyebr
       <Panel className="p-5 sm:p-8">{children}</Panel>
       {aside && <aside className="grid gap-4">{aside}</aside>}
     </div>
-  </div>;
+  </PageFade>;
 }
 
 function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, max, list, maxLength }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; max?: string; list?: string; maxLength?: number }) {

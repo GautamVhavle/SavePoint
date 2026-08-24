@@ -3,7 +3,7 @@ import { ArrowRight, Check, Gamepad2, LoaderCircle, Sparkles } from 'lucide-reac
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Panel, useToast } from '../components/ui';
+import { Button, PageFade, Panel, useToast } from '../components/ui';
 import { useAuth } from '../lib/auth';
 import { api, ApiError } from '../lib/api';
 import { onboardingSchema } from '../lib/schemas';
@@ -44,7 +44,7 @@ export default function Onboarding(){
       toast.show(error instanceof ApiError?error.message:'Could not reserve that handle.','error');
     }finally{setSaving(false);}
   };
-  return <div className="container-shell grid min-h-[calc(100vh-73px)] place-items-center py-10"><Helmet><title>Claim your archive · SavePoint</title><meta name="robots" content="noindex"/></Helmet><Panel className="w-full max-w-3xl overflow-hidden">
+  return <PageFade className="container-shell grid min-h-[calc(100vh-73px)] place-items-center py-10"><Helmet><title>Claim your archive · SavePoint</title><meta name="robots" content="noindex"/></Helmet><Panel className="w-full max-w-3xl overflow-hidden">
     <div className="h-1 bg-white/5"><motion.div className="h-full bg-gradient-to-r from-cyan-300 to-violet-400" animate={{width:`${(step+1)/3*100}%`}}/></div>
     <div className="p-6 sm:p-12">
       <div className="mb-10 flex items-center justify-between">
@@ -78,5 +78,5 @@ export default function Onboarding(){
             </Button>}
       </div>
     </div>
-  </Panel></div>;
+  </Panel></PageFade>;
 }
