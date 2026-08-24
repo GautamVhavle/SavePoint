@@ -16,6 +16,10 @@
       "destination": "/api/profile-html?handle=:path*"
     },
     {
+      "source": "/security.txt",
+      "destination": "/.well-known/security.txt"
+    },
+    {
       "source": "/((?!assets/).*)",
       "destination": "/index.html"
     }
