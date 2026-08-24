@@ -11,12 +11,13 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
-          // gsap is dynamically imported by the public profile only, so it must
-          // stay out of the eagerly-loaded framer-motion chunk.
+          // Check vendor families most-specific first; gsap stays out so its
+          // dynamic import forms an on-demand chunk.
+          if (id.includes('@auth0')) return 'auth0';
           if (id.includes('framer-motion')) return 'motion';
+          if (id.includes('/gsap/')) return 'gsap';
           if (id.includes('/react/') || id.includes('react-dom') || id.includes('scheduler') || id.includes('react-router')) return 'framework';
           if (id.includes('@tanstack')) return 'query';
-          if (id.includes('@auth0')) return 'auth0';
         },
       },
     },
