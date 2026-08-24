@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Panel, useToast } from '../components/ui';
 import { useAuth } from '../lib/auth';
 import { api, ApiError } from '../lib/api';
+import { onboardingSchema } from '../lib/schemas';
 
 const steps=[
   {title:'Claim your archive',body:'Choose the player identity that will anchor every artifact.'},
@@ -18,14 +19,22 @@ export default function Onboarding(){
   const [handle,setHandle]=useState('');
   const [bio,setBio]=useState('');
   const [saving,setSaving]=useState(false);
+  const [formError,setFormError]=useState('');
   const toast=useToast();
   const navigate=useNavigate();
   const auth=useAuth();
   const finish=async()=>{
+    setFormError('');
+    const parsed=onboardingSchema.safeParse({displayName,handle,bio});
+    if(!parsed.success){
+      const issue=parsed.error.issues[0];
+      setFormError(issue?.message??'Check the highlighted fields.');
+      return;
+    }
     if(!auth.isAuthenticated){auth.login('/onboarding');return;}
     setSaving(true);
     try{
-      await api.createMe({handle:handle.trim().toLowerCase(),display_name:displayName.trim(),bio:bio.trim()||null});
+      await api.createMe({handle:parsed.data.handle,display_name:parsed.data.displayName,bio:parsed.data.bio||null});
       navigate('/dashboard');
     }catch(error){
       toast.show(error instanceof ApiError?error.message:'Could not reserve that handle.','error');
@@ -45,13 +54,14 @@ export default function Onboarding(){
           <label><span className="label">DISPLAY NAME</span><input className="field" value={displayName} onChange={event=>setName(event.target.value)} placeholder="Nova Reyes" maxLength={60}/>
             {displayName.trim().length>0&&displayName.trim().length<2&&<p className="field-error">At least 2 characters.</p>}
           </label>
-          <label><span className="label">PUBLIC HANDLE</span><input className="field" value={handle} onChange={event=>setHandle(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g,''))} placeholder="nova" autoComplete="off" spellCheck={false} maxLength={30}/>
-            <p className={`mt-1.5 font-mono text-[11px] ${handle.trim().length>=3?'text-emerald-300':'muted'}`}>{handle.trim().length>=3?'Looks good · reserved when you finish':'3+ characters · lowercase letters, numbers, dashes'}</p>
+          <label><span className="label">PUBLIC HANDLE</span><input className="field" value={handle} onChange={event=>setHandle(event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g,''))} placeholder="nova" autoComplete="off" spellCheck={false} maxLength={30}/>
+            <p className={`mt-1.5 font-mono text-[11px] ${handle.trim().length>=3?'text-emerald-300':'muted'}`}>{handle.trim().length>=3?'Looks good · reserved when you finish':'3+ characters · lowercase letters, numbers, _ or -'}</p>
           </label>
         </div>}
         {step===1&&<div className="mt-8"><label><span className="label">WHAT DO YOU PLAY FOR?</span><textarea className="field" value={bio} onChange={event=>setBio(event.target.value)} placeholder="Discovery, atmosphere, and stories that trust me to pay attention."/></label></div>}
         {step===2&&<div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-5"><b>Your archive URL is ready</b><p className="muted mt-1 break-all font-mono text-sm">savepoint.app/u/{handle||'your-handle'}</p></div>}
       </motion.div></AnimatePresence>
+      {formError&&<p className="field-error" role="alert">{formError}</p>}
       <div className="mt-10 flex justify-between">
         <Button disabled={!step} onClick={()=>setStep(s=>s-1)}>Back</Button>
         {step<2

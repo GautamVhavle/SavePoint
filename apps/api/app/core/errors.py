@@ -37,9 +37,13 @@ def install_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
-        return problem(
-            422, "Validation Error", "Request validation failed", request, errors=exc.errors()
-        )
+        # Strip pydantic context (input echo, ctx, urls) so submitted payloads
+        # and internals are never reflected back to the client.
+        errors = [
+            {"loc": item.get("loc", []), "msg": item.get("msg", ""), "type": item.get("type", "")}
+            for item in exc.errors()
+        ]
+        return problem(422, "Validation Error", "Request validation failed", request, errors=errors)
 
     @app.exception_handler(IntegrityError)
     async def integrity_error(request: Request, exc: IntegrityError) -> JSONResponse:
