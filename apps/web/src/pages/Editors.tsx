@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type FieldValues, type Resolver, type UseFormReturn } from 'react-hook-form';
+import { useForm, type FieldValues, type Path, type Resolver, type UseFormReturn } from 'react-hook-form';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowDown, ArrowLeft, ArrowUp, BadgeCheck, Check, LoaderCircle, Pencil, Plus, Save,
@@ -29,9 +29,9 @@ function EditorShell({ title, eyebrow, children, aside }: { title: string; eyebr
   </div>;
 }
 
-function Field({ label, name, form, type = 'text', multiline = false, placeholder, step, min, list }: { label: string; name: string; form: UseFormReturn<any>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; list?: string }) {
+function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, list }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; list?: string }) {
   const error = form.formState.errors[name]?.message as string | undefined;
-  const id = `field-${name}`;
+  const id = `field-${String(name)}`;
   return <label className="block">
     <span className="label">{label}</span>
     {multiline
@@ -41,9 +41,9 @@ function Field({ label, name, form, type = 'text', multiline = false, placeholde
   </label>;
 }
 
-function SelectField({ label, name, form, options }: { label: string; name: string; form: UseFormReturn<any>; options: Array<[string, string]> }) {
+function SelectField<T extends FieldValues>({ label, name, form, options }: { label: string; name: Path<T>; form: UseFormReturn<T>; options: Array<[string, string]> }) {
   const error = form.formState.errors[name]?.message as string | undefined;
-  const id = `field-${name}`;
+  const id = `field-${String(name)}`;
   return <label className="block">
     <span className="label">{label}</span>
     <select id={id} className="field" aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)}>{options.map(([value, text]) => <option key={value} value={value}>{text}</option>)}</select>
@@ -240,7 +240,7 @@ function RigEditor() {
     <div className="mt-6 grid gap-5 sm:grid-cols-2">
       <Field label="BUILD NAME" name="name" form={form}/>
       <div/>
-      {RIG_FIELDS.map(([name, label]) => <Field key={name} label={label.toUpperCase()} name={name as string} form={form}/>)}
+      {RIG_FIELDS.map(([name, label]) => <Field key={name} label={label.toUpperCase()} name={name} form={form}/>)}
       <div className="sm:col-span-2"><Field label="BUILD NOTES" name="notes" form={form} multiline placeholder="Why this setup works for you"/></div>
     </div>
     <SaveBar form={form} onSave={save}/>
