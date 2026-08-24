@@ -6,12 +6,17 @@ export type ThemePreferenceValue = 'system' | 'light' | 'dark';
 const optionalText = (max: number) => z.string().trim().max(max).optional().or(z.literal(''));
 const optionalDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD').optional().or(z.literal(''));
 
+/* Identity fields are shared verbatim by onboarding and the profile editor
+   so both surfaces enforce (and message about) the exact same rules. */
+const displayNameField = z.string().trim().min(2, 'At least 2 characters').max(80);
+const handleField = z.string().trim().toLowerCase().regex(
+  /^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])?$/,
+  '3 to 30 lowercase letters, numbers, _ or -',
+);
+
 export const profileSchema = z.object({
-  displayName: z.string().trim().min(2, 'At least 2 characters').max(80),
-  handle: z.string().trim().toLowerCase().regex(
-    /^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])?$/,
-    '3 to 30 lowercase letters, numbers, _ or -',
-  ),
+  displayName: displayNameField,
+  handle: handleField,
   location: optionalText(120),
   bio: z.string().max(2000),
   themePreference: z.enum(['system', 'light', 'dark']),
@@ -19,6 +24,7 @@ export const profileSchema = z.object({
 
 export const rigSchema = z.object({
   name: z.string().trim().min(1, 'Name the build').max(100),
+  // "case" is fine as a DTO key but reserved-ish in form generics; caseField maps to it.
   cpu: optionalText(160), gpu: optionalText(160), memory: optionalText(160),
   motherboard: optionalText(160), storage: optionalText(250), caseField: optionalText(160),
   psu: optionalText(160), cooling: optionalText(160), os: optionalText(100),
@@ -76,11 +82,8 @@ export const awardSchema = z.object({
 });
 
 export const onboardingSchema = z.object({
-  displayName: z.string().trim().min(2, 'At least 2 characters').max(80),
-  handle: z.string().trim().toLowerCase().regex(
-    /^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])?$/,
-    '3 to 30 lowercase letters, numbers, _ or -',
-  ),
+  displayName: displayNameField,
+  handle: handleField,
   bio: z.string().max(2000),
 });
 
