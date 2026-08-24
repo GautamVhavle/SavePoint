@@ -70,7 +70,10 @@ export default function PublicProfile() {
   const mastheadRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const { handle='nova' }=useParams(); const [params]=useSearchParams(); const navigate=useNavigate(); const [filter,setFilter]=useState('all'); const [sort,setSort]=useState('Newest'); const [search,setSearch]=useState(''); const deferredSearch=useDeferredValue(search);
-  const query=useQuery({queryKey:['public-profile',handle],queryFn:({signal})=>api.publicProfile(handle,signal),retry:(count,e)=>!(e instanceof ApiError&&e.status===404)&&count<2});
+  const query=useQuery({queryKey:['public-profile',handle],queryFn:({signal})=>api.publicProfile(handle,signal),
+    // Studio edits invalidate this key, so a long fresh window is safe here
+    // and makes repeat visits to the same archive instant.
+    staleTime:5*60_000,retry:(count,e)=>!(e instanceof ApiError&&e.status===404)&&count<2});
   useMastheadCinema(mastheadRef, statsRef, !query.isPending && !query.isError);
   // Hash targets (#guide, #rig…) only exist once data renders; retry the anchor jump then.
   useEffect(()=>{ if(query.isPending||!window.location.hash) return; const el=document.getElementById(window.location.hash.slice(1)); el?.scrollIntoView(); },[query.isPending,query.data]);
