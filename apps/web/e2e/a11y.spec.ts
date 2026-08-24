@@ -26,6 +26,15 @@ test('landing page passes serious/critical wcag checks in light theme', async ({
   ).toEqual([]);
 });
 
+test('onboarding passes serious/critical wcag checks in both themes', async ({ page }) => {
+  for (const theme of ['dark', 'light'] as const) {
+    const violations = await scan(page, '/onboarding', theme);
+    expect(
+      violations.map(v => `${theme}: ${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
+    ).toEqual([]);
+  }
+});
+
 test('curator studio passes serious/critical wcag checks in both themes', async ({ page }) => {
   for (const theme of ['dark', 'light'] as const) {
     const violations = await scan(page, '/dashboard', theme);

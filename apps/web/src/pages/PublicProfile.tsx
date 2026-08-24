@@ -90,7 +90,7 @@ const GameCard = memo(function GameCard({ game, onOpen }: { game: Game; onOpen: 
     <motion.button
       layout
       onClick={() => onOpen(game)}
-      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`}
+      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`} aria-haspopup="dialog"
       className={`card-sheen group relative aspect-[3/4] overflow-hidden rounded-[20px] border text-left shadow-card transition-colors sm:aspect-[4/4.6] sm:min-h-64 sm:rounded-[24px] ${game.featured ? 'holo-ring border-transparent' : 'border-white/15'}`}
       whileHover={{ y: -8 }}
       whileTap={{ scale: 0.97 }}
@@ -224,7 +224,7 @@ const GrandExhibit = memo(function GrandExhibit({ game, onOpen }: { game: Game; 
   return (
     <motion.button
       onClick={() => onOpen(game)}
-      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`}
+      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`} aria-haspopup="dialog"
       className="holo-ring group relative block w-full overflow-hidden rounded-[28px] text-left shadow-card"
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.985 }}
@@ -269,7 +269,7 @@ const HallPlaque = memo(function HallPlaque({ game, index, onOpen }: { game: Gam
   return (
     <motion.button
       onClick={() => onOpen(game)}
-      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`}
+      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`} aria-haspopup="dialog"
       className="card-sheen group relative overflow-hidden rounded-[24px] border border-white/10 bg-panel text-left shadow-card transition-colors hover:border-cyan-300/30"
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.97 }}
@@ -392,7 +392,7 @@ export default function PublicProfile() {
     )}
   </div>
   {!featured.length && <div className="glass rounded-[22px] p-10 text-center"><Medal className="mx-auto text-ink/30"/><h3 className="mt-4 text-xl font-semibold">No inductees yet</h3><p className="muted mt-2">The shelf awaits its first permanent resident.</p></div>}</MotionSection>
-  <MotionSection id="chronicle" className="section container-shell" watermark="THE CHRONICLE"><SectionHead kicker="03 · Chronicle" title="Every save tells a story." body="The complete play history, arranged as a living catalog." action={<div className="flex gap-2"><span aria-live="polite" role="status" className="btn"><SlidersHorizontal size={15}/>{games.length} entries</span></div>}/><Panel className="p-4 sm:p-6"><div className="mb-7 grid gap-3 md:grid-cols-[1fr_auto_auto]"><label className="relative"><span className="sr-only">Search games</span><Search className="absolute left-3 top-3.5 text-ink/40" size={17}/><input className="field pl-10" placeholder="Search the chronicle" value={search} onChange={e=>setSearch(e.target.value)}/></label><select className="field min-w-40" aria-label="Filter by status" value={filter} onChange={e=>setFilter(e.target.value)}>{(['all',...STATUS_ORDER] as Array<'all'|GameStatus>).map(x=><option key={x} value={x}>{x==='all'?'All':STATUS_LABELS[x]}</option>)}</select><select className="field min-w-40" aria-label="Sort games" value={sort} onChange={e=>setSort(e.target.value)}><option>Newest</option><option>Rating</option><option>Title</option></select></div><motion.div layout className="grid gap-3">{games.map(g=><motion.button layout key={g.id} onClick={()=>open(g)} aria-label={`Open ${g.title} details`} className="group relative grid min-h-24 grid-cols-[64px_1fr_auto] items-center gap-4 overflow-hidden rounded-2xl border border-white/10 p-3 pl-4 text-left transition hover:border-white/25 hover:bg-white/5 sm:grid-cols-[72px_1fr_1fr_auto]">
+  <MotionSection id="chronicle" className="section container-shell" watermark="THE CHRONICLE"><SectionHead kicker="03 · Chronicle" title="Every save tells a story." body="The complete play history, arranged as a living catalog." action={<div className="flex gap-2"><span aria-live="polite" role="status" className="btn"><SlidersHorizontal size={15}/>{games.length} entries</span></div>}/><Panel className="p-4 sm:p-6"><div className="mb-7 grid gap-3 md:grid-cols-[1fr_auto_auto]"><label className="relative"><span className="sr-only">Search games</span><Search className="absolute left-3 top-3.5 text-ink/40" size={17}/><input className="field pl-10" placeholder="Search the chronicle" value={search} onChange={e=>setSearch(e.target.value)}/></label><select className="field min-w-40" aria-label="Filter by status" value={filter} onChange={e=>setFilter(e.target.value)}>{(['all',...STATUS_ORDER] as Array<'all'|GameStatus>).map(x=><option key={x} value={x}>{x==='all'?'All':STATUS_LABELS[x]}</option>)}</select><select className="field min-w-40" aria-label="Sort games" value={sort} onChange={e=>setSort(e.target.value)}><option>Newest</option><option>Rating</option><option>Title</option></select></div><motion.div layout className="grid gap-3">{games.map(g=><motion.button layout key={g.id} onClick={()=>open(g)} aria-label={`Open ${g.title} details (${STATUS_LABELS[g.status]})`} aria-haspopup="dialog" className="group relative grid min-h-24 grid-cols-[64px_1fr_auto] items-center gap-4 overflow-hidden rounded-2xl border border-white/10 p-3 pl-4 text-left transition hover:border-white/25 hover:bg-white/5 sm:grid-cols-[72px_1fr_1fr_auto]">
 <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: `linear-gradient(180deg, ${STATUS_COLORS[g.status].core}, transparent)`, opacity:.85 }} />
 <CoverImage src={g.banner || g.cover} alt="" className="h-20 rounded-xl"/><div><h3 className="font-semibold">{g.title}</h3><p className="muted mt-1 font-mono text-[10px]"><span style={{color:`var(--status-${g.status})`}}>{STATUS_LABELS[g.status]}</span> · {g.platform} · {g.year}</p></div><p className="muted hidden truncate text-sm sm:block">{g.genres.join(' · ')}</p><div className="flex items-center gap-3 text-right"><div><Stars value={g.rating} /><p className="muted mt-1 text-xs">{g.hours ?? 0} hrs</p></div><ArrowUpRight size={16} className="text-cyan-200 opacity-0 transition group-hover:opacity-100"/></div></motion.button>)}{!games.length&&<div className="py-16 text-center"><Gamepad2 className="mx-auto text-ink/30"/><h3 className="mt-4 text-xl">No saves found</h3><p className="muted mt-2">Change the filter or search phrase.</p></div>}</motion.div></Panel></MotionSection>
   <MotionSection id="guide" className="section container-shell"><SectionHead kicker="04 · AI Guide" title={<>A compass for your <span className="text-gradient">next world</span>.</>} body="Questions answered from this portfolio, never from the wider internet."/><Guide handle={p.handle}/></MotionSection>
