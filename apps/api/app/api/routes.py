@@ -223,6 +223,14 @@ async def add_game(
     payload: ProfileGameInput, profile: Owner, session: Session,
     igdb: Annotated[IGDBClient, Depends(get_igdb)],
 ) -> ProfileGame:
+    # Reject duplicates before spending an upstream IGDB call.
+    duplicate = await session.scalar(
+        select(ProfileGame)
+        .join(Game, ProfileGame.game_id == Game.id)
+        .where(ProfileGame.profile_id == profile.id, Game.igdb_id == payload.igdb_id)
+    )
+    if duplicate:
+        raise HTTPException(status_code=409, detail="Game already exists on this profile")
     metadata = await igdb.details(payload.igdb_id)
     game = await session.scalar(select(Game).where(Game.igdb_id == payload.igdb_id))
     values = metadata.model_dump(exclude={"igdb_id"})
@@ -233,13 +241,6 @@ async def add_game(
     else:
         apply(game, values)
         game.snapshot_at = datetime.now(UTC)
-    duplicate = await session.scalar(
-        select(ProfileGame).where(
-            ProfileGame.profile_id == profile.id, ProfileGame.game_id == game.id
-        )
-    )
-    if duplicate:
-        raise HTTPException(status_code=409, detail="Game already exists on this profile")
     relation = ProfileGame(
         profile_id=profile.id, game_id=game.id, **payload.model_dump(exclude={"igdb_id"})
     )
