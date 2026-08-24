@@ -38,7 +38,10 @@ export async function GET(req: Request): Promise<Response> {
   // keeps new URL() from throwing before query parsing.
   const handle = new URL(req.url, 'https://savepointarchive.vercel.app').searchParams.get('handle')?.replace(/[^a-z0-9_-]/gi, '').toLowerCase() ?? '';
   const artwork = await bestArtwork(handle);
-  const target = artwork ?? FALLBACK;
+  // Defense-in-depth: never redirect to non-http(s) schemes even if upstream
+  // validation ever regresses.
+  const safe = artwork !== null && /^https?:\/\//i.test(artwork) ? artwork : null;
+  const target = safe ?? FALLBACK;
   return new Response(null, {
     status: 302,
     headers: { Location: target, 'Cache-Control': 'public, max-age=300' },
