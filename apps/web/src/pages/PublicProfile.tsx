@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import gsap from 'gsap';
 import { ArrowUpRight, Bot, Check, ChevronDown, Cpu, Gamepad2, MapPin, Medal, Search, Share2, SlidersHorizontal, Sparkles, Star, X, Zap } from 'lucide-react';
@@ -93,7 +93,7 @@ function GameCard({ game, onOpen }: { game: Game; onOpen: () => void }) {
       <motion.div aria-hidden style={{ backgroundImage: `linear-gradient(150deg, ${tone.core}2e, transparent 46%)` }} className="absolute inset-0 opacity-80" />
 
       {/* Status spine reads at every size without stealing attention. */}
-      <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: `linear-gradient(180deg, ${tone.core}, transparent 72%)` }} />
+      <motion.span aria-hidden initial={{scaleY:0}} whileInView={{scaleY:1}} viewport={{once:true}} transition={{duration:.5,ease:"easeOut"}} className="absolute inset-y-0 left-0 w-[3px] origin-top" style={{ background: `linear-gradient(180deg, ${tone.core}, transparent 72%)` }} />
       {game.award && (
         <span className="absolute right-2.5 top-2.5 grid h-9 w-9 place-items-center rounded-full border border-amber-200/40 bg-black/55 text-amber-200 shadow-glow-amber sm:right-3 sm:top-3" title={game.award}>
           <Medal size={16} />
@@ -175,6 +175,26 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
     </motion.div>);
 }
 
+function TickerStrip({ games }: { games: Game[] }) {
+  if (!games.length) return null;
+  const items = games.map(g => `${g.title} ${'\u2605'.repeat(Math.max(1, Math.round(g.rating ?? 0)))}`);
+  const row = (hidden: boolean) => (
+    <div aria-hidden={hidden || undefined} className="flex shrink-0 items-center">
+      {items.map((t, i) => (
+        <span key={i} className="flex items-center gap-6 whitespace-nowrap px-6 py-3 font-mono text-[11px] uppercase tracking-[.24em] text-white/70">
+          {t}<span style={{ color: 'var(--cyan)' }}>\u25c6</span>
+        </span>
+      ))}
+    </div>
+  );
+  return (
+    <div className="ticker relative z-10" role="presentation">
+      <div className="sr-only">Featured games: {items.join(', ')}</div>
+      <div className="ticker-track">{row(true)}{row(true)}</div>
+    </div>
+  );
+}
+
 /** Desktop-only: the first inductee gets the pedestal. */
 function GrandExhibit({ game, onOpen }: { game: Game; onOpen: () => void }) {
   const tone = STATUS_COLORS[game.status];
@@ -235,7 +255,7 @@ function HallPlaque({ game, index, onOpen }: { game: Game; index: number; onOpen
       <div className="relative aspect-[16/9] overflow-hidden">
         <CoverImage src={game.banner || game.cover} alt="" className="absolute inset-0 transition duration-700 group-hover:scale-[1.06]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-        <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: `linear-gradient(180deg, ${tone.core}, transparent 70%)` }} />
+        <motion.span aria-hidden initial={{scaleY:0}} whileInView={{scaleY:1}} viewport={{once:true}} transition={{duration:.5,ease:"easeOut"}} className="absolute inset-y-0 left-0 w-[3px] origin-top" style={{ background: `linear-gradient(180deg, ${tone.core}, transparent 70%)` }} />
         {game.award && (
           <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-amber-200/40 bg-black/55 text-amber-200" title={game.award}>
             <Medal size={14} />
@@ -259,10 +279,29 @@ function HallPlaque({ game, index, onOpen }: { game: Game; index: number; onOpen
   );
 }
 
+function TiltCard({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const rx = useMotionValue(0); const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 180, damping: 18 }); const sry = useSpring(ry, { stiffness: 180, damping: 18 });
+  const reduce = useReducedMotion();
+  if (reduce) return <div>{children}</div>;
+  return (
+    <motion.div
+      ref={ref}
+      style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
+      onPointerMove={(e) => { if (e.pointerType !== 'mouse' || !ref.current) return;
+        const r = ref.current.getBoundingClientRect();
+        ry.set(((e.clientX - r.left) / r.width - .5) * 7);
+        rx.set(-((e.clientY - r.top) / r.height - .5) * 7); }}
+      onPointerLeave={() => { rx.set(0); ry.set(0); }}
+    >{children}</motion.div>
+  );
+}
+
 function Guide({ handle }: { handle: string }) {
   const [question,setQuestion]=useState('What should I play next based on this archive?'); const [answer,setAnswer]=useState(''); const [loading,setLoading]=useState(false); const controller=useRef<AbortController>();
   const ask=async()=>{controller.current?.abort(); controller.current=new AbortController(); setLoading(true);setAnswer(''); try{const r=await api.guide(handle,question,controller.current.signal);setAnswer(r.answer)}catch(e){if((e as Error).name!=='AbortError')setAnswer('The Guide lost its signal. Try again in a moment.')}finally{setLoading(false)}};
-  return <Panel className="relative overflow-hidden p-5 sm:p-8"><div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl"/><div className="relative grid gap-7 lg:grid-cols-[.7fr_1.3fr]"><div><div className="grid h-14 w-14 place-items-center rounded-2xl border border-violet-300/30 bg-violet-300/10 text-violet-300"><Bot/></div><h3 className="mt-5 text-2xl font-semibold">Ask the archive</h3><p className="muted mt-2 leading-7">A profile-scoped guide grounded only in this curator’s games, ratings, and field notes.</p><span className="mt-5 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-violet-300"><Sparkles size={13}/> Generated guidance</span></div><div><label className="label" htmlFor="guide-question">YOUR QUESTION</label><textarea id="guide-question" className="field" value={question} onChange={e=>setQuestion(e.target.value)} maxLength={300}/><p aria-hidden className="muted mt-1 text-right font-mono text-[10px]">{300-question.length} left</p><div className="mt-3 flex flex-wrap gap-2"><Button className="btn-primary" onClick={ask} disabled={loading||!question.trim()}>{loading?<><span className="h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black"/>Consulting</>:<><Zap size={16}/>Ask Guide</>}</Button>{loading&&<Button onClick={()=>controller.current?.abort()}>Stop</Button>}</div>{answer&&<motion.div role="status" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="mt-5 rounded-2xl border border-violet-300/20 bg-violet-300/5 p-5 leading-7">{answer.replaceAll('**','')}<div className="muted mt-4 border-t border-white/10 pt-3 font-mono text-[10px]">SOURCES · THIS PROFILE ONLY</div></motion.div>}</div></div></Panel>;
+  return <Panel className="relative overflow-hidden p-5 sm:p-8"><div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl"/><div className="relative grid gap-7 lg:grid-cols-[.7fr_1.3fr]"><div><div className="grid h-14 w-14 place-items-center rounded-2xl border border-violet-300/30 bg-violet-300/10 text-violet-300"><Bot/></div><h3 className="mt-5 text-2xl font-semibold">Ask the archive</h3><p className="muted mt-2 leading-7">A profile-scoped guide grounded only in this curator’s games, ratings, and field notes.</p><span className="mt-5 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-violet-300"><Sparkles size={13}/> Generated guidance</span></div><div><label className="label" htmlFor="guide-question">YOUR QUESTION</label><textarea id="guide-question" className="field" value={question} onChange={e=>setQuestion(e.target.value)} maxLength={300}/><p aria-hidden className="muted mt-1 text-right font-mono text-[10px]">{300-question.length} left</p><div className="mt-3 flex flex-wrap gap-2"><Button className="btn-primary" onClick={ask} disabled={loading||!question.trim()}>{loading?<><span className="h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black"/>Consulting</>:<><Zap size={16}/>Ask Guide</>}</Button>{loading&&<Button onClick={()=>controller.current?.abort()}>Stop</Button>}</div>{loading&&<div role="status" aria-label="Guide is thinking" className="mt-5 space-y-2.5 rounded-2xl border border-violet-300/15 bg-violet-300/5 p-5"><div className="h-3 w-[85%] animate-pulse rounded bg-white/10"/><div className="h-3 w-full animate-pulse rounded bg-white/10 [animation-delay:120ms]"/><div className="h-3 w-[70%] animate-pulse rounded bg-white/10 [animation-delay:240ms]"/></div>}{answer&&<motion.div role="status" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="mt-5 rounded-2xl border border-violet-300/20 bg-violet-300/5 p-5 leading-7">{answer.replaceAll('**','')}<div className="muted mt-4 border-t border-white/10 pt-3 font-mono text-[10px]">SOURCES · THIS PROFILE ONLY</div></motion.div>}</div></div></Panel>;
 }
 
 export default function PublicProfile() {
@@ -279,8 +318,9 @@ export default function PublicProfile() {
   
   const shareProfile=async()=>{const url=`${location.origin}/u/${p.handle}`;try{ if(navigator.share){await navigator.share({title:`${p.displayName} on SavePoint`,text:`${p.displayName}'s gaming archive`,url});}else{await navigator.clipboard.writeText(url);setCopied(true);setTimeout(()=>setCopied(false),1800);} }catch{/* dismissed */} };
   return <><Helmet><title>{p.displayName} (@{p.handle}), SavePoint</title><meta name="description" content={p.bio}/><link rel="canonical" href={`${location.origin}/u/${p.handle}`}/><meta property="og:type" content="profile"/><meta property="og:title" content={`${p.displayName} (@${p.handle}), SavePoint`}/><meta property="og:description" content={p.bio}/><meta property="og:url" content={`${location.origin}/u/${p.handle}`}/>{p.banner && <meta property="og:image" content={p.banner}/>}{p.banner && <meta property="og:image:alt" content={`${p.displayName}'s SavePoint portfolio`}/>}<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta name="twitter:card" content="summary_large_image"/></Helmet>
-  <section className="container-shell pt-6 sm:pt-10"><Panel elemRef={mastheadRef} className="relative min-h-[540px] overflow-hidden bg-[#0b0f1c] sm:min-h-[560px]"><div data-banner-parallax className="absolute -inset-y-8 inset-x-0"><CoverImage src={p.banner} alt="" data-banner-zoom className="absolute inset-0 opacity-55"/></div><div className="absolute inset-0 bg-gradient-to-r from-[#070a14] via-[#070a14]/75 to-transparent"/><div className="relative flex min-h-[560px] max-w-3xl flex-col justify-end p-6 sm:p-12"><div className="mb-auto flex items-center gap-4"><CoverImage src={p.avatar} alt={`${p.displayName} avatar`} className="h-16 w-16 rounded-2xl border border-white/20"/><div><span className="font-mono text-xs text-cyan-200">@{p.handle}</span><p className="mt-1 flex items-center gap-1.5 text-sm text-white/65"><MapPin size={14}/>{p.location}</p></div></div><div data-cinema className="eyebrow cinema-hidden">Player archive · est. {p.since}</div><h1 data-cinema className="cinema-hidden mt-4 text-[clamp(2.55rem,10vw,8rem)] font-bold leading-[.9] tracking-[-.065em] text-white">{p.displayName}</h1><p data-cinema className="cinema-hidden mt-6 max-w-xl text-lg leading-8 text-white/75">{p.bio}</p><div className="mt-8 flex flex-wrap gap-3"><a href="#featured" className="btn btn-primary">Enter the collection <ChevronDown size={17}/></a><Button type="button" className="border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={shareProfile}>{copied ? <Check size={17}/> : <Share2 size={17}/>}{copied ? 'Link copied' : 'Share archive'}</Button><span ref={statsRef} data-cinema className="cinema-hidden flex min-h-11 items-center px-3 font-mono text-xs text-white/60"><span data-count={p.games.length}>{p.games.length}</span> GAMES · <span data-count={Math.round(p.games.reduce((n,g)=>n+(g.hours??0),0))}>{Math.round(p.games.reduce((n,g)=>n+(g.hours??0),0))}</span> HOURS</span></div></div></Panel></section>
-  <MotionSection id="rig" className="section container-shell"><SectionHead kicker="01 · Battle station" title={<>The <span className="text-gradient">Rig</span></>} body="A deliberately tuned system. Every component documented like an artifact."/><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{p.rig.map((r,i)=><Reveal key={r.id} delay={(i%4)*0.06}><Panel className="group h-full p-5 transition hover:-translate-y-1"><div className="flex justify-between"><Cpu size={20} className={i%2?'text-violet-300':'text-cyan-300'}/><span className="font-mono text-[9px] text-ink/40">0{i+1}</span></div><span className="label mt-10">{r.category}</span><h3 className="text-lg font-semibold">{r.name}</h3><p className="muted mt-2 font-mono text-xs leading-5">{r.detail}</p></Panel></Reveal>)}</div></MotionSection>
+  <section className="container-shell pt-6 sm:pt-10"><Panel elemRef={mastheadRef} className="relative min-h-[540px] overflow-hidden bg-[#0b0f1c] sm:min-h-[560px]"><div data-banner-parallax className="absolute -inset-y-8 inset-x-0"><CoverImage src={p.banner} alt="" data-banner-zoom priority className="absolute inset-0 opacity-55"/></div><div className="absolute inset-0 bg-gradient-to-r from-[#070a14] via-[#070a14]/75 to-transparent"/><div className="relative flex min-h-[560px] max-w-3xl flex-col justify-end p-6 sm:p-12"><div className="mb-auto flex items-center gap-4"><CoverImage src={p.avatar} alt={`${p.displayName} avatar`} priority className="h-16 w-16 rounded-2xl border border-white/20"/><div><span className="font-mono text-xs text-cyan-200">@{p.handle}</span><p className="mt-1 flex items-center gap-1.5 text-sm text-white/65"><MapPin size={14}/>{p.location}</p></div></div><div data-cinema className="eyebrow cinema-hidden">Player archive · est. {p.since}</div><h1 data-cinema className="cinema-hidden mt-4 text-[clamp(2.55rem,10vw,8rem)] font-bold leading-[.9] tracking-[-.065em] text-white">{p.displayName}</h1><p data-cinema className="cinema-hidden mt-6 max-w-xl text-lg leading-8 text-white/75">{p.bio}</p><div className="mt-8 flex flex-wrap gap-3"><a href="#featured" className="btn btn-primary">Enter the collection <ChevronDown size={17}/></a><Button type="button" className="border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={shareProfile}>{copied ? <Check size={17}/> : <Share2 size={17}/>}{copied ? 'Link copied' : 'Share archive'}</Button><span ref={statsRef} data-cinema className="cinema-hidden flex min-h-11 items-center px-3 font-mono text-xs text-white/60"><span data-count={p.games.length}>{p.games.length}</span> GAMES · <span data-count={Math.round(p.games.reduce((n,g)=>n+(g.hours??0),0))}>{Math.round(p.games.reduce((n,g)=>n+(g.hours??0),0))}</span> HOURS</span></div></div></Panel></section>
+  <MotionSection id="rig" className="section container-shell"><SectionHead kicker="01 · Battle station" title={<>The <span className="text-gradient">Rig</span></>} body="A deliberately tuned system. Every component documented like an artifact."/><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{p.rig.map((r,i)=><Reveal key={r.id} delay={(i%4)*0.06}><TiltCard><Panel className="group h-full p-5 transition hover:-translate-y-1"><div className="flex justify-between"><Cpu size={20} className={i%2?'text-violet-300':'text-cyan-300'}/><span className="font-mono text-[9px] text-ink/40">0{i+1}</span></div><span className="label mt-10">{r.category}</span><h3 className="text-lg font-semibold">{r.name}</h3><p className="muted mt-2 font-mono text-xs leading-5">{r.detail}</p></Panel></TiltCard></Reveal>)}</div></MotionSection>
+  {featured.length>0 && <TickerStrip games={featured}/>}
   <MotionSection id="featured" className="section container-shell"><SectionHead kicker="02 · Hall of fame" title={<>The games that <span className="text-gradient">stayed</span></>} body="The permanent collection. The first inductee holds the grand exhibit; every plaque opens into complete field notes."/><div className="grid grid-cols-2 gap-3 sm:hidden">{featured.map((g,i)=><Reveal key={g.id} delay={(i%2)*0.07}><GameCard game={g} onOpen={()=>open(g)}/></Reveal>)}</div>
   <div className="hidden space-y-6 sm:block">
     {featured[0] && <Reveal><GrandExhibit game={featured[0]} onOpen={()=>open(featured[0])}/></Reveal>}

@@ -1,10 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ButtonHTMLAttributes, type PropsWithChildren, type ReactNode } from 'react';
 import { AlertTriangle, CheckCircle2, Moon, Sun, X } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '../lib/utils';
 
 export function Button({ className, children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={cn('btn', className)} {...props}>{children}</button>; }
 export function Panel({ children, className = '', elemRef }: PropsWithChildren<{ className?: string; elemRef?: React.Ref<HTMLDivElement> }>) { return <div ref={elemRef} className={cn('glass rounded-[22px]', className)}>{children}</div>; }
-export function SectionHead({ kicker, title, body, action }: { kicker: string; title: ReactNode; body?: string; action?: ReactNode }) { return <div className="mb-10 flex flex-col items-start justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><div className="eyebrow">{kicker}</div><h2 className="section-title">{title}</h2>{body && <p className="muted max-w-2xl text-base leading-7">{body}</p>}</div>{action}</div>; }
+export function SectionHead({ kicker, title, body, action }: { kicker: string; title: ReactNode; body?: string; action?: ReactNode }) { const reduce = useReducedMotion(); return <div className="mb-10 flex flex-col items-start justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><div className="eyebrow">{kicker}</div><motion.h2 className="section-title" initial={reduce?false:{clipPath:'inset(0 0 100% 0)',y:26}} whileInView={{clipPath:'inset(0 0 -8% 0)',y:0}} viewport={{once:true,margin:'-60px'}} transition={{duration:.7,ease:[.22,.61,.36,1]}}>{title}</motion.h2>{body && <p className="muted max-w-2xl text-base leading-7">{body}</p>}</div>{action}</div>; }
 
 const ThemeContext = createContext<{ theme: string; toggle: () => void }>({ theme: 'dark', toggle: () => undefined });
 export function ThemeProvider({ children }: PropsWithChildren) {
