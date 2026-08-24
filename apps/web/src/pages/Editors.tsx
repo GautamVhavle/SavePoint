@@ -51,19 +51,39 @@ function SelectField({ label, name, form, options }: { label: string; name: stri
   </label>;
 }
 
+/** Capture-phase guard: internal links must confirm before discarding dirty form state. */
+function UnsavedNavGuard({ active }: { active: boolean }) {
+  useEffect(() => {
+    if (!active) return;
+    const onClick = (event: MouseEvent) => {
+      const anchor = (event.target as HTMLElement | null)?.closest?.('a');
+      if (!anchor) return;
+      if (window.confirm('Leave this editor? Unsaved changes will be discarded.')) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, [active]);
+  return null;
+}
+
 function SaveBar<T extends FieldValues>({ form, onSave }: { form: UseFormReturn<T>; onSave: (v: T) => Promise<void> }) {
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => { if (form.formState.isDirty) event.preventDefault(); };
     addEventListener('beforeunload', handler);
     return () => removeEventListener('beforeunload', handler);
   }, [form.formState.isDirty]);
-  return <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-5">
-    <span className="muted text-sm">{form.formState.isDirty ? 'Unsaved changes' : 'All changes saved'}</span>
-    <Button className="btn-primary" disabled={form.formState.isSubmitting} onClick={form.handleSubmit(onSave)}>
-      {form.formState.isSubmitting ? <LoaderCircle className="animate-spin" size={16}/> : <Save size={16}/>}
-      {form.formState.isSubmitting ? 'Saving…' : 'Save changes'}
-    </Button>
-  </div>;
+  return <>
+    <UnsavedNavGuard active={form.formState.isDirty}/>
+    <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-5">
+      <span className="muted text-sm">{form.formState.isDirty ? 'Unsaved changes' : 'All changes saved'}</span>
+      <Button className="btn-primary" disabled={form.formState.isSubmitting} onClick={form.handleSubmit(onSave)}>
+        {form.formState.isSubmitting ? <LoaderCircle className="animate-spin" size={16}/> : <Save size={16}/>}
+        {form.formState.isSubmitting ? 'Saving…' : 'Save changes'}
+      </Button>
+    </div>
+  </>;
 }
 
 /* --------------------------------- data layer -------------------------------- */

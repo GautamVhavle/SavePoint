@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     dev_auth_sub: str = "auth0|local-developer"
     twitch_client_id: str = ""
     twitch_client_secret: str = ""
+    twitch_user_token: str = ""  # public apps: device-flow user token
     supabase_url: str = ""
     supabase_service_role_key: str = ""
     supabase_storage_bucket: str = "savepoint-media"

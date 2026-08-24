@@ -23,13 +23,22 @@ class IGDBClient:
         self._lock = asyncio.Lock()
 
     async def _access_token(self) -> str:
+        """Static user token first (public secretless apps), then client credentials."""
+        if self.settings.twitch_user_token:
+            return f"Bearer {self.settings.twitch_user_token}"
         if self._token and time.monotonic() < self._expires_at - 60:
             return self._token
         async with self._lock:
             if self._token and time.monotonic() < self._expires_at - 60:
                 return self._token
             if not self.settings.twitch_client_id or not self.settings.twitch_client_secret:
-                raise HTTPException(status_code=503, detail="IGDB integration is not configured")
+                raise HTTPException(
+                    status_code=503,
+                    detail=(
+                        "IGDB integration is not configured. Add TWITCH_CLIENT_SECRET, "
+                        "or run scripts/twitch_device_auth.py and set TWITCH_USER_TOKEN."
+                    ),
+                )
             async with httpx.AsyncClient(timeout=8.0) as client:
                 response = await client.post(
                     "https://id.twitch.tv/oauth2/token",
@@ -53,7 +62,7 @@ class IGDBClient:
                     "https://api.igdb.com/v4/games",
                     headers={
                         "Client-ID": self.settings.twitch_client_id,
-                        "Authorization": f"Bearer {token}",
+                        "Authorization": token,
                     },
                     content=body,
                 )

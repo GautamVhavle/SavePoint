@@ -132,6 +132,12 @@ function GameCard({ game, onOpen }: { game: Game; onOpen: () => void }) {
 function GameDetail({ game, close }: { game: Game; close: () => void }) {
   const panel = useRef<HTMLDivElement>(null); const reduce = useReducedMotion();
   useDialogA11y(panel, true, close);
+  // Freeze the archive behind the dossier so wheel/keyboard never scrolls it.
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previous; };
+  }, []);
   useEffect(() => { if (!panel.current || reduce) return; const ctx = gsap.context(() => { gsap.fromTo(panel.current, { rotationY: -92, transformPerspective: 1400, opacity: .4 }, { rotationY: 0, opacity: 1, duration: .72, ease: 'power3.out' }); }, panel); return () => ctx.revert(); }, [game.id, reduce]);
   const tone = STATUS_COLORS[game.status];
   const accession = `SP-${game.year ?? '????'}-${game.id.replaceAll('-','').slice(0,6).toUpperCase()}`;
