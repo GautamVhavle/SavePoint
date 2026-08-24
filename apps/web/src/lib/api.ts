@@ -1,4 +1,5 @@
 import { demoGuideAnswer, demoProfile } from '../data/demo';
+import { uid } from './utils';
 import type {
   ApiAward, ApiIGDBResult, ApiProfileGame, ApiPublicProfile,
   GuideResponse, PeripheralInput, Profile, RigItem, SavepointClient,
@@ -143,8 +144,6 @@ function demoDoc(): ApiPublicProfile {
 }
 
 function persist(doc: ApiPublicProfile) { localStorage.setItem(DEMO_KEY, JSON.stringify(doc)); }
-
-const uid = () => (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2));
 
 /** Inverse of mapPublicProfile: lets the visual demo seed a realistic editable document. */
 export function seedFromView(view: Profile): ApiPublicProfile {
