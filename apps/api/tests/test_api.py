@@ -325,6 +325,7 @@ async def test_public_profile_revalidates_with_etag(client: httpx.AsyncClient) -
 
     revalidate = await client.get("/api/v1/profiles/etagged", headers={"if-none-match": etag})
     assert revalidate.status_code == 304
+    assert revalidate.content == b""  # no composite payload on the wire
     # Caching policy survives the short-circuit so proxies keep honoring it.
     assert revalidate.headers["cache-control"] == "public, max-age=60, stale-while-revalidate=300"
     assert revalidate.headers["etag"] == etag
