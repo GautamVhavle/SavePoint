@@ -142,7 +142,7 @@ const GameCard = memo(function GameCard({ game, onOpen }: { game: Game; onOpen: 
   );
 });
 
-function GameDetail({ game, close, onStep, children }: { game: Game; close: () => void; onStep?: (delta: number) => void; children?: React.ReactNode }) {
+function GameDetail({ game, close, onStep, showStepper = false }: { game: Game; close: () => void; onStep?: (delta: number) => void; showStepper?: boolean }) {
   const panel = useRef<HTMLDivElement>(null); const reduce = useReducedMotion();
   // Traps focus, occludes the archive behind, locks scroll, closes on Escape.
   useDialogA11y(panel, true, close);
@@ -171,12 +171,17 @@ function GameDetail({ game, close, onStep, children }: { game: Game; close: () =
   const contentStagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.07 } } };
   const rise = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: .45, ease: [.22,.61,.36,1] } } };
   return (
-    <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" aria-describedby={game.summary ? 'game-summary' : undefined} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>{children}
+    <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" aria-describedby={game.summary ? 'game-summary' : undefined} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>
       <div ref={panel} className="glass relative mx-auto max-w-5xl overflow-hidden rounded-[28px]">
         <div className="relative">
           <div aria-hidden className="pointer-events-none"><CoverImage src={game.banner || game.cover} alt="" priority className="pointer-events-none aspect-[4/3] max-h-[300px] w-full sm:aspect-[21/8] sm:max-h-[360px]" /></div>
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a0f1e] via-[#0a0f1e]/35 to-transparent" />
           <Button className="icon-btn absolute right-4 top-4 z-10 bg-black/55 text-white" onClick={close} aria-label="Close game details" data-autofocus><X size={20}/></Button>
+          {showStepper&&<>
+            <button type="button" aria-label="Previous game" onClick={()=>onStep?.(-1)} className="icon-btn glass absolute left-4 top-4 z-10 rounded-full max-sm:hidden"><ChevronDown size={19} className="rotate-90"/></button>
+            <button type="button" aria-label="Next game" onClick={()=>onStep?.(1)} className="icon-btn glass absolute right-16 top-4 z-10 rounded-full max-sm:hidden"><ChevronDown size={19} className="-rotate-90"/></button>
+          </>}
+          <p role="status" className="sr-only">{game.title}</p>
           <motion.div className="absolute bottom-0 left-0 right-0 p-5 sm:p-9" variants={contentStagger} initial="hidden" animate="show">
             <motion.div variants={rise} className="eyebrow">Accession {accession}</motion.div>
             <motion.h2 variants={rise} id="game-title" className="mt-3 max-w-3xl text-3xl font-bold leading-[.95] tracking-[-.04em] text-white sm:text-6xl">{game.title}</motion.h2>
@@ -404,11 +409,6 @@ export default function PublicProfile() {
 <span aria-hidden className="absolute inset-y-0 left-0 w-1" style={{ background: `linear-gradient(180deg, ${STATUS_COLORS[g.status].core}, transparent)`, opacity:.85 }} />
 <CoverImage src={g.banner || g.cover} alt="" className="h-20 rounded-xl"/><div><h3 className="font-semibold">{g.title}</h3><p className="muted mt-1 font-mono text-[10px]"><span style={{color:`var(--status-${g.status})`}}>{STATUS_LABELS[g.status]}</span> · {g.platform} · {g.year}</p></div><p className="muted hidden truncate text-sm sm:block">{g.genres.join(' · ')}</p><div className="flex items-center gap-3 text-right"><div><Stars value={g.rating} /><p className="muted mt-1 text-xs">{g.hours ?? 0} hrs</p></div><ArrowUpRight size={16} className="text-cyan-200 opacity-0 transition group-hover:opacity-100"/></div></motion.button>)}{!games.length&&<div className="py-16 text-center"><Gamepad2 className="mx-auto text-ink/30"/><h3 className="mt-4 text-xl">No saves found</h3><p className="muted mt-2">Change the filter or search phrase.</p></div>}</motion.div></Panel></MotionSection>
   <MotionSection id="guide" className="section cv-auto container-shell"><SectionHead kicker="04 · AI Guide" title={<>A compass for your <span className="text-gradient">next world</span>.</>} body="Questions answered from this portfolio, never from the wider internet."/><Guide handle={p.handle}/></MotionSection>
-  <AnimatePresence>{selected&&<GameDetail game={selected} close={close} onStep={stepGame}>
-      {p.games.length>1&&<>
-        <button type="button" aria-label="Previous game" onClick={()=>stepGame(-1)} className="icon-btn glass fixed left-3 top-1/2 z-[90] -translate-y-1/2 rounded-full max-sm:hidden"><ChevronDown size={19} className="rotate-90"/></button>
-        <button type="button" aria-label="Next game" onClick={()=>stepGame(1)} className="icon-btn glass fixed right-3 top-1/2 z-[90] -translate-y-1/2 rounded-full max-sm:hidden"><ChevronDown size={19} className="-rotate-90"/></button>
-      </>}
-    </GameDetail>}</AnimatePresence>
+  <AnimatePresence>{selected&&<GameDetail game={selected} close={close} onStep={stepGame} showStepper={p.games.length>1}/>}</AnimatePresence>
   <BackToTop/></>;
 }
