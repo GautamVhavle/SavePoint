@@ -17,9 +17,10 @@ async function settle(page: Page) {
 }
 
 async function stubRemoteMedia(page: Page) {
-  await page.route(/images\.unsplash\.com/, route =>
-    route.fulfill({ contentType: 'image/png', body: Buffer.from(TILE_PNG, 'base64') }),
-  );
+  const tile = route => route.fulfill({ contentType: 'image/png', body: Buffer.from(TILE_PNG, 'base64') });
+  await page.route(/images\.unsplash\.com/, tile);
+  // IGDB key art must never leak live bytes into a baseline.
+  await page.route(/images\.igdb\.com/, tile);
 }
 
 test.describe('visual baselines', () => {
