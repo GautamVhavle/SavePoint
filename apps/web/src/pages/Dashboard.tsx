@@ -65,7 +65,7 @@ export default function Dashboard(){
           <span className="label">COLLECTION SNAPSHOT</span>
           <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
             {[['Games',gameCount],['Hours',hours],['Awards',p?.awards.length??0]].map(([label,value])=>(
-              <div key={String(label)} className="rounded-xl border border-white/10 p-3"><dt className="muted font-mono text-[9px] uppercase tracking-wider">{label}</dt><dd className="mt-1 text-2xl tabular-nums">{value}</dd></div>
+              <div key={String(label)} className="rounded-xl border border-white/10 p-3"><dt className="muted font-mono text-[9px] uppercase tracking-wider">{label}</dt><dd className="mt-1 text-2xl tabular-nums">{Number(value).toLocaleString('en-US')}</dd></div>
             ))}
           </dl>
         </Panel>
