@@ -5,7 +5,7 @@ interface ProfilePayload {
 }
 
 const API_URL = process.env.SAVEPOINT_API_URL?.replace(/\/$/, '') ?? '';
-const FALLBACK = '/og-card.png';
+const FALLBACK = '/og-card.jpg';
 
 /**
  * 1200x630 share-card endpoint.
