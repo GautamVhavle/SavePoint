@@ -379,13 +379,9 @@ async def guide(
     if profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
     await enforce_guide_limit(request, profile.id, session, settings)
-    public = PublicProfile(
-        profile=ProfileRead.model_validate(profile),
-        rig=RigRead.model_validate(profile.rig) if profile.rig else None,
-        peripherals=[PeripheralRead.model_validate(item) for item in profile.peripherals],
-        games=[ProfileGameRead.model_validate(item) for item in profile.games],
-        awards=[AwardRead.model_validate(item) for item in profile.awards],
-    )
+    # Reuse the canonical serializer so the Guide sees the same sorted,
+    # curated ordering visitors do.
+    public = serialize_composite(profile)
     context = public.model_dump(
         mode="json", exclude={"profile": {"auth0_sub", "created_at", "updated_at"}}
     )
