@@ -84,5 +84,5 @@ export function useDialogA11y(
       document.body.style.overflow = previousOverflow;
       previouslyFocused?.focus();
     };
-  }, [active, container]);
+  }, [active, container, boundary]);
 }
