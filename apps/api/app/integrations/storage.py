@@ -15,6 +15,16 @@ ALLOWED_TYPES = {
     "image/gif": ".gif",
 }
 
+_http: httpx.AsyncClient | None = None
+
+
+def _shared_http() -> httpx.AsyncClient:
+    """Process-lifetime client so Supabase connections are pooled."""
+    global _http
+    if _http is None:
+        _http = httpx.AsyncClient(timeout=8.0)
+    return _http
+
 
 class SupabaseStorageClient:
     def __init__(self, settings: Settings) -> None:
@@ -40,12 +50,11 @@ class SupabaseStorageClient:
             f"{self.settings.supabase_storage_bucket}/{path}"
         )
         try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                response = await client.post(
-                    endpoint,
-                    headers={"Authorization": f"Bearer {self.settings.supabase_service_role_key}"},
-                )
-                response.raise_for_status()
+            response = await _shared_http().post(
+                endpoint,
+                headers={"Authorization": f"Bearer {self.settings.supabase_service_role_key}"},
+            )
+            response.raise_for_status()
             payload = response.json()
         except httpx.HTTPError as exc:
             raise HTTPException(status_code=502, detail="Could not sign upload") from exc

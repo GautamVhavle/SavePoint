@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api.routes import router
 from app.core.config import get_settings
@@ -42,6 +43,8 @@ app.add_middleware(
     + ([] if settings.environment in {"staging", "production"} else ["X-Dev-Auth-Sub"]),
     expose_headers=["X-Request-ID", "Retry-After"],
 )
+# Composite profile JSON compresses ~5-8x; skip bodies already tiny.
+app.add_middleware(GZipMiddleware, minimum_size=600)
 
 
 @app.middleware("http")

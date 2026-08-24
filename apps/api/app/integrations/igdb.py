@@ -21,6 +21,13 @@ class IGDBClient:
         self._token: str | None = None
         self._expires_at = 0.0
         self._lock = asyncio.Lock()
+        self._http: httpx.AsyncClient | None = None
+
+    def _http_client(self) -> httpx.AsyncClient:
+        """Process-lifetime client so upstream connections are pooled."""
+        if self._http is None:
+            self._http = httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=3.0))
+        return self._http
 
     async def _access_token(self) -> str:
         """Static user token first (public secretless apps), then client credentials."""
@@ -39,16 +46,16 @@ class IGDBClient:
                         "or run scripts/twitch_device_auth.py and set TWITCH_USER_TOKEN."
                     ),
                 )
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                response = await client.post(
-                    "https://id.twitch.tv/oauth2/token",
-                    params={
-                        "client_id": self.settings.twitch_client_id,
-                        "client_secret": self.settings.twitch_client_secret,
-                        "grant_type": "client_credentials",
-                    },
-                )
-                response.raise_for_status()
+            client = self._http_client()
+            response = await client.post(
+                "https://id.twitch.tv/oauth2/token",
+                params={
+                    "client_id": self.settings.twitch_client_id,
+                    "client_secret": self.settings.twitch_client_secret,
+                    "grant_type": "client_credentials",
+                },
+            )
+            response.raise_for_status()
             payload = response.json()
             self._token = str(payload["access_token"])
             self._expires_at = time.monotonic() + int(payload["expires_in"])
@@ -57,18 +64,17 @@ class IGDBClient:
     async def _request(self, body: str) -> list[dict[str, Any]]:
         token = await self._access_token()
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=3.0)) as client:
-                response = await client.post(
-                    "https://api.igdb.com/v4/games",
-                    headers={
-                        "Client-ID": self.settings.twitch_client_id,
-                        "Authorization": token,
-                    },
-                    content=body,
-                )
-                response.raise_for_status()
-                result: list[dict[str, Any]] = response.json()
-                return result
+            response = await self._http_client().post(
+                "https://api.igdb.com/v4/games",
+                headers={
+                    "Client-ID": self.settings.twitch_client_id,
+                    "Authorization": token,
+                },
+                content=body,
+            )
+            response.raise_for_status()
+            result: list[dict[str, Any]] = response.json()
+            return result
         except httpx.HTTPError as exc:
             raise HTTPException(status_code=502, detail="IGDB request failed") from exc
 

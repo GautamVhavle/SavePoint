@@ -7,6 +7,8 @@ export default defineConfig({
   preview: { port: 4173 },
   test: { environment: 'jsdom', setupFiles: './src/test/setup.ts', css: true, exclude: ['e2e/**', 'node_modules/**'] },
   build: {
+    // Modern baseline: less transpile overhead, faster parsing.
+    target: 'es2022',
     rollupOptions: {
       output: {
         manualChunks(id) {
