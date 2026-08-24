@@ -82,7 +82,7 @@ function useArchiveAction() {
       if (doneMessage) toast.show(doneMessage);
       return true;
     } catch (error) {
-      toast.show(error instanceof ApiError ? error.message : 'Something went wrong.');
+      toast.show(error instanceof ApiError ? error.message : 'Something went wrong.', 'error');
       return false;
     }
   };

@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ButtonHTMLAttributes, type PropsWithChildren, type ReactNode } from 'react';
-import { CheckCircle2, Moon, Sun, X } from 'lucide-react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ButtonHTMLAttributes, type PropsWithChildren, type ReactNode } from 'react';
+import { AlertTriangle, CheckCircle2, Moon, Sun, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function Button({ className, children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={cn('btn', className)} {...props}>{children}</button>; }
@@ -14,12 +14,31 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 }
 export function ThemeToggle() { const { theme, toggle } = useContext(ThemeContext); return <Button className="icon-btn" onClick={toggle} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>{theme === 'dark' ? <Sun size={18}/> : <Moon size={18}/>}</Button>; }
 
-type ToastValue = { show: (message: string) => void };
+type ToastTone = 'success' | 'error';
+type ToastValue = { show: (message: string, tone?: ToastTone) => void };
 const ToastContext = createContext<ToastValue>({ show: () => undefined });
 export function ToastProvider({ children }: PropsWithChildren) {
-  const [message, setMessage] = useState('');
-  useEffect(() => { if (!message) return; const id = setTimeout(() => setMessage(''), 3500); return () => clearTimeout(id); }, [message]);
-  return <ToastContext.Provider value={{ show: setMessage }}>{children}{message && <div className="toast glass flex items-center gap-3" role="status"><CheckCircle2 size={19} className="text-cyan-300"/><span className="flex-1">{message}</span><button aria-label="Dismiss notification" className="min-h-11 min-w-11" onClick={() => setMessage('')}><X size={17}/></button></div>}</ToastContext.Provider>;
+  const [toast, setToast] = useState<{ message: string; tone: ToastTone; id: number } | null>(null);
+  const timer = useRef<number>();
+  const hide = useCallback(() => { window.clearTimeout(timer.current); setToast(null); }, []);
+  const show = useCallback((message: string, tone: ToastTone = 'success') => {
+    window.clearTimeout(timer.current);
+    setToast({ message, tone, id: Date.now() });
+    timer.current = window.setTimeout(() => setToast(null), 3500);
+  }, []);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const value = useMemo(() => ({ show }), [show]);
+  return <ToastContext.Provider value={value}>{children}
+    <div aria-live="polite" className="pointer-events-none fixed bottom-5 right-5 z-[90] flex w-full max-w-[380px] justify-end">
+      {toast && <div key={toast.id} className="toast glass pointer-events-auto flex items-start gap-3 animate-toast-in" role="status">
+        {toast.tone === 'error'
+          ? <AlertTriangle size={19} className="mt-0.5 shrink-0 text-rose-300"/>
+          : <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-cyan-300"/>}
+        <span className="flex-1 pt-0.5">{toast.message}</span>
+        <button aria-label="Dismiss notification" className="-m-1 grid min-h-9 min-w-9 shrink-0 place-items-center rounded-lg transition hover:bg-white/10" onClick={hide}><X size={17}/></button>
+      </div>}
+    </div>
+  </ToastContext.Provider>;
 }
 export const useToast = () => useContext(ToastContext);
 

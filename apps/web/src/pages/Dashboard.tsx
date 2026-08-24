@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Award, Bot, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2 } from 'lucide-react';
+import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2 } from 'lucide-react';
 import { api, isDemoMode } from '../lib/api';
 import { Panel } from '../components/ui';
 
@@ -12,10 +12,11 @@ const tools=[
   {to:'/dashboard/featured',icon:GripVertical,title:'Featured order',text:'Arrange the front shelf of your archive'},
 ];
 const checklist=({hasAvatar,gameCount,reviewCount}:{hasAvatar:boolean;gameCount:number;reviewCount:number})=>[
-  hasAvatar?'✓ Avatar uploaded':'○ Upload an avatar',
-  gameCount?`✓ ${gameCount} games cataloged`:'○ Add your first game',
-  reviewCount?`✓ ${reviewCount} written reviews`:'○ Write at least one review',
+  {done:hasAvatar,label:'Avatar uploaded',todo:'Upload an avatar'},
+  {done:gameCount>0,label:`${gameCount} game${gameCount===1?'':'s'} cataloged`,todo:'Add your first game'},
+  {done:reviewCount>0,label:`${reviewCount} written review${reviewCount===1?'':'s'}`,todo:'Write at least one review'},
 ];
+function SnapshotSkeleton(){return <div aria-hidden className="space-y-4"><div className="glass rounded-[22px] p-6"><div className="skeleton h-3 w-28 rounded-full"/><div className="mt-5 skeleton h-9 w-24 rounded-xl"/><div className="mt-5 skeleton h-1.5 w-full rounded-full"/><div className="mt-6 space-y-3">{[1,2,3].map(i=><div key={i} className="skeleton h-3 rounded-full" style={{width:`${88-i*14}%`}}/>)}</div></div><div className="glass rounded-[22px] p-6"><div className="skeleton h-3 w-32 rounded-full"/><div className="mt-4 grid grid-cols-3 gap-3">{[1,2,3].map(i=><div key={i} className="skeleton h-16 rounded-xl"/>)}</div></div></div>;}
 export default function Dashboard(){
   const {data:p,isLoading}=useQuery({queryKey:['me'],queryFn:()=>api.me()});
   const gameCount=p?.games.length??0;
@@ -32,7 +33,8 @@ export default function Dashboard(){
         <p className="muted mt-3">Shape the archive. Public pages update the moment you publish.</p>
       </div>
       <div className="flex gap-2">
-        <Link className="btn" to={`/u/${p?.profile.handle??''}`}>View archive <ArrowUpRight size={16}/></Link>
+        {p ? <Link className="btn" to={`/u/${p.profile.handle}`}>View archive <ArrowUpRight size={16}/></Link>
+          : <button className="btn" disabled aria-disabled="true">View archive <ArrowUpRight size={16}/></button>}
         <Link className="btn btn-primary" to="/dashboard/games"><Plus size={16}/> Add game</Link>
       </div>
     </div>
@@ -45,23 +47,28 @@ export default function Dashboard(){
           <h2 className="mt-12 text-xl font-semibold">{title}</h2><p className="muted mt-2 text-sm leading-6">{text}</p>
         </Link>)}
       </div>
-      <div className="space-y-4">
+      {isLoading ? <SnapshotSkeleton/> : <div className="space-y-4">
         <Panel className="p-6">
           <span className="label">ARCHIVE HEALTH</span>
-          <div className="mt-5 flex items-end justify-between"><b className="text-5xl">{score}<span className="text-xl text-ink/40">%</span></b><Settings2 className="text-cyan-300"/></div>
-          <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-gradient-to-r from-cyan-300 to-violet-400" style={{width:`${score}%`}}/></div>
-          <ul className="muted mt-5 space-y-3 text-sm">{checklist({hasAvatar:Boolean(p?.profile.avatar_url),gameCount,reviewCount:reviews}).map(item=><li key={item}>{item}</li>)}</ul>
+          <div className="mt-5 flex items-end justify-between"><b className="text-5xl tabular-nums">{score}<span className="text-xl text-ink/40">%</span></b><Settings2 className="text-cyan-300"/></div>
+          <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-violet-400 transition-[width] duration-700 ease-out" style={{width:`${score}%`}}/></div>
+          <ul className="muted mt-5 space-y-3 text-sm">{checklist({hasAvatar:Boolean(p?.profile.avatar_url),gameCount,reviewCount:reviews}).map(item=>(
+            <li key={item.todo} className="flex items-center gap-2.5">
+              {item.done ? <CheckCircle2 size={16} className="shrink-0 text-emerald-300"/> : <Circle size={16} className="shrink-0 opacity-50"/>}
+              <span>{item.done?item.label:item.todo}</span>
+            </li>))}
+          </ul>
         </Panel>
         <Panel className="p-6">
           <span className="label">COLLECTION SNAPSHOT</span>
           <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
             {[['Games',gameCount],['Hours',hours],['Awards',p?.awards.length??0]].map(([label,value])=>(
-              <div key={String(label)} className="rounded-xl border border-white/10 p-3"><dt className="muted font-mono text-[9px] uppercase tracking-wider">{label}</dt><dd className="mt-1 text-2xl">{value}</dd></div>
+              <div key={String(label)} className="rounded-xl border border-white/10 p-3"><dt className="muted font-mono text-[9px] uppercase tracking-wider">{label}</dt><dd className="mt-1 text-2xl tabular-nums">{value}</dd></div>
             ))}
           </dl>
         </Panel>
         <Panel className="p-6"><Bot className="text-violet-300"/><h2 className="mt-8 text-xl font-semibold">Guide is listening</h2><p className="muted mt-2 text-sm leading-6">Longer reviews make profile-scoped recommendations more precise.</p></Panel>
-      </div>
+      </div>}
     </div>
   </div>;
 }

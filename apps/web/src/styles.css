@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?');
 @tailwind base; @tailwind components; @tailwind utilities;
 
 :root { color-scheme: dark; --canvas: 6 10 20; --ink: 235 242 255; --muted: 151 164 190; --panel: 17 24 40; --line: 255 255 255; --glass: rgba(15,22,38,.72); --cyan:#58e8ff; --violet:#a78bfa; --magenta:#ff66c4; --shadow:rgba(0,0,0,.42); }
@@ -22,6 +22,8 @@ a { color:inherit; text-decoration:none; } button,input,textarea,select { font:i
 .muted { color:rgb(var(--muted)); }
 .btn { min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:0 17px; border-radius:13px; border:1px solid rgba(var(--line)/.14); font-weight:600; cursor:pointer; transition:.18s ease; background:rgba(var(--line)/.055); }
 .btn:hover { transform:translateY(-1px); border-color:color-mix(in srgb,var(--cyan) 60%,transparent); background:rgba(var(--line)/.09); }
+.btn:disabled,.btn[aria-disabled='true'] { cursor:not-allowed; opacity:.55; transform:none!important; border-color:rgba(var(--line)/.14); background:rgba(var(--line)/.055); box-shadow:none; }
+a.btn { user-select:none; }
 .btn-primary { border:0; color:#061018; background:linear-gradient(120deg,#6aebff,#b8a2ff); box-shadow:0 8px 30px rgba(88,232,255,.18); }
 .icon-btn { width:44px; height:44px; padding:0; }
 .field { width:100%; min-height:46px; border:1px solid rgba(var(--line)/.14); border-radius:12px; color:rgb(var(--ink)); background:rgba(var(--line)/.045); padding:11px 13px; }
@@ -29,7 +31,9 @@ textarea.field { min-height:120px; resize:vertical; } .field::placeholder{color:
 .label { display:block; margin-bottom:7px; font:500 12px 'IBM Plex Mono'; letter-spacing:.06em; color:rgb(var(--muted)); }
 .card-sheen { position:relative; overflow:hidden; } .card-sheen::after { content:''; position:absolute; inset:-100% 30%; transform:rotate(22deg); background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); pointer-events:none; transition:transform .7s; }.card-sheen:hover::after{transform:translateX(160%) rotate(22deg)}
 .prose-review { font-size:1.04rem; line-height:1.75; color:rgb(var(--ink)/.86); }
-.toast { position:fixed; z-index:90; right:20px; bottom:20px; max-width:min(380px,calc(100vw - 40px)); padding:15px 18px; border-radius:14px; }
+.toast { padding:15px 18px; border-radius:14px; }
+@keyframes toast-in { from { opacity:0; transform:translateY(14px) scale(.97); } to { opacity:1; transform:none; } }
+.animate-toast-in { animation:toast-in .32s cubic-bezier(.22,.61,.36,1); }
 .skeleton { background:linear-gradient(90deg,rgba(var(--line)/.05),rgba(var(--line)/.12),rgba(var(--line)/.05)); background-size:200% 100%; animation:shimmer 1.4s infinite; }
 @keyframes shimmer{to{background-position:-200% 0}}
 @media(max-width:700px){.container-shell{width:min(100% - 20px,1240px)}.section{padding:62px 0}.section-title{letter-spacing:-.04em}}
@@ -58,3 +62,19 @@ textarea.field { min-height:120px; resize:vertical; } .field::placeholder{color:
 /* Masthead cinema: elements stay invisible until GSAP reveals them */
 .cinema-hidden { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) { .cinema-hidden { visibility: visible; } }
+
+/* Filmic grain: one fixed turbulence layer above the canvas, below content */
+.grain::after {
+  content: ''; position: fixed; inset: -50%; z-index: 1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: .05; mix-blend-mode: overlay;
+}
+html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55%, transparent) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--cyan) 45%, transparent); border-radius: 8px; border: 3px solid rgb(var(--canvas)); }
+/* Ticker strip */
+.ticker { overflow: hidden; border-block: 1px solid rgba(var(--line)/.12); background: #070a14; }
+.ticker-track { display: flex; width: max-content; animation: ticker-roll 36s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+@keyframes ticker-roll { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
