@@ -149,7 +149,15 @@ function demoDoc(): ApiPublicProfile {
   return seeded;
 }
 
-function persist(doc: ApiPublicProfile) { localStorage.setItem(DEMO_KEY, JSON.stringify(doc)); }
+function persist(doc: ApiPublicProfile) {
+  try {
+    localStorage.setItem(DEMO_KEY, JSON.stringify(doc));
+  } catch (error) {
+    // Quota or privacy-mode failures must not break the visual showcase;
+    // edits simply stay in memory for this session.
+    console.warn('Demo store could not persist', error);
+  }
+}
 
 /** Inverse of mapPublicProfile: lets the visual demo seed a realistic editable document. */
 export function seedFromView(view: Profile): ApiPublicProfile {
