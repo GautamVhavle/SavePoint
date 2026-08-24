@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2 } from 'lucide-react';
 import { api, isDemoMode } from '../lib/api';
-import { Panel } from '../components/ui';
+import { Button, Panel } from '../components/ui';
 
 const tools=[
   {to:'/dashboard/profile',icon:CircleUserRound,title:'Identity',text:'Name, story, avatar and public handle'},
@@ -18,8 +18,8 @@ const checklist=({hasAvatar,gameCount,reviewCount}:{hasAvatar:boolean;gameCount:
 ];
 function SnapshotSkeleton(){return <div aria-hidden className="space-y-4"><div className="glass rounded-[22px] p-6"><div className="skeleton h-3 w-28 rounded-full"/><div className="mt-5 skeleton h-9 w-24 rounded-xl"/><div className="mt-5 skeleton h-1.5 w-full rounded-full"/><div className="mt-6 space-y-3">{[1,2,3].map(i=><div key={i} className="skeleton h-3 rounded-full" style={{width:`${88-i*14}%`}}/>)}</div></div><div className="glass rounded-[22px] p-6"><div className="skeleton h-3 w-32 rounded-full"/><div className="mt-4 grid grid-cols-3 gap-3">{[1,2,3].map(i=><div key={i} className="skeleton h-16 rounded-xl"/>)}</div></div></div>;}
 export default function Dashboard(){
-  const {data:p,isLoading}=useQuery({queryKey:['me'],queryFn:()=>api.me()});
-  const gameCount=p?.games.length??0;
+  const query=useQuery({queryKey:['me'],queryFn:()=>api.me()});
+  const p=query.data; const isLoading=query.isPending;  const gameCount=p?.games.length??0;
   const hours=Math.round((p?.games.reduce((sum,entry)=>sum+(entry.hours_played??0),0))??0);
   const reviews=p?.games.filter(entry=>(entry.review?.length??0)>0).length??0;
   const featured=p?.games.filter(entry=>entry.featured).length??0;
@@ -39,7 +39,8 @@ export default function Dashboard(){
       </div>
     </div>
     {isDemoMode&&<Panel className="mt-8 flex items-start gap-3 border-violet-300/20 bg-violet-400/5 p-4"><Radio className="mt-0.5 text-violet-300" size={18}/><div><b className="text-sm">Safe demo workspace</b><p className="muted mt-1 text-sm">Edits stay in this browser and never grant production authorization.</p></div></Panel>}
-    {!isDemoMode&&!isLoading&&!p&&<Panel className="mt-8 border-cyan-300/20 bg-cyan-400/5 p-4"><b className="text-sm">Create your identity first</b><p className="muted mt-1 text-sm">Visit onboarding to claim a handle before curating.</p></Panel>}
+    {!isDemoMode&&!isLoading&&query.isError&&<Panel className="mt-8 flex items-start gap-3 border-rose-300/20 bg-rose-400/5 p-4"><Radio className="mt-0.5 text-rose-300" size={18}/><div><b className="text-sm">Could not load your archive</b><p className="muted mt-1 text-sm">Check your connection, then try again.</p><Button className="mt-3" onClick={() => void query.refetch()}>Retry</Button></div></Panel>}
+    {!isDemoMode&&!isLoading&&!query.isError&&!p&&<Panel className="mt-8 flex flex-wrap items-center justify-between gap-3 border-cyan-300/20 bg-cyan-400/5 p-4"><div><b className="text-sm">Create your identity first</b><p className="muted mt-1 text-sm">Claim a handle before curating games and awards.</p></div><Link className="btn btn-primary" to="/onboarding">Start onboarding</Link></Panel>}
     <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_320px]">
       <div className="grid gap-4 sm:grid-cols-2">
         {tools.map(({to,icon:Icon,title,text},i)=><Link key={to} to={to} className="glass group min-h-52 rounded-[22px] p-6 transition hover:-translate-y-1 hover:border-cyan-300/30">
