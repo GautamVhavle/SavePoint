@@ -80,3 +80,17 @@ test('studio games editor passes serious/critical wcag checks', async ({ page })
     results.violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')).map(v => `${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
   ).toEqual([]);
 });
+
+test('onboarding finish step passes serious/critical wcag checks', async ({ page }) => {
+  await page.goto('/onboarding');
+  await page.getByPlaceholder('Nova Reyes').fill('Scan Curator');
+  await page.getByPlaceholder('nova', { exact: true }).fill('curatorscan');
+  await page.getByRole('button', { name: /Continue/ }).click();
+  await page.getByRole('button', { name: /Continue/ }).click();
+  await expect(page.getByText(/Your archive URL is ready/)).toBeVisible();
+  await page.waitForTimeout(400);
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(
+    results.violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')).map(v => `${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
+  ).toEqual([]);
+});
