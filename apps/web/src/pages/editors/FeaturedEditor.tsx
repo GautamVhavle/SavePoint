@@ -27,15 +27,19 @@ export function FeaturedEditor() {
   };
   const publish = async () => {
     const ok = await run(async () => {
-      for (const entry of entries) {
-        const draft = drafts[entry.id];
-        if (!draft) continue;
-        await api.patchGame(entry.id, {
-          featured: draft.featured,
-          featured_order: draft.featured ? draft.order : null,
-          featured_note: draft.featured ? draft.note || null : null,
-        });
-      }
+      // Patches are independent (explicit order values), so fire them together.
+      await Promise.all(
+        entries
+          .filter(entry => drafts[entry.id])
+          .map(entry => {
+            const draft = drafts[entry.id];
+            return api.patchGame(entry.id, {
+              featured: draft.featured,
+              featured_order: draft.featured ? draft.order : null,
+              featured_note: draft.featured ? draft.note || null : null,
+            });
+          }),
+      );
     }, 'Hall of Fame arrangement published.');
     // Reset so Publish disables again until the next real edit.
     if (ok) setDrafts({});
