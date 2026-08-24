@@ -241,3 +241,19 @@ async def test_unfeaturing_clears_order_and_note(client: httpx.AsyncClient) -> N
     entry = next(g for g in released.json()["games"] if g["id"] == str(entry_id))
     assert entry["featured"] is False
     assert entry["featured_order"] is None
+
+
+@pytest.mark.asyncio
+async def test_duplicate_addition_rejected_before_upstream_igdb_call(
+    client: httpx.AsyncClient,
+) -> None:
+    """No IGDB credentials in tests: a 409 here proves the check precedes the lookup."""
+    await client.post("/api/v1/me/profile", json={"handle": "dupg", "display_name": "D"})
+    me = await client.get("/api/v1/me/composite")
+    profile_id = uuid.UUID(me.json()["profile"]["id"])
+    await create_library_entry(profile_id)
+    response = await client.post(
+        "/api/v1/me/games",
+        json={"igdb_id": 119133, "status": "playing"},
+    )
+    assert response.status_code == 409
