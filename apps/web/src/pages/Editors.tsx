@@ -31,14 +31,14 @@ function EditorShell({ title, eyebrow, children, aside }: { title: string; eyebr
   </div>;
 }
 
-function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, list, maxLength }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; list?: string; maxLength?: number }) {
+function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, max, list, maxLength }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; max?: string; list?: string; maxLength?: number }) {
   const error = form.formState.errors[name]?.message as string | undefined;
   const id = `field-${String(name)}`;
   return <label className="block">
     <span className="label">{label}</span>
     {multiline
       ? <textarea id={id} className="field" placeholder={placeholder} maxLength={maxLength} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />
-      : <input id={id} type={type} placeholder={placeholder} className="field" min={min} step={step} list={list} maxLength={maxLength} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />}
+      : <input id={id} type={type} placeholder={placeholder} className="field" min={min} max={max} step={step} list={list} maxLength={maxLength} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />}
     {error && <span id={`${id}-error`} className="field-error">{error}</span>}
   </label>;
 }
@@ -406,7 +406,7 @@ function GameEditor() {
       {editingId && <input type="hidden" {...form.register('igdbId')}/>}
       <SelectField label="STATUS" name="status" form={form} options={STATUS_ORDER.map(value => [value, STATUS_LABELS[value]] as [string, string])}/>
       <SelectField label="RATING" name="rating" form={form} options={RATING_OPTIONS}/>
-      <Field label="HOURS PLAYED" name="hours" form={form} type="number" step="0.1" min="0"/>
+      <Field label="HOURS PLAYED" name="hours" form={form} type="number" step="0.1" min="0" max="1000000"/>
       <Field label="PLATFORM PLAYED" name="platform" form={form} placeholder="PC, PS5, Switch…" list="platform-options"/>
       <datalist id="platform-options">{(selected?.platforms ?? []).map(platform => <option key={platform} value={platform}/>)}</datalist>
       <Field label="STARTED ON" name="startedOn" form={form} type="date"/>
@@ -417,7 +417,7 @@ function GameEditor() {
         <span className="text-sm font-medium">Feature on the Hall of Fame rail</span>
       </label>
       {form.watch('featured') && <>
-        <Field label="FEATURED ORDER" name="featuredOrder" form={form} type="number" min="0"/>
+        <Field label="FEATURED ORDER" name="featuredOrder" form={form} type="number" min="0" max="10000"/>
         <Field label="CURATOR NOTE" name="featuredNote" form={form} placeholder="Why this belongs up front"/>
       </>}
       <div className="flex gap-2 sm:col-span-2">
