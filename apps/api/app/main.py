@@ -70,7 +70,20 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
                 media_type="application/problem+json",
             )
         content_length = request.headers.get("content-length")
-        body_bytes = int(content_length) if content_length and content_length.isdigit() else 0
+        # A declared length is required so the cap cannot be sidestepped
+        # with chunked transfer encoding.
+        if not content_length or not content_length.isdigit():
+            from fastapi.responses import JSONResponse
+
+            return JSONResponse(
+                status_code=411,
+                content={
+                    "type": "about:blank", "title": "Length Required", "status": 411,
+                    "detail": "Content-Length is required", "instance": str(request.url.path),
+                },
+                media_type="application/problem+json",
+            )
+        body_bytes = int(content_length)
         if body_bytes > settings.max_body_bytes:
             from fastapi.responses import JSONResponse
 
