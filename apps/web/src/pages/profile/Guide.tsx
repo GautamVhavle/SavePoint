@@ -4,7 +4,7 @@ import { Bot, Sparkles, Zap } from 'lucide-react';
 import { Button, Panel } from '../../components/ui';
 import { api } from '../../lib/api';
 
-const SUGGESTIONS = [
+export const SUGGESTIONS = [
   'What should I play next from this shelf?',
   'Which game here has the deepest hours behind it?',
   'Summarize this curator’s taste in one line.',

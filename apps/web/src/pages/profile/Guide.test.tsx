@@ -12,7 +12,7 @@ vi.mock('../../lib/api', () => ({
   api: { guide: mocks.guide },
 }));
 
-import { Guide } from './Guide';
+import { Guide, SUGGESTIONS } from './Guide';
 
 afterEach(cleanup);
 
@@ -26,7 +26,7 @@ describe('Guide', () => {
     render(<Guide handle="nova" />);
     await user.click(screen.getByRole('button', { name: /deepest hours/ }));
     const box = screen.getByLabelText('YOUR QUESTION');
-    expect(box).toHaveValue(/deepest hours/);
+    expect(box).toHaveValue(SUGGESTIONS[1]);
   });
 
   it('asks the guide for the current profile and renders the answer', async () => {
