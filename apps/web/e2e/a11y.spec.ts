@@ -34,3 +34,14 @@ test('curator studio passes serious/critical wcag checks in both themes', async 
     ).toEqual([]);
   }
 });
+
+test('open game dossier passes serious/critical wcag checks', async ({ page }) => {
+  await page.goto('/u/nova');
+  await page.locator('#featured').getByRole('button', { name: /Open Outer Wilds details/ }).click();
+  await page.getByRole('dialog').waitFor();
+  await page.waitForTimeout(900);
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(
+    results.violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')).map(v => `${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
+  ).toEqual([]);
+});
