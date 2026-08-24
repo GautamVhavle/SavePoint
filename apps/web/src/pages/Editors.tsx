@@ -145,7 +145,7 @@ function UploadCard({ purpose, title, hint, current, onUploaded }: {
     <span className="label">{title}</span>
     <label className={`flex min-h-40 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/20 bg-white/[.025] text-center transition focus-within:border-cyan-300/60 focus-within:bg-cyan-300/5 hover:border-cyan-300/40 ${busy ? 'opacity-60' : ''}`}>
       {preview
-        ? <div className="flex items-center gap-4 p-4"><img className="h-24 w-24 rounded-xl object-cover" src={preview} alt="Uploaded media"/><div className="text-left"><b>{busy ? 'Archiving…' : 'Stored'}</b><p className="muted mt-1 text-sm">Choose another file to replace.</p></div></div>
+        ? <div className={`flex items-center gap-4 p-4 ${busy ? 'animate-pulse' : ''}`}><img className="h-24 w-24 rounded-xl object-cover" src={preview} alt="Uploaded media"/><div className="text-left"><b>{busy ? 'Archiving…' : 'Stored'}</b><p className="muted mt-1 text-sm">{busy ? 'Optimizing and uploading' : 'Choose another file to replace.'}</p></div></div>
         : <div className="p-4"><UploadCloud className="mx-auto text-cyan-300"/><b className="mt-3 block">Drop or choose an image</b><p className="muted mt-1 text-sm">{hint}</p></div>}
       <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Upload ${title.toLowerCase()} image`} onChange={event => void load(event.target.files?.[0])}/>
     </label>
