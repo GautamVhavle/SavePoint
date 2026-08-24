@@ -137,7 +137,7 @@ export function Shell() {
       </div>
     </header>
     <MobileNav open={open} close={() => setOpen(false)} />
-    <main id="main"><Outlet /></main>
+    <main id="main" tabIndex={-1}><Outlet /></main>
     <footer className="border-t border-white/10">
       <div className="container-shell py-16 sm:py-24">
         <div className="eyebrow">Every player keeps something worth keeping</div>

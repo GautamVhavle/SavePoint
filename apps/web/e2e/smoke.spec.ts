@@ -98,3 +98,10 @@ test('floating actions appear past the masthead and return to top', async ({ pag
     .poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 })
     .toBeLessThan(80);
 });
+
+test('skip link activation moves focus into the main region', async ({ page }) => {
+  await page.goto('/u/nova');
+  await page.getByRole('link', { name: 'Skip to content' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('main')).toBeFocused();
+});
