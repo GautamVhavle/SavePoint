@@ -117,13 +117,19 @@ function UploadCard({ purpose, title, hint, current, onUploaded }: {
   const [preview, setPreview] = useState<string | null>(current ?? null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const blobRef = useRef<string | null>(null);
   useEffect(() => { if (!preview) setPreview(current ?? null); }, [current, preview]);
+  // Local blob previews are session-only: revoke replaced and unmounted ones.
+  useEffect(() => () => { if (blobRef.current) URL.revokeObjectURL(blobRef.current); }, []);
   const load = async (file?: File) => {
     if (!file) return;
     try {
       setError(''); setBusy(true);
       const processed = await preprocessImage(file);
       const url = await api.uploadMedia(purpose, processed.file);
+      if (blobRef.current) URL.revokeObjectURL(blobRef.current);
+      blobRef.current = null;
+      URL.revokeObjectURL(processed.preview);
       setPreview(url); onUploaded(url);
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'Upload failed.');
