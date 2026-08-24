@@ -78,3 +78,16 @@ test('dossier arrow keys step through the collection with wrap-around', async ({
   await page.keyboard.press('ArrowLeft');
   await expect(dialog.getByRole('heading', { level: 2 }).first()).toHaveText(/Outer Wilds/);
 });
+
+test('floating actions appear past the masthead and return to top', async ({ page }) => {
+  await page.goto('/u/nova');
+  await expect(page.getByRole('button', { name: 'Back to top' })).toBeHidden();
+  await page.evaluate(() => window.scrollTo({ top: window.innerHeight * 2, behavior: 'instant' }));
+  await expect(page.getByRole('button', { name: 'Back to top' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Share this archive' })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to top' }).click();
+  // Smooth scrolling duration varies by device; poll instead of sleeping.
+  await expect
+    .poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 })
+    .toBeLessThan(80);
+});
