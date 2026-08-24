@@ -23,15 +23,21 @@ const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function request<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
   if (!API_URL) throw new ApiError('API is not configured', 503);
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init.headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...init.headers,
+      },
+    });
+  } catch {
+    // Normalize transport failures so callers never see raw TypeErrors.
+    throw new ApiError('Could not reach the archive. Check your connection.', 0);
+  }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}) as { detail?: string });
     throw new ApiError(
