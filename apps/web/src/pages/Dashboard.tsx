@@ -74,7 +74,7 @@ export default function Dashboard(){
             ))}
           </dl>
         </Panel>
-        <Panel className="p-6"><Bot className="text-violet-300"/><h2 className="mt-8 text-xl font-semibold">Guide is listening</h2><p className="muted mt-2 text-sm leading-6">Longer reviews make profile-scoped recommendations more precise.</p></Panel>
+        <Panel className="p-6"><Bot className="text-violet-300"/><h2 className="mt-8 text-xl font-semibold">Guide is listening</h2><p className="muted mt-2 text-sm leading-6">Longer reviews make profile-scoped recommendations more precise.</p>{p&&<Link className="btn mt-5 w-full" to={`/u/${p.profile.handle}#guide`}>Try it on your archive <ArrowUpRight size={16}/></Link>}</Panel>
       </div>}
     </div>
   </div>;

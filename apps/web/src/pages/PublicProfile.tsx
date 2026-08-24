@@ -325,6 +325,8 @@ export default function PublicProfile() {
   const { handle='nova' }=useParams(); const [params]=useSearchParams(); const navigate=useNavigate(); const [filter,setFilter]=useState('all'); const [sort,setSort]=useState('Newest'); const [search,setSearch]=useState('');
   const query=useQuery({queryKey:['public-profile',handle],queryFn:({signal})=>api.publicProfile(handle,signal),retry:(count,e)=>!(e instanceof ApiError&&e.status===404)&&count<2});
   useMastheadCinema(mastheadRef, statsRef, !query.isPending && !query.isError);
+  // Hash targets (#guide, #rig…) only exist once data renders; retry the anchor jump then.
+  useEffect(()=>{ if(query.isPending||!window.location.hash) return; const el=document.getElementById(window.location.hash.slice(1)); el?.scrollIntoView(); },[query.isPending,query.data]);
   const games=useMemo(()=>{const list=(query.data?.games??[]).filter(g=>(filter==='all'||g.status===filter)&&g.title.toLowerCase().includes(search.toLowerCase()));return [...list].sort((a,b)=>sort==='Rating'?((b.rating??0)-(a.rating??0)):sort==='Title'?a.title.localeCompare(b.title):((b.year??0)-(a.year??0)))},[query.data,filter,sort,search]);
   const selected=query.data?.games.find(g=>g.slug===params.get('game'));
   // Stable identities so memoized exhibit cards skip re-render while filters/search type.
