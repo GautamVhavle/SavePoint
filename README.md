@@ -115,7 +115,7 @@ Copy `apps/*/.env.example` to `.env` and fill what you need. Everything degrades
 pnpm test            # web unit + contract fixture captured from a live response
 pnpm test:e2e        # smoke, axe WCAG A/AA, studio flows, responsive gates, visual baselines
 pnpm test:api        # FastAPI suite (auth, ownership, constraints, rate limits)
-pnpm lint && pnpm typecheck && pnpm build
+pnpm check           # lint + typecheck + web tests + API tests + build in one gate
 ```
 
 Visual baselines are curated on macOS; other platforms skip unless `PLAYWRIGHT_UPDATE_SNAPSHOTS=1`.
