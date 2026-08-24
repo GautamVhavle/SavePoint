@@ -3,7 +3,7 @@
 :root { color-scheme: dark; --canvas: 6 10 20; --ink: 235 242 255; --muted: 151 164 190; --panel: 17 24 40; --line: 255 255 255; --glass: rgba(15,22,38,.72); --cyan:#58e8ff; --violet:#a78bfa; --magenta:#ff66c4; --shadow:rgba(0,0,0,.42); }
 [data-theme="light"] { color-scheme: light; --canvas: 244 239 230; --ink: 31 29 38; --muted: 91 85 103; --panel: 255 252 247; --line: 35 28 53; --glass:rgba(255,252,247,.77); --cyan:#006980; --violet:#6850b7; --magenta:#b52c7c; --shadow:rgba(77,59,39,.14); }
 * { box-sizing:border-box; }
-html { scroll-behavior:smooth; background:rgb(var(--canvas)); }
+html { scroll-behavior:smooth; background:rgb(var(--canvas)); /* Keep focused/scrolled targets clear of the sticky header. */ scroll-padding-top:88px; }
 body { margin:0; min-width:320px; background:rgb(var(--canvas)); color:rgb(var(--ink)); font-family:'Space Grotesk',sans-serif; -webkit-font-smoothing:antialiased; }
 body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:-2; background: radial-gradient(circle at 8% 8%, color-mix(in srgb,var(--cyan) 14%,transparent),transparent 28%), radial-gradient(circle at 82% 18%,color-mix(in srgb,var(--violet) 14%,transparent),transparent 30%), radial-gradient(circle at 60% 85%,color-mix(in srgb,var(--magenta) 8%,transparent),transparent 33%); }
 body::after { content:''; position:fixed; inset:0; pointer-events:none; opacity:.16; z-index:-1; background-image:linear-gradient(rgba(var(--line)/.06) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--line)/.06) 1px,transparent 1px); background-size:64px 64px; mask-image:linear-gradient(to bottom,black,transparent 85%); }
