@@ -53,10 +53,11 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
     # pydantic limits apply only after the body has been fully read.
     if request.method in {"POST", "PUT", "PATCH"}:
         content_length = request.headers.get("content-length")
-        if content_length and content_length.isdigit() and int(content_length) > settings.max_body_bytes:
+        body_bytes = int(content_length) if content_length and content_length.isdigit() else 0
+        if body_bytes > settings.max_body_bytes:
             from fastapi.responses import JSONResponse
 
-            logger.warning("request_too_large", path=request.url.path, content_length=content_length)
+            logger.warning("request_too_large", path=request.url.path, size=body_bytes)
             return JSONResponse(
                 status_code=413,
                 content={

@@ -204,6 +204,8 @@ class RateLimitEvent(Base):
     __tablename__ = "rate_limit_events"
     __table_args__ = (
         Index("ix_rate_limit_lookup", "scope", "profile_id", "ip_hash", "created_at"),
+        # The window cleanup deletes purely by age; keep it off full scans.
+        Index("ix_rate_limit_created_at", "created_at"),
     )
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     scope: Mapped[str] = mapped_column(String(40))

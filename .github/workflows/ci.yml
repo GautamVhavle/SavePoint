@@ -25,6 +25,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Audit production dependencies (high/critical gate)
+        run: pnpm --dir apps/web audit --prod --audit-level high
       - run: pnpm --dir apps/web lint
       - run: pnpm --dir apps/web typecheck
       - run: pnpm --dir apps/web test
