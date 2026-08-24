@@ -90,6 +90,9 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
   letter-spacing: -.05em; white-space: nowrap; color: transparent;
   -webkit-text-stroke: 1.5px rgba(var(--ink)/.06);
   pointer-events: none; user-select: none;
+  /* The stroked display text is wider than any viewport; clip it to the
+     section box without creating a scroll container. */
+  contain: paint;
 }
 
 /* Status hues: tuned per theme so small text always clears contrast */
