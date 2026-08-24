@@ -58,7 +58,7 @@ describe('Dashboard', () => {
     expect(screen.getByText(`${gameCount} game${gameCount === 1 ? '' : 's'} cataloged`)).toBeInTheDocument();
     // Checklist mirrors fixture reality: avatar done only when one exists.
     expect(screen.getByText(fixture.profile.avatar_url ? 'Avatar uploaded' : 'Upload an avatar')).toBeInTheDocument();
-    expect(screen.getByText(reviewCount > 0 ? /written review/ : 'Write at least one review')).toBeInTheDocument();
+    expect(screen.getByText(`${reviewCount} written review${reviewCount === 1 ? '' : 's'}`)).toBeInTheDocument();
   });
 
   it('offers a retry panel when the archive fails to load', async () => {
