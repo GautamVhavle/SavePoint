@@ -55,11 +55,13 @@ export default function Onboarding(){
         <h1 className="mt-6 text-4xl font-bold tracking-[-.05em] sm:text-6xl">{steps[step].title}</h1>
         <p className="muted mt-4 text-lg leading-8">{steps[step].body}</p>
         {step===0&&<div className="mt-8 grid gap-4 sm:grid-cols-2" onKeyDown={event=>{if(event.key==='Enter'&&nameOk&&handleOk){event.preventDefault();setStep(1);}}}>
-          <label><span className="label">DISPLAY NAME</span><input className="field" value={displayName} onChange={event=>setName(event.target.value)} placeholder="Nova Reyes" maxLength={60}/>
-            {displayName.trim().length>0&&displayName.trim().length<2&&<p className="field-error">At least 2 characters.</p>}
+          <label><span className="label">DISPLAY NAME</span><input className="field" value={displayName} onChange={event=>setName(event.target.value)} placeholder="Nova Reyes" maxLength={60} autoComplete="name"
+              aria-invalid={displayName.trim().length>0&&displayName.trim().length<2} aria-describedby={displayName.trim().length>0&&displayName.trim().length<2?'display-name-error':undefined}/>
+            {displayName.trim().length>0&&displayName.trim().length<2&&<p className="field-error" id="display-name-error">At least 2 characters.</p>}
           </label>
-          <label><span className="label">PUBLIC HANDLE</span><input className="field" value={handle} onChange={event=>setHandle(event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g,''))} placeholder="nova" autoComplete="off" spellCheck={false} maxLength={30}/>
-            <p className={`mt-1.5 font-mono text-[11px] ${onboardingSchema.shape.handle.safeParse(handle).success?'text-emerald-300':'muted'}`}>{onboardingSchema.shape.handle.safeParse(handle).success?'Looks good · reserved when you finish':'3+ characters · lowercase letters, numbers, _ or - (must end with a letter or number)'}</p>
+          <label><span className="label">PUBLIC HANDLE</span><input className="field" value={handle} onChange={event=>setHandle(event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g,''))} placeholder="nova" autoComplete="off" spellCheck={false} maxLength={30}
+              aria-describedby="handle-hint" aria-invalid={handle.length>0&&!onboardingSchema.shape.handle.safeParse(handle).success}/>
+            <p id="handle-hint" className={`mt-1.5 font-mono text-[11px] ${onboardingSchema.shape.handle.safeParse(handle).success?'text-emerald-300':'muted'}`}>{onboardingSchema.shape.handle.safeParse(handle).success?'Looks good · reserved when you finish':'3+ characters · lowercase letters, numbers, _ or - (must end with a letter or number)'}</p>
           </label>
         </div>}
         {step===1&&<div className="mt-8"><label><span className="label">WHAT DO YOU PLAY FOR?</span><textarea className="field" value={bio} onChange={event=>setBio(event.target.value)} maxLength={2000} placeholder="Discovery, atmosphere, and stories that trust me to pay attention."/><p aria-hidden className="muted mt-1 text-right font-mono text-[10px]">{2000-bio.length} left</p></label></div>}

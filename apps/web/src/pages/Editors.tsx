@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldValues, type Path, type Resolver, type UseFormReturn } from 'react-hook-form';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -125,6 +125,8 @@ function UploadCard({ purpose, title, hint, current, onUploaded }: {
   const [preview, setPreview] = useState<string | null>(current ?? null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [announce, setAnnounce] = useState('');
+  const inputId = useId();
   const blobRef = useRef<string | null>(null);
   useEffect(() => { if (!preview) setPreview(current ?? null); }, [current, preview]);
   // Local blob previews are session-only: revoke replaced and unmounted ones.
@@ -132,15 +134,17 @@ function UploadCard({ purpose, title, hint, current, onUploaded }: {
   const load = async (file?: File) => {
     if (!file) return;
     try {
-      setError(''); setBusy(true);
+      setError(''); setBusy(true); setAnnounce('Optimizing and uploading image…');
       const processed = await preprocessImage(file);
       const url = await api.uploadMedia(purpose, processed.file);
       if (blobRef.current) URL.revokeObjectURL(blobRef.current);
       blobRef.current = null;
       URL.revokeObjectURL(processed.preview);
       setPreview(url); onUploaded(url);
+      setAnnounce('Image stored.');
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'Upload failed.');
+      setAnnounce('');
     } finally { setBusy(false); }
   };
   return <div>
@@ -149,9 +153,10 @@ function UploadCard({ purpose, title, hint, current, onUploaded }: {
       {preview
         ? <div className={`flex items-center gap-4 p-4 ${busy ? 'animate-pulse' : ''}`}><img className="h-24 w-24 rounded-xl object-cover" src={preview} alt="Uploaded media"/><div className="text-left"><b>{busy ? 'Archiving…' : 'Stored'}</b><p className="muted mt-1 text-sm">{busy ? 'Optimizing and uploading' : 'Choose another file to replace.'}</p></div></div>
         : <div className="p-4"><UploadCloud className="mx-auto text-cyan-300"/><b className="mt-3 block">Drop or choose an image</b><p className="muted mt-1 text-sm">{hint}</p></div>}
-      <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Upload ${title.toLowerCase()} image`} onChange={event => void load(event.target.files?.[0])}/>
+      <input id={inputId} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Upload ${title.toLowerCase()} image`} disabled={busy} aria-describedby={error ? `${inputId}-error` : undefined} onChange={event => void load(event.target.files?.[0])}/>
     </label>
-    {error && <p className="field-error">{error}</p>}
+    <span className="sr-only" role="status">{announce}</span>
+    {error && <p className="field-error" id={`${inputId}-error`} role="alert">{error}</p>}
   </div>;
 }
 
@@ -388,7 +393,8 @@ function GameEditor() {
         />
       </div>
       {debounced.length >= 2 && <div className="mt-2 grid gap-2" role="group" aria-label="IGDB search results">
-        {results.isFetching && <p className="muted px-2 text-sm">Searching the archive…</p>}
+        <p className="sr-only" role="status">{results.isFetching ? 'Searching IGDB…' : results.isSuccess ? `${results.data.length} ${results.data.length === 1 ? 'result' : 'results'} found` : ''}</p>
+        {results.isFetching && <p className="muted px-2 text-sm" aria-hidden="true">Searching the archive…</p>}
         {results.data?.map(meta => <button
           key={meta.igdb_id} type="button" aria-pressed={selected?.igdb_id === meta.igdb_id}
           className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${selected?.igdb_id === meta.igdb_id ? 'border-cyan-300/60 bg-cyan-300/10' : 'border-white/10 bg-white/[.02] hover:border-cyan-300/30'}`}

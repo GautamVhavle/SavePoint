@@ -67,6 +67,7 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
         >
           <button aria-label="Close navigation" className="absolute inset-0 bg-[#04060d]/70 backdrop-blur-md" onClick={close} />
           <motion.div
+            id="mobile-nav"
             ref={drawerRef}
             role="dialog"
             aria-modal="true"
@@ -137,7 +138,7 @@ export function Shell() {
         <Link to="/" className="flex min-h-11 items-center gap-2.5 font-bold tracking-tight"><span className="grid h-9 w-9 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-300"><Archive size={19} /></span><span>Save<span className="text-gradient">Point</span></span></Link>
         {isDemoMode && <span className="hidden rounded-full border border-violet-400/30 bg-violet-400/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[.16em] text-violet-300 sm:inline">Safe demo</span>}
         <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Primary">{links.map(({ label, to, anchor }) => anchor ? <a className="btn border-0 bg-transparent text-sm" key={to} href={to}>{label}</a> : <NavLink className={({ isActive }) => `btn border-0 bg-transparent text-sm transition-colors ${isActive ? 'text-cyan-300' : ''}`} key={to} to={to}>{label}</NavLink>)}</nav>
-        <div className="ml-auto flex gap-2 md:ml-2"><ThemeToggle />{auth.isAuthenticated ? <Link className="btn !hidden sm:!inline-flex" to="/dashboard">Studio <ChevronRight size={16} /></Link> : <Button className="!hidden sm:!inline-flex" onClick={() => auth.login()}><LogIn size={16} /> Sign in</Button>}<Button className="icon-btn md:hidden" aria-label="Open navigation" aria-expanded={open} onClick={() => setOpen(true)}><Menu size={20} /></Button></div>
+        <div className="ml-auto flex gap-2 md:ml-2"><ThemeToggle />{auth.isAuthenticated ? <Link className="btn !hidden sm:!inline-flex" to="/dashboard">Studio <ChevronRight size={16} /></Link> : <Button className="!hidden sm:!inline-flex" onClick={() => auth.login()}><LogIn size={16} /> Sign in</Button>}<Button className="icon-btn md:hidden" aria-label="Open navigation" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(true)}><Menu size={20} /></Button></div>
       </div>
     </header>
     <MobileNav open={open} close={() => setOpen(false)} />

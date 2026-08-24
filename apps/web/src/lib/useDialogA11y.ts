@@ -20,6 +20,20 @@ export function useDialogA11y(
     if (!active) return;
     const node = container.current;
     const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // Screen-reader virtual cursors ignore focus traps, so occlude every
+    // sibling branch behind the dialog with [inert] and restore on close.
+    const inerted: HTMLElement[] = [];
+    let ancestor = node;
+    while (ancestor && ancestor !== document.body) {
+      const branch = ancestor;
+      for (const sibling of Array.from(branch.parentElement?.children ?? [])) {
+        if (sibling !== branch && sibling instanceof HTMLElement && !sibling.contains(node) && !sibling.hasAttribute('inert')) {
+          sibling.setAttribute('inert', '');
+          inerted.push(sibling);
+        }
+      }
+      ancestor = ancestor.parentElement;
+    }
     const raf = requestAnimationFrame(() => {
       const initial = node?.querySelector<HTMLElement>('[data-autofocus]') ?? node?.querySelector<HTMLElement>(FOCUSABLE);
       initial?.focus();
@@ -49,6 +63,7 @@ export function useDialogA11y(
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener('keydown', onKeyDown, true);
+      inerted.forEach(el => el.removeAttribute('inert'));
       previouslyFocused?.focus();
     };
   }, [active, container]);
