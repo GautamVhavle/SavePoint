@@ -38,7 +38,7 @@ The browser never receives the Twitch secret, Supabase service-role key, Gemini 
 1. The visitor submits a bounded question on a specific public profile.
 2. FastAPI derives a privacy-preserving HMAC of the visitor address and applies a database-backed profile/window limit.
 3. The API selects relevant public game entries, reviews, awards, and rig data.
-4. The API calls the stable, environment-configurable `gemini-3.7-flash` model through the unified `google-genai` async client, with a profile-only system boundary and the assembled context.
+4. The API calls the stable, environment-configurable Gemini model (`gemini-2.0-flash` by default) through the unified `google-genai` async client, with a profile-only system boundary and the assembled context.
 5. The response identifies supporting portfolio items and refuses unrelated general-assistant requests.
 
 ## Persistence rules
