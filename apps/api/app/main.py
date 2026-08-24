@@ -54,6 +54,21 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
     # Reject oversized payloads before they are buffered into memory;
     # pydantic limits apply only after the body has been fully read.
     if request.method in {"POST", "PUT", "PATCH"}:
+        # Mutations must declare JSON: blocks text/plain "simple requests"
+        # from ever reaching handlers if auth ever moves off bearer tokens.
+        content_type = request.headers.get("content-type", "")
+        if content_type and "application/json" not in content_type:
+            from fastapi.responses import JSONResponse
+
+            return JSONResponse(
+                status_code=415,
+                content={
+                    "type": "about:blank", "title": "Unsupported Media Type",
+                    "status": 415, "detail": "Expected application/json",
+                    "instance": str(request.url.path),
+                },
+                media_type="application/problem+json",
+            )
         content_length = request.headers.get("content-length")
         body_bytes = int(content_length) if content_length and content_length.isdigit() else 0
         if body_bytes > settings.max_body_bytes:

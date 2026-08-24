@@ -374,3 +374,13 @@ async def test_patch_profile_normalizes_handle_to_lowercase(
     response = await client.patch("/api/v1/me/profile", json={"handle": "MixedCase"})
     assert response.status_code == 200
     assert response.json()["handle"] == "mixedcase"
+
+
+@pytest.mark.asyncio
+async def test_mutations_reject_non_json_content_types(client: httpx.AsyncClient) -> None:
+    response = await client.post(
+        "/api/v1/me/profile",
+        content='{"handle": "ct", "display_name": "CT"}',
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 415
