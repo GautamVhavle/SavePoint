@@ -9,6 +9,7 @@ from app.db import SessionLocal
 from app.integrations.gemini import GeminiGuide
 from app.integrations.igdb import IGDBClient
 from app.models import Game, GameStatus, ProfileGame
+from app.schemas import IGDBGame
 
 
 async def create_library_entry(profile_id: uuid.UUID, *, featured: bool = False) -> uuid.UUID:
@@ -331,3 +332,23 @@ async def test_public_profile_revalidates_with_etag(client: httpx.AsyncClient) -
     # A different etag never short-circuits.
     miss = await client.get("/api/v1/profiles/etagged", headers={"if-none-match": 'W/"nope"'})
     assert miss.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_igdb_search_responses_exclude_raw_snapshots(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw = {
+        "id": 1020, "name": "Outer Wilds",
+        "screenshots": [{"id": 1}, {"id": 2}], "videos": [{"id": 9}],
+    }
+    await client.post("/api/v1/me/profile", json={"handle": "searchshape", "display_name": "S"})
+    monkeypatch.setattr(IGDBClient, "search", AsyncMock(return_value=[IGDBGame.model_validate({
+        "igdb_id": 1020, "name": "Outer Wilds", "slug": "outer-wilds",
+        "release_date": None, "snapshot": raw,
+    })]))
+    response = await client.get("/api/v1/igdb/search?q=outer")
+    assert response.status_code == 200
+    item = response.json()[0]
+    assert "snapshot" not in item
+    assert item["name"] == "Outer Wilds"

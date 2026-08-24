@@ -125,6 +125,8 @@ class PeripheralRead(PeripheralInput):
 
 
 class IGDBGame(APIModel):
+    """Internal shape: carries the raw upstream snapshot for storage."""
+
     igdb_id: int
     name: str
     slug: str
@@ -135,6 +137,20 @@ class IGDBGame(APIModel):
     genres: list[str] = Field(default_factory=list)
     platforms: list[str] = Field(default_factory=list)
     snapshot: dict[str, Any] = Field(default_factory=dict)
+
+
+class IGDBSearchResult(APIModel):
+    """Client-facing search hit: everything but the heavy raw snapshot."""
+
+    igdb_id: int
+    name: str
+    slug: str
+    summary: str | None = None
+    cover_url: str | None = None
+    banner_url: str | None = None
+    release_date: datetime | None = None
+    genres: list[str] = Field(default_factory=list)
+    platforms: list[str] = Field(default_factory=list)
 
 
 class ProfileGameInput(APIModel):

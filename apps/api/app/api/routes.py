@@ -20,7 +20,7 @@ from app.schemas import (
     AwardRead,
     GuideRequest,
     GuideResponse,
-    IGDBGame,
+    IGDBSearchResult,
     PeripheralInput,
     PeripheralRead,
     ProfileCreate,
@@ -215,7 +215,7 @@ async def delete_peripheral(item_id: uuid.UUID, profile: Owner, session: Session
     return Response(status_code=204)
 
 
-@router.get("/igdb/search", response_model=list[IGDBGame], tags=["games"])
+@router.get("/igdb/search", response_model=list[IGDBSearchResult], tags=["games"])
 async def search_igdb(
     request: Request,
     igdb: Annotated[IGDBClient, Depends(get_igdb)],
@@ -224,7 +224,7 @@ async def search_igdb(
     settings: SettingsDep,
     q: str = Query(min_length=2, max_length=100),
     limit: int = Query(10, ge=1, le=20),
-) -> list[IGDBGame]:
+) -> list[IGDBSearchResult]:
     await enforce_scope_limit(
         request, "igdb", profile.id, session, settings, limit=settings.igdb_rate_limit
     )

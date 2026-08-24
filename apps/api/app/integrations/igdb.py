@@ -7,7 +7,7 @@ import httpx
 from fastapi import Depends, HTTPException
 
 from app.core.config import Settings, get_settings
-from app.schemas import IGDBGame
+from app.schemas import IGDBGame, IGDBSearchResult
 
 
 class IGDBClient:
@@ -106,10 +106,14 @@ class IGDBClient:
             snapshot=item,
         )
 
-    async def search(self, query: str, limit: int = 10) -> list[IGDBGame]:
+    async def search(self, query: str, limit: int = 10) -> list[IGDBSearchResult]:
         escaped = query.replace("\\", "\\\\").replace('"', '\\"')
         rows = await self._request(f'search "{escaped}"; fields {self.fields}; limit {limit};')
-        return [self._map(row) for row in rows]
+        results: list[IGDBSearchResult] = []
+        for row in rows:
+            mapped = self._map(row)
+            results.append(IGDBSearchResult.model_validate(mapped.model_dump(exclude={"snapshot"})))
+        return results
 
     async def details(self, igdb_id: int) -> IGDBGame:
         rows = await self._request(f"fields {self.fields}; where id = {int(igdb_id)}; limit 1;")
