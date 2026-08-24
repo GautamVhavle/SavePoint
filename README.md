@@ -28,7 +28,7 @@ There are no follows, likes, comments, or timelines. One link in your bio does t
 | AI Guide | Gemini-powered answers constrained to the viewed profile, rate-limited per visitor + profile via hashed keys |
 | Metadata | Crawler-visible per-profile Open Graph HTML (bot-user-agent rewrite), dynamic 1200x630 share cards via `@vercel/og`, sitemap, manifest |
 | Trust | Auth0 JWT (JWKS, unknown-kid refresh), ownership checks on every mutation, half-star rating constraints enforced in the database |
-| Quality | 16 Playwright tests (smoke, axe WCAG scans, studio flows, responsive overflow gates, visual baselines), 17 API tests, 24 web unit/contract tests, strict mypy, zero-warning ESLint |
+| Quality | 20 Playwright tests (smoke, axe WCAG scans, studio flows, responsive overflow gates, visual baselines), 20 API tests, 33 web unit/contract tests, strict mypy, zero-warning ESLint |
 
 ## Architecture
 
@@ -102,6 +102,8 @@ Copy `apps/*/.env.example` to `.env` and fill what you need. Everything degrades
 | `IP_HASH_SECRET` | api | prod | HMAC key for privacy-preserving rate-limit keys |
 | `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` | api | IGDB | Client-credentials token for IGDB v4 |
 | `IGDB_RATE_LIMIT` | api | no | Authenticated search calls per profile+visitor per hour window (default 60) |
+| `GUIDE_RATE_LIMIT` / `GUIDE_RATE_WINDOW_SECONDS` | api | no | Guide questions per profile+visitor window (default 10 per 3600s) |
+| `UPLOAD_RATE_LIMIT` | api | no | Signed upload URLs per profile+visitor per window (default 30) |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | api | Guide | Google GenAI access, model defaults to a current Flash tier |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` | api | uploads | Signed upload URLs |
 | `SAVEPOINT_API_URL`, `SITE_URL` | web functions | deploy | Server-side OG metadata + share cards |
