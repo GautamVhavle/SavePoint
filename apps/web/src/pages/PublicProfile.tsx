@@ -159,7 +159,7 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
   const contentStagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.07 } } };
   const rise = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: .45, ease: [.22,.61,.36,1] } } };
   return (
-    <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>
+    <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" aria-describedby={game.summary ? 'game-summary' : undefined} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>
       <div ref={panel} className="glass relative mx-auto max-w-5xl overflow-hidden rounded-[28px]">
         <div className="relative">
           <div aria-hidden className="pointer-events-none"><CoverImage src={game.banner || game.cover} alt="" priority className="pointer-events-none aspect-[4/3] max-h-[300px] w-full sm:aspect-[21/8] sm:max-h-[360px]" /></div>
@@ -186,7 +186,7 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
           <motion.aside variants={rise} className="rounded-[22px] border border-white/10 bg-black/25 p-5 backdrop-blur-sm sm:p-6">
             <div className="eyebrow">Archive record</div>
             {game.cover && !game.banner && <CoverImage src={game.cover} alt="" className="mt-4 aspect-[3/4] w-32 rounded-xl border border-white/15" />}
-            <p className="mt-4 text-sm leading-7 text-white/80">{game.summary || 'Official record pending first IGDB snapshot.'}</p>
+            <p id="game-summary" className="mt-4 text-sm leading-7 text-white/80">{game.summary || 'Official record pending first IGDB snapshot.'}</p>
             {!!game.genres.length && <div className="mt-5 flex flex-wrap gap-1.5">{game.genres.map(g => <StatusPill key={g}>{g}</StatusPill>)}</div>}
             {!!game.platforms.length && <p className="muted mt-4 font-mono text-[11px] leading-5">ALSO ON · {game.platforms.join(' · ')}</p>}
             <p className="muted mt-6 border-t border-white/10 pt-4 font-mono text-[10px] leading-5">METADATA SNAPSHOT VIA IGDB · CAPTURED WHEN THIS ENTRY WAS FILED</p>
