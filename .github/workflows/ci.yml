@@ -62,6 +62,11 @@ jobs:
           python-version: "3.12"
           enable-cache: true
       - run: uv sync --project apps/api --all-extras --frozen
+      - name: Audit Python dependencies
+        run: |
+          uv export --project apps/api --format requirements-txt --no-hashes \
+            | grep -v '^-' > /tmp/api-reqs.txt
+          uvx pip-audit -r /tmp/api-reqs.txt
       - run: uv run ruff check .
         working-directory: apps/api
       - run: uv run mypy app
