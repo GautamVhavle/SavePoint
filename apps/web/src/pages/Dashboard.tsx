@@ -59,7 +59,7 @@ export default function Dashboard(){
           const last=i===tools.length-1;
           // New curators get one gentle pointer toward their first action.
           const startHere=title==='Game archive'&&!isLoading&&gameCount===0&&!query.isError;
-          return <Link key={to} to={to} className={`glass group relative min-h-52 rounded-[22px] p-6 transition hover:-translate-y-1 hover:border-cyan-300/30 ${last?'sm:col-span-2 sm:min-h-0':''}`}>
+          return <Link key={to} to={to} className={`glass card-sheen group relative min-h-52 rounded-[22px] p-6 transition hover:-translate-y-1 hover:border-cyan-300/30 ${last?'sm:col-span-2 sm:min-h-0':''}`}>
             <div className="flex justify-between"><span className={`grid h-11 w-11 place-items-center rounded-xl ${i%2?'bg-violet-400/10 text-violet-300':'bg-cyan-400/10 text-cyan-300'}`}><Icon size={20}/></span><ArrowUpRight className="muted transition duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-cyan-300"/></div>
             <h2 className={`text-xl font-semibold ${last?'mt-6':'mt-12'}`}>{title}</h2><p className="muted mt-2 text-sm leading-6">{text}</p>
             {startHere&&<span className="absolute bottom-6 right-6 inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[.2em] text-cyan-300"><Sparkles size={12}/>Start here</span>}
