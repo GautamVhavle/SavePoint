@@ -83,6 +83,8 @@ test('floating actions appear past the masthead and return to top', async ({ pag
   await page.goto('/u/nova');
   await expect(page.getByRole('button', { name: 'Back to top' })).toBeHidden();
   await page.evaluate(() => window.scrollTo({ top: window.innerHeight * 2, behavior: 'instant' }));
+  // Let the scroll listener flip the floating actions' visibility state first.
+  await page.waitForFunction(() => window.scrollY > window.innerHeight * 1.5);
   await expect(page.getByRole('button', { name: 'Back to top' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Share this archive' })).toBeVisible();
   await page.getByRole('button', { name: 'Back to top' }).click();
