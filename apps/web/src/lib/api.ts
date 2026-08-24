@@ -236,9 +236,16 @@ const demoClient: SavepointClient = {
   async deletePeripheral(id) { await wait(); const doc = demoDoc(); doc.peripherals = doc.peripherals.filter(item => item.id !== id); persist(doc); },
   async searchIgdb(query) {
     await wait();
+    const needle = query.toLowerCase();
     const all = [...demoDoc().games.map(entry => entry.game as ApiIGDBResult & { snapshot_at?: string }), ...demoCatalogExtra];
     const seen = new Set<number>();
-    return all.filter(meta => meta.name.toLowerCase().includes(query.toLowerCase()) && !seen.has(meta.igdb_id) && seen.add(meta.igdb_id));
+    const matches: ApiIGDBResult[] = [];
+    for (const meta of all) {
+      if (!meta.name.toLowerCase().includes(needle) || seen.has(meta.igdb_id)) continue;
+      seen.add(meta.igdb_id);
+      matches.push(meta);
+    }
+    return matches;
   },
   async addGame(input) {
     await wait();

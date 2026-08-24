@@ -22,10 +22,20 @@ export function ScrollProgress() {
   );
 }
 
-const drawerLinks = (path: string): Array<[string, string]> =>
+interface NavLink { label: string; to: string; anchor: boolean }
+
+const drawerLinks = (path: string): NavLink[] =>
   path.startsWith('/u/')
-    ? [['Rig', '#rig'], ['Hall of Fame', '#featured'], ['Chronicle', '#chronicle'], ['AI Guide', '#guide']]
-    : [['Showcase', '/u/nova'], ['Dashboard', '/dashboard']];
+    ? [
+        { label: 'Rig', to: '#rig', anchor: true },
+        { label: 'Hall of Fame', to: '#featured', anchor: true },
+        { label: 'Chronicle', to: '#chronicle', anchor: true },
+        { label: 'AI Guide', to: '#guide', anchor: true },
+      ]
+    : [
+        { label: 'Showcase', to: '/u/nova', anchor: false },
+        { label: 'Dashboard', to: '/dashboard', anchor: false },
+      ];
 
 function MobileNav({ open, close }: { open: boolean; close: () => void }) {
   const reduce = useReducedMotion();
@@ -78,14 +88,14 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
               <Button className="icon-btn" aria-label="Close navigation" onClick={close}><X size={19} /></Button>
             </div>
             <nav aria-label="Mobile" className="flex flex-col">
-              {links.map(([label, to], i) => (
+              {links.map(({ label, to, anchor }, i) => (
                 <motion.div
                   key={to}
                   initial={reduce ? false : { opacity: 0, x: 42 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: reduce ? 0 : 0.06 + i * 0.055, type: 'spring', stiffness: 300, damping: 26 }}
                 >
-                  {to.startsWith('#') ? (
+                  {anchor ? (
                     <a href={to} onClick={close} className="group flex min-h-16 items-center justify-between border-b border-white/10 text-[1.65rem] font-semibold tracking-tight">
                       {label}<ChevronRight size={20} className="text-cyan-200 transition group-hover:translate-x-1" />
                     </a>
@@ -126,7 +136,7 @@ export function Shell() {
       <div className="container-shell flex h-[72px] items-center gap-4">
         <Link to="/" className="flex min-h-11 items-center gap-2.5 font-bold tracking-tight"><span className="grid h-9 w-9 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-300"><Archive size={19} /></span><span>Save<span className="text-gradient">Point</span></span></Link>
         {isDemoMode && <span className="hidden rounded-full border border-violet-400/30 bg-violet-400/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[.16em] text-violet-300 sm:inline">Safe demo</span>}
-        <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Primary">{links.map(([label, to]) => to.startsWith('#') ? <a className="btn border-0 bg-transparent text-sm" key={to} href={to}>{label}</a> : <NavLink className={({ isActive }) => `btn border-0 bg-transparent text-sm transition-colors ${isActive ? 'text-cyan-300' : ''}`} key={to} to={to}>{label}</NavLink>)}</nav>
+        <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Primary">{links.map(({ label, to, anchor }) => anchor ? <a className="btn border-0 bg-transparent text-sm" key={to} href={to}>{label}</a> : <NavLink className={({ isActive }) => `btn border-0 bg-transparent text-sm transition-colors ${isActive ? 'text-cyan-300' : ''}`} key={to} to={to}>{label}</NavLink>)}</nav>
         <div className="ml-auto flex gap-2 md:ml-2"><ThemeToggle />{auth.isAuthenticated ? <Link className="btn !hidden sm:!inline-flex" to="/dashboard">Studio <ChevronRight size={16} /></Link> : <Button className="!hidden sm:!inline-flex" onClick={() => auth.login()}><LogIn size={16} /> Sign in</Button>}<Button className="icon-btn md:hidden" aria-label="Open navigation" aria-expanded={open} onClick={() => setOpen(true)}><Menu size={20} /></Button></div>
       </div>
     </header>
