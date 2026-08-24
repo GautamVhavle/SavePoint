@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, Check, Gamepad2, LoaderCircle, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Copy, Gamepad2, LoaderCircle, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
@@ -20,9 +20,12 @@ export default function Onboarding(){
   const [handle,setHandle]=useState('');
   const [bio,setBio]=useState('');
   const [saving,setSaving]=useState(false);
+  const [copied,setCopied]=useState(false);
   const [formError,setFormError]=useState('');
   const toast=useToast();
   const reduce=useReducedMotion();
+  const archiveUrl=`${window.location.origin}/u/${handle||'your-handle'}`;
+  const copyUrl=async()=>{try{await navigator.clipboard.writeText(archiveUrl);setCopied(true);toast.show('Archive URL copied.');setTimeout(()=>setCopied(false),1600);}catch{toast.show('Copying is unavailable in this browser.','error')}};
   const navigate=useNavigate();
   const auth=useAuth();
   const nameOk=onboardingSchema.shape.displayName.safeParse(displayName).success;
@@ -66,7 +69,7 @@ export default function Onboarding(){
           </label>
         </div>}
         {step===1&&<div className="mt-8"><label><span className="label">WHAT DO YOU PLAY FOR?</span><textarea className="field" value={bio} onChange={event=>setBio(event.target.value)} maxLength={2000} placeholder="Discovery, atmosphere, and stories that trust me to pay attention." aria-describedby="bio-count"/><p id="bio-count" className="muted mt-1 text-right font-mono text-[10px]">{2000-bio.length} characters left</p></label></div>}
-        {step===2&&<div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-5"><b>Your archive URL is ready</b><p className="muted mt-1 break-all font-mono text-sm">{window.location.origin}/u/{handle||'your-handle'}</p></div>}
+        {step===2&&<div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-5"><b>Your archive URL is ready</b><p className="muted mt-1 break-all font-mono text-sm">{archiveUrl}</p><Button className="btn mt-4" onClick={()=>void copyUrl()}>{copied?<Check size={15}/>:<Copy size={15}/>} {copied?'Copied':'Copy link'}</Button></div>}
       </motion.div></AnimatePresence>
       {formError&&<p className="field-error" role="alert">{formError}</p>}
       <div className="mt-10 flex justify-between">
