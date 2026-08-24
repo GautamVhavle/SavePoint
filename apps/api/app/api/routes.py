@@ -82,8 +82,14 @@ async def public_profile(
         raise HTTPException(status_code=404, detail="Profile not found")
     response.headers["Cache-Control"] = "public, max-age=60, stale-while-revalidate=300"
     # Cheap revalidation once freshness lapses: unchanged archives 304.
+    # Counts cover every curated entity so content changes always revalidate.
     touched = int(profile.updated_at.timestamp()) if profile.updated_at else 0
-    etag = f'W/"{profile.id}-{touched}-{len(profile.games)}"'
+    fingerprint = (
+        f"{profile.id}-{touched}-{len(profile.games)}-"
+        f"{len(profile.awards)}-{len(profile.peripherals)}-"
+        f"{int(bool(profile.rig and profile.rig.hero_photo_url))}"
+    )
+    etag = f'W/"{fingerprint}"'
     response.headers["ETag"] = etag
     if request.headers.get("if-none-match") == etag:
         return Response(status_code=304, headers=dict(response.headers))
