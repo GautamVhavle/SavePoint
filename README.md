@@ -28,7 +28,7 @@ There are no follows, likes, comments, or timelines. One link in your bio does t
 | AI Guide | Gemini-powered answers constrained to the viewed profile, rate-limited per visitor + profile via hashed keys |
 | Metadata | Crawler-visible per-profile Open Graph HTML (bot-user-agent rewrite), dynamic 1200x630 share cards via `@vercel/og`, sitemap, manifest |
 | Trust | Auth0 JWT (JWKS, unknown-kid refresh), ownership checks on every mutation, half-star rating constraints enforced in the database |
-| Quality | 38 Playwright tests (smoke, axe WCAG scans, studio flows, responsive overflow gates, visual baselines), 14 API tests, strict mypy, zero-warning ESLint |
+| Quality | 16 Playwright tests (smoke, axe WCAG scans, studio flows, responsive overflow gates, visual baselines), 17 API tests, 24 web unit/contract tests, strict mypy, zero-warning ESLint |
 
 ## Architecture
 
