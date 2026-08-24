@@ -9,6 +9,14 @@ const TILE_PNG =
 
 async function prepare(page: Page) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  // content-visibility placeholders would otherwise show as blank boxes in
+  // stitched full-page screenshots.
+  await page.addInitScript(() => {
+    const style = document.createElement('style');
+    style.textContent = '.cv-auto{content-visibility:visible !important}';
+    document.addEventListener('DOMContentLoaded', () => document.head.appendChild(style));
+    if (document.head) document.head.appendChild(style);
+  });
 }
 
 async function settle(page: Page) {

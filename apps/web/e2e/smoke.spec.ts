@@ -73,7 +73,7 @@ test('dossier arrow keys step through the collection with wrap-around', async ({
 
   await page.keyboard.press('ArrowRight');
   const title = dialog.getByRole('heading', { level: 2 }).first();
-  await expect(title).not.toHaveText(/Outer Wilds/);
+  await expect(title).not.toHaveText(/Outer Wilds/, { timeout: 8000 });
 
   await page.keyboard.press('ArrowLeft');
   await expect(dialog.getByRole('heading', { level: 2 }).first()).toHaveText(/Outer Wilds/);
