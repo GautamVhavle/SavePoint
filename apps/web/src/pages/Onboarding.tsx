@@ -44,7 +44,7 @@ export default function Onboarding(){
     <div className="h-1 bg-white/5"><motion.div className="h-full bg-gradient-to-r from-cyan-300 to-violet-400" animate={{width:`${(step+1)/3*100}%`}}/></div>
     <div className="p-6 sm:p-12">
       <div className="mb-10 flex items-center justify-between">
-        <div className="eyebrow">Onboarding · 0{step+1}</div><span className="font-mono text-xs text-ink/40">{step+1} / 3</span>
+        <div className="eyebrow">Onboarding · 0{step+1}</div><span aria-live="polite" role="status" className="font-mono text-xs text-ink/40">Step {step+1} of 3</span>
       </div>
       <AnimatePresence mode="wait"><motion.div key={step} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}}>
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-300/10 text-cyan-300">{step===2?<Check/>:step===1?<Sparkles/>:<Gamepad2/>}</div>
