@@ -83,7 +83,7 @@ export function GameEditor() {
       <div className="relative">
         <Search className="absolute left-3 top-3.5 text-ink/40" size={17}/>
         <input
-          id="igdb-search" className="field pl-10" placeholder="Start typing a title…" value={query} autoComplete="off"
+          id="igdb-search" className="field pl-10" placeholder="Start typing a title…" value={query} autoComplete="off" enterKeyHint="search"
           onChange={event => { setQuery(event.target.value); if (!editingId) setSelected(null); }}
         />
       </div>
@@ -107,7 +107,7 @@ export function GameEditor() {
       {editingId && <input type="hidden" {...form.register('igdbId')}/>}
       <SelectField label="STATUS" name="status" form={form} options={STATUS_ORDER.map(value => [value, STATUS_LABELS[value]] as [string, string])}/>
       <SelectField label="RATING" name="rating" form={form} options={RATING_OPTIONS}/>
-      <Field label="HOURS PLAYED" name="hours" form={form} type="number" step="0.1" min="0" max="1000000"/>
+      <Field label="HOURS PLAYED" name="hours" form={form} type="number" step="0.1" min="0" max="1000000" inputMode="decimal"/>
       <Field label="PLATFORM PLAYED" name="platform" form={form} placeholder="PC, PS5, Switch…" list="platform-options"/>
       <datalist id="platform-options">{(selected?.platforms ?? []).map(platform => <option key={platform} value={platform}/>)}</datalist>
       <Field label="STARTED ON" name="startedOn" form={form} type="date"/>
@@ -118,7 +118,7 @@ export function GameEditor() {
         <span className="text-sm font-medium">Feature on the Hall of Fame rail</span>
       </label>
       {form.watch('featured') && <>
-        <Field label="FEATURED ORDER" name="featuredOrder" form={form} type="number" min="0" max="10000"/>
+        <Field label="FEATURED ORDER" name="featuredOrder" form={form} type="number" min="0" max="10000" inputMode="numeric"/>
         <Field label="CURATOR NOTE" name="featuredNote" form={form} placeholder="Why this belongs up front"/>
       </>}
       <div className="flex gap-2 sm:col-span-2">

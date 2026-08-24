@@ -22,14 +22,14 @@ export function EditorShell({ title, eyebrow, children, aside }: { title: string
   </PageFade>;
 }
 
-export function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, max, list, maxLength }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; max?: string; list?: string; maxLength?: number }) {
+export function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, max, list, maxLength, inputMode }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; max?: string; list?: string; maxLength?: number; inputMode?: 'text' | 'decimal' | 'numeric' }) {
   const error = form.formState.errors[name]?.message as string | undefined;
   const id = `field-${String(name)}`;
   return <label className="block">
     <span className="label">{label}</span>
     {multiline
       ? <textarea id={id} className="field" placeholder={placeholder} maxLength={maxLength} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />
-      : <input id={id} type={type} placeholder={placeholder} className="field" min={min} max={max} step={step} list={list} maxLength={maxLength} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />}
+      : <input id={id} type={type} placeholder={placeholder} className="field" min={min} max={max} step={step} list={list} maxLength={maxLength} inputMode={inputMode} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />}
     {error && <span id={`${id}-error`} className="field-error">{error}</span>}
   </label>;
 }

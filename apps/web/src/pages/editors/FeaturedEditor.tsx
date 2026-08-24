@@ -56,7 +56,7 @@ export function FeaturedEditor() {
           </div>
           {draft.featured && <div className="mt-3 grid gap-3 border-t border-white/10 pt-3 sm:grid-cols-[120px_1fr]">
             <label><span className="label">ORDER</span>
-              <input className="field" type="number" min="0" max="10000" value={draft.order ?? ''} onChange={event => update(entry.id, { order: event.target.value === '' ? null : Number(event.target.value) })}/>
+              <input className="field" type="number" inputMode="numeric" min="0" max="10000" value={draft.order ?? ''} onChange={event => update(entry.id, { order: event.target.value === '' ? null : Number(event.target.value) })}/>
             </label>
             <label><span className="label">CURATOR NOTE</span>
               <input className="field" value={draft.note} onChange={event => update(entry.id, { note: event.target.value })} placeholder="Why this leads the shelf"/>
