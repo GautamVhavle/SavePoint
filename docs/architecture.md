@@ -66,3 +66,10 @@ Automated tests replace upstream calls with deterministic fakes. They never requ
 - Database/media: one Supabase project.
 
 Production origins, callback URLs, API audience, database migrations, storage bucket policy, and external credentials must be configured before deployment.
+
+## Frontend module layout
+
+- `src/pages/` — route-level screens. `PublicProfile.tsx` composes the public archive; shared profile pieces live in `src/pages/profile/` (`GameDetail`, `Guide`, `Stars`, `use-masthead-cinema`, `load-gsap`). Studio editors are split under `src/pages/editors/` (`shared.tsx` owns the editor chrome, fields, save bar, uploads, and data hooks).
+- `src/lib/api.ts` — the transport facade: request handling with timeout + abort normalization, the real client, and the `isDemoMode` selection. DTO→view mapping lives in `api-mapping.ts`; the localStorage showcase backend in `demo-backend.ts`. Import paths stay on `lib/api` so demo and live modes remain swappable.
+- `src/lib/useDialogA11y.ts` — one hook for modal semantics: focus trap, Escape, `[inert]` occlusion of the page (with an optional overlay boundary), body-scroll lock, and focus restoration.
+- Inline scripts in `index.html` are pinned by hash in `vercel.json`'s Content-Security-Policy; `src/index-html.security.test.ts` fails the build if they drift, and `e2e/csp.spec.ts` enforces the header end to end.
