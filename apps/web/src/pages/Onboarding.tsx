@@ -23,6 +23,8 @@ export default function Onboarding(){
   const toast=useToast();
   const navigate=useNavigate();
   const auth=useAuth();
+  const nameOk=onboardingSchema.shape.displayName.safeParse(displayName).success;
+  const handleOk=onboardingSchema.shape.handle.safeParse(handle).success;
   const finish=async()=>{
     setFormError('');
     const parsed=onboardingSchema.safeParse({displayName,handle,bio});
@@ -51,7 +53,7 @@ export default function Onboarding(){
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-300/10 text-cyan-300">{step===2?<Check/>:step===1?<Sparkles/>:<Gamepad2/>}</div>
         <h1 className="mt-6 text-4xl font-bold tracking-[-.05em] sm:text-6xl">{steps[step].title}</h1>
         <p className="muted mt-4 text-lg leading-8">{steps[step].body}</p>
-        {step===0&&<div className="mt-8 grid gap-4 sm:grid-cols-2" onKeyDown={event=>{if(event.key==='Enter'&&displayName.trim().length>=2&&handle.trim().length>=3){event.preventDefault();setStep(1);}}}>
+        {step===0&&<div className="mt-8 grid gap-4 sm:grid-cols-2" onKeyDown={event=>{if(event.key==='Enter'&&nameOk&&handleOk){event.preventDefault();setStep(1);}}}>
           <label><span className="label">DISPLAY NAME</span><input className="field" value={displayName} onChange={event=>setName(event.target.value)} placeholder="Nova Reyes" maxLength={60}/>
             {displayName.trim().length>0&&displayName.trim().length<2&&<p className="field-error">At least 2 characters.</p>}
           </label>
@@ -66,7 +68,7 @@ export default function Onboarding(){
       <div className="mt-10 flex justify-between">
         <Button disabled={!step} onClick={()=>setStep(s=>s-1)}>Back</Button>
         {step<2
-          ? <Button className="btn-primary" disabled={step===0&&(displayName.trim().length<2||handle.trim().length<3)} onClick={()=>setStep(s=>s+1)}>Continue <ArrowRight size={17}/></Button>
+          ? <Button className="btn-primary" disabled={step===0&&(!nameOk||!handleOk)} onClick={()=>setStep(s=>s+1)}>Continue <ArrowRight size={17}/></Button>
           : <Button className="btn-primary" disabled={saving||!displayName.trim()||!handle.trim()} onClick={() => void finish()}>
               {saving ? <LoaderCircle className="animate-spin" size={17}/> : <ArrowRight size={17}/>}
               {auth.isAuthenticated?'Reserve and enter studio':'Sign in securely'}
