@@ -10,6 +10,18 @@ from jwt.algorithms import RSAAlgorithm
 
 from app.core.config import Settings, get_settings
 
+# The subject becomes an indexed String(255); refuse oversized values here so
+# malformed identities surface as auth failures, never database errors.
+_SUBJECT_MAX = 255
+
+
+def _validated_subject(subject: str) -> str:
+    if not subject or len(subject) > _SUBJECT_MAX:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid subject claim"
+        )
+    return subject
+
 
 @dataclass(frozen=True)
 class Principal:
@@ -97,7 +109,9 @@ async def current_principal(
         if settings.environment not in {"development", "test"}:
             raise HTTPException(status_code=500, detail="Unsafe authentication configuration")
         subject = x_dev_auth_sub or settings.dev_auth_sub
-        return Principal(subject=subject, claims={"sub": subject, "dev_bypass": True})
+        return Principal(
+            subject=_validated_subject(subject), claims={"sub": subject, "dev_bypass": True}
+        )
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -105,4 +119,4 @@ async def current_principal(
             headers={"WWW-Authenticate": "Bearer"},
         )
     claims = await verifier.verify(authorization.removeprefix("Bearer ").strip())
-    return Principal(subject=str(claims["sub"]), claims=claims)
+    return Principal(subject=_validated_subject(str(claims["sub"])), claims=claims)

@@ -352,3 +352,15 @@ async def test_igdb_search_responses_exclude_raw_snapshots(
     item = response.json()[0]
     assert "snapshot" not in item
     assert item["name"] == "Outer Wilds"
+
+
+@pytest.mark.asyncio
+async def test_oversized_subject_claims_are_auth_failures_not_db_errors(
+    client: httpx.AsyncClient,
+) -> None:
+    response = await client.post(
+        "/api/v1/me/profile",
+        json={"handle": "longsub", "display_name": "L"},
+        headers={"X-Dev-Auth-Sub": "x" * 300},
+    )
+    assert response.status_code == 401
