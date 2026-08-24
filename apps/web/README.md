@@ -10,20 +10,20 @@ React 18 + TypeScript + Vite, Tailwind CSS, React Router, TanStack Query, React 
 
 ```bash
 cp .env.example .env.local
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 For the credential-free visual showcase, omit `VITE_API_URL` or set `VITE_DEMO_MODE=true`. Demo mode uses deterministic synthetic data and simulated writes. It only changes browser UX: it does **not** manufacture an access token or bypass FastAPI authorization. In production configure the API and Auth0 variables and leave demo mode false.
 
 ## Commands
 
-- `npm run dev`, Vite development server
-- `npm run typecheck`, strict TypeScript project check
-- `npm run lint`, ESLint quality gate
-- `npm test`, Vitest suite
-- `npm run build`, typecheck and optimized production bundle
-- `npm run test:e2e`, Playwright desktop/mobile smoke tests against preview
+- `pnpm dev`, Vite development server
+- `pnpm typecheck`, strict TypeScript project check
+- `pnpm lint`, ESLint quality gate (zero warnings allowed)
+- `pnpm test`, Vitest suite
+- `pnpm build`, typecheck and optimized production bundle
+- `pnpm test:e2e`, Playwright desktop/mobile suites against the preview build
 
 ## FastAPI contract
 
