@@ -35,7 +35,8 @@ export default function Dashboard(){
       <div className="flex gap-2">
         {p ? <Link className="btn" to={`/u/${p.profile.handle}`}>View archive <ArrowUpRight size={16}/></Link>
           : <button className="btn" disabled aria-disabled="true">View archive <ArrowUpRight size={16}/></button>}
-        <Link className="btn btn-primary" to="/dashboard/games"><Plus size={16}/> Add game</Link>
+        {p ? <Link className="btn btn-primary" to="/dashboard/games"><Plus size={16}/> Add game</Link>
+          : <button className="btn btn-primary" disabled aria-disabled="true"><Plus size={16}/> Add game</button>}
       </div>
     </div>
     {isDemoMode&&<Panel className="mt-8 flex items-start gap-3 border-violet-300/20 bg-violet-400/5 p-4"><Radio className="mt-0.5 text-violet-300" size={18}/><div><b className="text-sm">Safe demo workspace</b><p className="muted mt-1 text-sm">Edits stay in this browser and never grant production authorization.</p></div></Panel>}
