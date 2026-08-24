@@ -16,7 +16,7 @@ test('curator can search IGDB and add a game to the chronicle', async ({ page })
     .textContent();
 
   await page.getByLabel('SEARCH IGDB').fill('disco elysium');
-  const result = page.getByRole('option', { name: /Disco Elysium/ }).first();
+  const result = page.getByRole('button', { name: /Disco Elysium/ }).first();
   await result.click();
 
   await page.getByLabel('RATING').selectOption('4.5');
@@ -34,7 +34,7 @@ test('duplicate IGDB additions are rejected with a visible reason', async ({ pag
   await openStudioGames(page);
   // Hades ships inside the seeded demo archive, so re-adding must fail loudly.
   await page.getByLabel('SEARCH IGDB').fill('hades');
-  await page.getByRole('option', { name: /Hades/ }).first().click();
+  await page.getByRole('button', { name: /Hades/ }).first().click();
   await page.getByRole('button', { name: 'Add to chronicle' }).click();
   await expect(page.locator('.toast')).toContainText(/already exists/i);
 });
