@@ -10,11 +10,16 @@ const FOCUSABLE = [
  * Dialog keyboard semantics: moves focus into `container` on open, traps Tab/Shift+Tab
  * inside it, closes on Escape, occludes the page behind it, locks body scroll,
  * and restores focus to the trigger on close.
+ *
+ * `boundary` marks the dialog system's outermost overlay: inerting stops below
+ * it so interactive siblings inside that overlay (e.g. a click-to-close
+ * backdrop) stay live while everything outside is occluded.
  */
 export function useDialogA11y(
   container: RefObject<HTMLElement | null>,
   active: boolean,
   onEscape?: () => void,
+  boundary?: RefObject<HTMLElement | null>,
 ) {
   const escapeRef = useRef(onEscape);
   escapeRef.current = onEscape;
@@ -26,9 +31,16 @@ export function useDialogA11y(
     document.body.style.overflow = 'hidden';
     // Screen-reader virtual cursors ignore focus traps, so occlude every
     // sibling branch behind the dialog with [inert] and restore on close.
+    const stopAt = boundary?.current ?? null;
     const inerted: HTMLElement[] = [];
     let ancestor = node;
     while (ancestor && ancestor !== document.body) {
+      // Inside a declared overlay boundary: leave the overlay's own
+      // internals (backdrops, panels) interactive.
+      if (stopAt && ancestor !== stopAt && stopAt.contains(ancestor)) {
+        ancestor = ancestor.parentElement;
+        continue;
+      }
       const branch = ancestor;
       for (const sibling of Array.from(branch.parentElement?.children ?? [])) {
         if (sibling !== branch && sibling instanceof HTMLElement && !sibling.contains(node) && !sibling.hasAttribute('inert')) {
@@ -36,6 +48,7 @@ export function useDialogA11y(
           inerted.push(sibling);
         }
       }
+      if (ancestor === stopAt) break;
       ancestor = ancestor.parentElement;
     }
     const raf = requestAnimationFrame(() => {

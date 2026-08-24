@@ -43,13 +43,17 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
   const links = drawerLinks(location.pathname);
   const auth = useAuth();
   const drawerRef = useRef<HTMLDivElement>(null);
+  // The full-screen overlay owns the click-away backdrop, so it — not the
+  // page body — is the boundary the inert sweep stops at.
+  const overlayRef = useRef<HTMLDivElement>(null);
   // The hook also traps focus, occludes the page, and locks body scroll.
-  useDialogA11y(drawerRef, open, close);
+  useDialogA11y(drawerRef, open, close, overlayRef);
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={overlayRef}
           className="fixed inset-0 z-[80] md:hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

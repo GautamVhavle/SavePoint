@@ -33,8 +33,10 @@ test('curator can search IGDB and add a game to the chronicle', async ({ page })
 test('duplicate IGDB additions are rejected with a visible reason', async ({ page }) => {
   await openStudioGames(page);
   // Hades ships inside the seeded demo archive, so re-adding must fail loudly.
+  // Scope to the results group so library "Edit Hades" rows can never win the
+  // race against the 300ms search debounce.
   await page.getByLabel('SEARCH IGDB').fill('hades');
-  await page.getByRole('button', { name: /Hades/ }).first().click();
+  await page.getByRole('group', { name: 'IGDB search results' }).getByRole('button', { name: /Hades/ }).first().click();
   await page.getByRole('button', { name: 'Add to chronicle' }).click();
   await expect(page.locator('.toast')).toContainText(/already exists/i);
 });
