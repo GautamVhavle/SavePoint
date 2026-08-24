@@ -49,7 +49,7 @@ export default function Onboarding(){
     }finally{setSaving(false);}
   };
   return <PageFade className="container-shell grid min-h-[calc(100vh-73px)] place-items-center py-10"><Helmet><title>Claim your archive · SavePoint</title><meta name="robots" content="noindex"/></Helmet><Panel className="w-full max-w-3xl overflow-hidden">
-    <div className="h-1 bg-white/5"><motion.div className="h-full bg-gradient-to-r from-cyan-300 to-violet-400" animate={{width:`${(step+1)/3*100}%`}}/></div>
+    <div className="h-1 bg-white/5" role="progressbar" aria-label="Onboarding progress" aria-valuemin={1} aria-valuemax={3} aria-valuenow={step+1}><motion.div className="h-full bg-gradient-to-r from-cyan-300 to-violet-400" animate={{width:`${(step+1)/3*100}%`}}/></div>
     <div className="p-6 sm:p-12">
       <div className="mb-10 flex items-center justify-between">
         <div className="eyebrow">Onboarding · 0{step+1}</div><span aria-live="polite" role="status" className="font-mono text-xs text-ink/40">Step {step+1} of 3</span>
