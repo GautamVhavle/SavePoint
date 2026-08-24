@@ -12,6 +12,14 @@ test('public archive has required section order and details', async ({ page }) =
   await page.getByRole('button', { name: 'Close game details' }).click();
 });
 
+test('unknown routes render the 404 screen with a working SPA return home', async ({ page }) => {
+  await page.goto('/this-route-does-not-exist');
+  await expect(page.getByRole('heading', { name: /No save/i })).toBeVisible();
+  await page.getByRole('link', { name: 'Return home' }).click();
+  await expect(page).toHaveURL(new RegExp('/?$'));
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+});
+
 test('theme and mobile navigation work', async ({ page }) => {
   await page.goto('/');
   const html = page.locator('html');
