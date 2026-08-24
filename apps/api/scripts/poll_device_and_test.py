@@ -5,6 +5,7 @@ live IGDB smoke test (search, details, banner mapping) against real payloads."""
 import json
 import re
 import sys
+import tempfile
 import time
 from pathlib import Path
 from urllib.error import HTTPError
@@ -43,7 +44,8 @@ def banner_url(game: dict) -> str | None:
 
 
 def main() -> None:
-    device = json.loads(Path("/tmp/tw_device.json").read_text())
+    device_path = Path(tempfile.gettempdir()) / "tw_device.json"
+    device = json.loads(device_path.read_text())
     deadline = time.time() + int(device["expires_in"])
     interval = max(int(device.get("interval", 5)), 3)
 

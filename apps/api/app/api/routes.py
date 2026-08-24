@@ -12,7 +12,7 @@ from app.core.auth import Principal, current_principal
 from app.core.config import Settings, get_settings
 from app.db import get_session
 from app.integrations.gemini import GeminiGuide
-from app.integrations.igdb import IGDBClient
+from app.integrations.igdb import IGDBClient, get_igdb
 from app.integrations.storage import SupabaseStorageClient
 from app.models import Award, Game, Peripheral, Profile, ProfileGame, Rig
 from app.schemas import (
@@ -209,20 +209,21 @@ async def delete_peripheral(item_id: uuid.UUID, profile: Owner, session: Session
 
 @router.get("/igdb/search", response_model=list[IGDBGame], tags=["games"])
 async def search_igdb(
-    settings: SettingsDep,
+    igdb: Annotated[IGDBClient, Depends(get_igdb)],
     principal: Annotated[Principal, Depends(current_principal)],
     q: str = Query(min_length=2, max_length=100),
     limit: int = Query(10, ge=1, le=20),
 ) -> list[IGDBGame]:
     del principal  # Authentication is required; identity is not sent upstream.
-    return await IGDBClient(settings).search(q, limit)
+    return await igdb.search(q, limit)
 
 
 @router.post("/me/games", response_model=ProfileGameRead, status_code=201, tags=["games"])
 async def add_game(
-    payload: ProfileGameInput, profile: Owner, session: Session, settings: SettingsDep
+    payload: ProfileGameInput, profile: Owner, session: Session,
+    igdb: Annotated[IGDBClient, Depends(get_igdb)],
 ) -> ProfileGame:
-    metadata = await IGDBClient(settings).details(payload.igdb_id)
+    metadata = await igdb.details(payload.igdb_id)
     game = await session.scalar(select(Game).where(Game.igdb_id == payload.igdb_id))
     values = metadata.model_dump(exclude={"igdb_id"})
     if game is None:

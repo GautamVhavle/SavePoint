@@ -4,9 +4,9 @@ from datetime import UTC, datetime
 from typing import Any
 
 import httpx
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.schemas import IGDBGame
 
 
@@ -110,3 +110,14 @@ class IGDBClient:
         if not rows:
             raise HTTPException(status_code=404, detail="Game not found in IGDB")
         return self._map(rows[0])
+
+
+_client: IGDBClient | None = None
+
+
+def get_igdb(settings: Settings = Depends(get_settings)) -> IGDBClient:
+    """Shared client so the Twitch token cache survives across requests."""
+    global _client
+    if _client is None or _client.settings is not settings:
+        _client = IGDBClient(settings)
+    return _client
