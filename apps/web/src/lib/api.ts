@@ -168,7 +168,7 @@ function persist(doc: ApiPublicProfile) {
 }
 
 /** Inverse of mapPublicProfile: lets the visual demo seed a realistic editable document. */
-export function seedFromView(view: Profile): ApiPublicProfile {
+function seedFromView(view: Profile): ApiPublicProfile {
   const created = `${view.since}-01-15T12:00:00Z`;
   const gameMetas = view.games.map(game => ({
     igdb_id: game.igdbId ?? 1, name: game.title, slug: game.slug, summary: game.summary ?? null,

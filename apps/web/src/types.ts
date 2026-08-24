@@ -20,7 +20,7 @@ export const STATUS_COLORS: Record<GameStatus, { core: string; soft: string }> =
 };
 
 /** View model consumed by pages (camelCase, presentation-ready). */
-export interface RigItem { id: string; category: string; name: string; detail: string; accent?: string; }
+export interface RigItem { id: string; category: string; name: string; detail: string; }
 export interface Award { id: string; title: string; gameId: string; note: string; year?: number; }
 export interface Game {
   id: string;
