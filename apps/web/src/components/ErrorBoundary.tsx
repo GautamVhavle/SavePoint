@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { ArchiveX } from 'lucide-react';
 
 interface State { error: Error | null }
@@ -24,9 +25,12 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           <div className="eyebrow mt-7 justify-center">Archive glitch</div>
           <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">This view hit a snag.</h1>
           <p className="muted mt-4">Your collection is safe on the server. Reload to re-enter the archive.</p>
-          <button className="btn btn-primary mt-7" onClick={() => window.location.reload()}>
-            Reload SavePoint
-          </button>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <button className="btn btn-primary" onClick={() => window.location.reload()}>
+              Reload SavePoint
+            </button>
+            <Link className="btn" to="/">Return home</Link>
+          </div>
         </div>
       </div>
     );

@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { useRef } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -15,13 +16,23 @@ function Bomb({ explode }: { explode: boolean }) {
 describe('ErrorBoundary', () => {
   it('renders the recovery screen instead of crashing the tree', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    render(<ErrorBoundary><Bomb explode /></ErrorBoundary>);
+    render(
+      <MemoryRouter>
+        <ErrorBoundary><Bomb explode /></ErrorBoundary>
+      </MemoryRouter>,
+    );
     expect(screen.getByRole('alert')).toHaveTextContent('This view hit a snag.');
+    expect(screen.getByRole('button', { name: 'Reload SavePoint' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Return home' })).toHaveAttribute('href', '/');
     spy.mockRestore();
   });
 
   it('renders children when nothing throws', () => {
-    render(<ErrorBoundary><Bomb explode={false} /></ErrorBoundary>);
+    render(
+      <MemoryRouter>
+        <ErrorBoundary><Bomb explode={false} /></ErrorBoundary>
+      </MemoryRouter>,
+    );
     expect(screen.getByText('fine')).toBeInTheDocument();
   });
 });
