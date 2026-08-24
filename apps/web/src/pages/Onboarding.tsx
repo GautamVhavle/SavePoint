@@ -35,6 +35,7 @@ export default function Onboarding(){
     setSaving(true);
     try{
       await api.createMe({handle:parsed.data.handle,display_name:parsed.data.displayName,bio:parsed.data.bio||null});
+      toast.show(`Archive claimed · welcome to the studio, ${parsed.data.displayName.split(' ')[0]}.`);
       navigate('/dashboard');
     }catch(error){
       toast.show(error instanceof ApiError?error.message:'Could not reserve that handle.','error');
