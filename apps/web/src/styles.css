@@ -113,3 +113,17 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
   --status-playing-soft:rgba(0,105,128,.12); --status-completed-soft:rgba(104,80,183,.12);
   --status-backlog-soft:rgba(91,100,114,.10); --status-dropped-soft:rgba(179,18,95,.10);
 }
+
+/* High-contrast & forced-colors support ---------------------------------- */
+@media (prefers-contrast: more) {
+  :focus-visible { outline-width: 3px; }
+  /* Translucent glass washes out text at higher contrast requirements. */
+  .glass { background: rgb(var(--canvas)); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+/* Gradient-clipped text renders transparent-on-transparent in Windows
+   High Contrast mode; fall back to solid system text color. */
+@media (forced-colors: active) {
+  .text-gradient { background: none; color: CanvasText; }
+  .watermark { display: none; }
+}
