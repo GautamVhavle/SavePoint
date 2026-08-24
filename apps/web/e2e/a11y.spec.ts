@@ -54,3 +54,16 @@ test('open game dossier passes serious/critical wcag checks', async ({ page }) =
     results.violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')).map(v => `${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
   ).toEqual([]);
 });
+
+test('mobile navigation drawer passes serious/critical wcag checks while open', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/u/nova');
+  await page.waitForTimeout(900);
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  await page.getByRole('dialog', { name: 'Site navigation' }).waitFor();
+  await page.waitForTimeout(500);
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(
+    results.violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')).map(v => `${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
+  ).toEqual([]);
+});
