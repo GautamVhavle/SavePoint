@@ -64,3 +64,17 @@ test('mobile drawer opens, locks scroll, and closes every way', async ({ page })
   await page.getByRole('dialog', { name: 'Site navigation' }).getByLabel('Close navigation').click();
   await expect(dialog).toHaveCount(0);
 });
+
+test('dossier arrow keys step through the collection with wrap-around', async ({ page }) => {
+  await page.goto('/u/nova');
+  const dialog = page.getByRole('dialog');
+  await page.locator('#featured').getByRole('button', { name: /Open Outer Wilds details/ }).click();
+  await expect(dialog).toBeVisible();
+
+  await page.keyboard.press('ArrowRight');
+  const title = dialog.getByRole('heading', { level: 2 }).first();
+  await expect(title).not.toHaveText(/Outer Wilds/);
+
+  await page.keyboard.press('ArrowLeft');
+  await expect(dialog.getByRole('heading', { level: 2 }).first()).toHaveText(/Outer Wilds/);
+});
