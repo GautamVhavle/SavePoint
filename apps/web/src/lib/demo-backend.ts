@@ -1,6 +1,7 @@
 import { demoGuideAnswer, demoProfile } from '../data/demo';
 import { uid } from './utils';
 import { ApiError } from './api-error';
+import { mapPublicProfile } from './api-mapping';
 import type {
   ApiAward, ApiIGDBResult, ApiProfileGame, ApiPublicProfile,
   Profile, SavepointClient,
@@ -96,7 +97,11 @@ export const demoClient: SavepointClient = {
     signal?.throwIfAborted();
     await pause(220);
     if (handle === 'missing') throw new ApiError('Player not found', 404);
-    return handle === demoProfile.handle ? demoProfile : demoProfile;
+    // A freshly claimed identity must resolve as its own archive; any other
+    // handle keeps serving the curated showcase so /u/* never dead-ends.
+    const doc = demoDoc();
+    // The persisted document is DTO-shaped; the page needs the view model.
+    return doc.profile.handle === handle ? mapPublicProfile(doc) : demoProfile;
   },
   async createMe(input) {
     await wait();
