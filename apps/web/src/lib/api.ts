@@ -94,7 +94,18 @@ const realClient: SavepointClient = {
     }, token);
     const url = new URL(signed.upload_url);
     url.searchParams.set('token', signed.token);
-    const uploaded = await fetch(url, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+    let uploaded: Response;
+    try {
+      // Media payloads are large; give them a generous but bounded window.
+      uploaded = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+        signal: AbortSignal.timeout(120_000),
+      });
+    } catch {
+      throw new ApiError('Upload failed or timed out', 0);
+    }
     if (!uploaded.ok) throw new ApiError('Upload failed', uploaded.status);
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '');
     const bucket = import.meta.env.VITE_SUPABASE_BUCKET ?? 'savepoint-media';
