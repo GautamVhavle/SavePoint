@@ -1,9 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useRef } from 'react';
+import { afterEach, useRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useDialogA11y } from '../lib/useDialogA11y';
+
+afterEach(cleanup);
 
 function Bomb({ explode }: { explode: boolean }) {
   if (explode) throw new Error('kaboom');
