@@ -80,7 +80,7 @@ const GameCard = memo(function GameCard({ game, onOpen }: { game: Game; onOpen: 
     <motion.button
       layout
       onClick={() => onOpen(game)}
-      aria-label={`Open ${game.title} details`}
+      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`}
       className={`card-sheen group relative aspect-[3/4] overflow-hidden rounded-[20px] border text-left shadow-card transition-colors sm:aspect-[4/4.6] sm:min-h-64 sm:rounded-[24px] ${game.featured ? 'holo-ring border-transparent' : 'border-white/15'}`}
       whileHover={{ y: -8 }}
       whileTap={{ scale: 0.97 }}
@@ -210,7 +210,7 @@ const GrandExhibit = memo(function GrandExhibit({ game, onOpen }: { game: Game; 
   return (
     <motion.button
       onClick={() => onOpen(game)}
-      aria-label={`Open ${game.title} details`}
+      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`}
       className="holo-ring group relative block w-full overflow-hidden rounded-[28px] text-left shadow-card"
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.985 }}
@@ -255,7 +255,7 @@ const HallPlaque = memo(function HallPlaque({ game, index, onOpen }: { game: Gam
   return (
     <motion.button
       onClick={() => onOpen(game)}
-      aria-label={`Open ${game.title} details`}
+      aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`}
       className="card-sheen group relative overflow-hidden rounded-[24px] border border-white/10 bg-panel text-left shadow-card transition-colors hover:border-cyan-300/30"
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.97 }}
