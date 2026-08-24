@@ -65,7 +65,6 @@ textarea.field { min-height:120px; resize:vertical; } .field::placeholder{color:
   -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; }
 @media (prefers-reduced-motion:no-preference){ .holo-ring::before{ animation:holo-spin 7s linear infinite } }
 @keyframes holo-spin { to { --holo-angle:360deg } }
-.card-glow:hover { box-shadow:0 30px 90px -20px rgba(88,232,255,.35),0 18px 60px -18px rgba(167,139,250,.28); }
 /* Masthead cinema: elements stay invisible until GSAP reveals them */
 .cinema-hidden { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) { .cinema-hidden { visibility: visible; } }
