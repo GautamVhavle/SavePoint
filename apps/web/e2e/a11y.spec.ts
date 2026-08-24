@@ -67,3 +67,16 @@ test('mobile navigation drawer passes serious/critical wcag checks while open', 
     results.violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')).map(v => `${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
   ).toEqual([]);
 });
+
+test('studio games editor passes serious/critical wcag checks', async ({ page }) => {
+  await page.goto('/dashboard/games');
+  await page.getByLabel('SEARCH IGDB').waitFor();
+  // Exercise the search results group before scanning.
+  await page.getByLabel('SEARCH IGDB').fill('hades');
+  await page.getByRole('group', { name: 'IGDB search results' }).getByRole('button').first().waitFor();
+  await page.waitForTimeout(600);
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(
+    results.violations.filter(v => ['serious', 'critical'].includes(v.impact ?? '')).map(v => `${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
+  ).toEqual([]);
+});
