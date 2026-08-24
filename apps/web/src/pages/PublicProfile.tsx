@@ -178,8 +178,8 @@ function GameDetail({ game, close, onStep, showStepper = false }: { game: Game; 
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a0f1e] via-[#0a0f1e]/35 to-transparent" />
           <Button className="icon-btn absolute right-4 top-4 z-10 bg-black/55 text-white" onClick={close} aria-label="Close game details" data-autofocus><X size={20}/></Button>
           {showStepper&&<>
-            <button type="button" aria-label="Previous game" onClick={()=>onStep?.(-1)} className="icon-btn glass absolute left-4 top-4 z-10 rounded-full max-sm:hidden"><ChevronDown size={19} className="rotate-90"/></button>
-            <button type="button" aria-label="Next game" onClick={()=>onStep?.(1)} className="icon-btn glass absolute right-16 top-4 z-10 rounded-full max-sm:hidden"><ChevronDown size={19} className="-rotate-90"/></button>
+            <button type="button" aria-label="Previous game" onClick={()=>onStep?.(-1)} className="icon-btn glass absolute left-3 top-3 z-10 rounded-full sm:left-4 sm:top-4"><ChevronDown size={19} className="rotate-90"/></button>
+            <button type="button" aria-label="Next game" onClick={()=>onStep?.(1)} className="icon-btn glass absolute right-16 top-3 z-10 rounded-full sm:right-20 sm:top-4"><ChevronDown size={19} className="-rotate-90"/></button>
           </>}
           <p role="status" className="sr-only">{game.title}</p>
           <motion.div className="absolute bottom-0 left-0 right-0 p-5 sm:p-9" variants={contentStagger} initial="hidden" animate="show">
