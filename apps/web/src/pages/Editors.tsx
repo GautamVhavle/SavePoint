@@ -144,7 +144,7 @@ function UploadCard({ purpose, title, hint, current, onUploaded }: {
       {preview
         ? <div className="flex items-center gap-4 p-4"><img className="h-24 w-24 rounded-xl object-cover" src={preview} alt="Uploaded media"/><div className="text-left"><b>{busy ? 'Archiving…' : 'Stored'}</b><p className="muted mt-1 text-sm">Choose another file to replace.</p></div></div>
         : <div className="p-4"><UploadCloud className="mx-auto text-cyan-300"/><b className="mt-3 block">Drop or choose an image</b><p className="muted mt-1 text-sm">{hint}</p></div>}
-      <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={event => void load(event.target.files?.[0])}/>
+      <input className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label={`Upload ${title.toLowerCase()} image`} onChange={event => void load(event.target.files?.[0])}/>
     </label>
     {error && <p className="field-error">{error}</p>}
   </div>;
