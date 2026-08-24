@@ -66,3 +66,6 @@ is not a billing meter).
    the ASGI platform must sanitize forwarding headers (documented in `deps.py`).
 4. **Demo mode writes** live in `localStorage` under a fixed key on shared
    machines. Demo grants no authorization, but clear it on shared devices.
+5. **Per-profile budgets rotate.** Visitor limits are scoped to one profile
+   each; sweeping many profiles accrues a separate budget per profile. A
+   global per-IP ceiling would require widening the rate-limit schema.
