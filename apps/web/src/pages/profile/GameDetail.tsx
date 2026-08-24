@@ -10,7 +10,11 @@ import { Button, CoverImage, StatusPill } from '../../components/ui';
 import { loadGsap } from './load-gsap';
 
 export function GameDetail({ game, close, onStep, showStepper = false, position = 0, total = 0 }: { game: Game; close: () => void; onStep?: (delta: number) => void; showStepper?: boolean; position?: number; total?: number }) {
-  const panel = useRef<HTMLDivElement>(null); const reduce = useReducedMotion();
+  const panel = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  // Stepping into a new entry starts at its masthead, never mid-scroll.
+  useEffect(() => { overlayRef.current?.scrollTo({ top: 0 }); }, [game.id]);
   // Traps focus, occludes the archive behind, locks scroll, closes on Escape.
   useDialogA11y(panel, true, close);
   // Arrow keys browse the collection like gallery walls.
@@ -38,7 +42,7 @@ export function GameDetail({ game, close, onStep, showStepper = false, position 
   const contentStagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.07 } } };
   const rise = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: .45, ease: [.22,.61,.36,1] } } };
   return (
-    <motion.div className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" aria-describedby={game.summary ? 'game-summary' : undefined} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>
+    <motion.div ref={overlayRef} className="fixed inset-0 z-[80] overflow-y-auto bg-[#03050b]/88 p-3 backdrop-blur-xl sm:p-7" role="dialog" aria-modal="true" aria-labelledby="game-title" aria-describedby={game.summary ? 'game-summary' : undefined} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={e => { if(e.target===e.currentTarget) close(); }}>
       <div ref={panel} className="glass relative mx-auto max-w-5xl overflow-hidden rounded-[28px]">
         <div className="relative">
           <div aria-hidden className="pointer-events-none"><CoverImage src={game.banner || game.cover} alt="" priority className="pointer-events-none aspect-[4/3] max-h-[300px] w-full sm:aspect-[21/8] sm:max-h-[360px]" /></div>
