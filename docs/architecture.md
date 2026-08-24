@@ -49,7 +49,7 @@ The browser never receives the Twitch secret, Supabase service-role key, Gemini 
 - Ratings use half-star steps in the inclusive 1 to 5 range when present.
 - Awards belong to a profile and reference a game from that same profile.
 - Featured games are manually selected and explicitly ordered.
-- Long reviews are stored as text without an arbitrary product-level cap.
+- Long reviews are stored as text; the API accepts up to 10,000 characters per review.
 - Storage objects use user-scoped keys; media MIME type and size are validated before authorization.
 - Anonymous clients use public API DTOs and do not query database tables directly.
 
