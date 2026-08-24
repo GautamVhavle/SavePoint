@@ -267,7 +267,9 @@ function PeripheralManager({ peripherals }: { peripherals: ApiPeripheral[] }) {
         <b className="flex-1">{item.display_name}<small className="muted ml-2 font-normal">{item.brand_model}</small></b>
         {item.photo_url && <BadgeCheck size={17} className="text-emerald-300"/>}
         <Button className="icon-btn" aria-label={`Edit ${item.display_name}`} onClick={() => openEditor(item)}><Pencil size={16}/></Button>
-        <Button className="icon-btn" aria-label={`Remove ${item.display_name}`} onClick={() => void run(() => api.deletePeripheral(item.id), 'Peripheral removed.')}><Trash2 size={16}/></Button>
+        <Button className="icon-btn" aria-label={`Remove ${item.display_name}`} onClick={() => {
+          if (confirm(`Remove ${item.display_name} from your rig?`)) void run(() => api.deletePeripheral(item.id), 'Peripheral removed.');
+        }}><Trash2 size={16}/></Button>
       </li>)}
       {!ordered.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">Nothing documented yet, add your first piece below.</li>}
     </ul>
@@ -296,7 +298,7 @@ const RATING_OPTIONS: Array<[string, string]> = [['', 'Unrated'], ...Array.from(
 })];
 
 function GameEditor() {
-  const { data } = useMe();
+  const { data, isLoading: libraryLoading } = useMe();
   const run = useArchiveAction();
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -417,6 +419,7 @@ function GameEditor() {
             if (confirm(`Remove ${entry.game.name} and its awards from your archive?`)) void run(() => api.deleteGame(entry.id), 'Entry deleted.');
           }}><Trash2 size={16}/></Button>
         </li>)}
+        {libraryLoading && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm" role="status">Loading your library…</li>}
         {!entries.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">Library is empty, search IGDB above to add your first world.</li>}
       </ul>
     </section>
@@ -455,7 +458,9 @@ function AwardEditor() {
         {(data?.awards ?? []).map(award => <li key={award.id} className="flex items-center gap-3 rounded-2xl border border-white/10 p-3">
           <Star size={18} className="shrink-0 text-amber-300"/>
           <div className="flex-1"><b>{award.title}</b><p className="muted text-sm">{titleOf(award.profile_game_id)}{award.description ? ` · ${award.description}` : ''}</p></div>
-          <Button className="icon-btn" aria-label={`Delete ${award.title}`} onClick={() => void run(() => api.deleteAward(award.id), 'Award removed.')}><Trash2 size={16}/></Button>
+          <Button className="icon-btn" aria-label={`Delete ${award.title}`} onClick={() => {
+            if (confirm(`Remove the "${award.title}" award?`)) void run(() => api.deleteAward(award.id), 'Award removed.');
+          }}><Trash2 size={16}/></Button>
         </li>)}
         {data && !data.awards.length && <li className="muted rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm">No awards yet.</li>}
       </ul>
@@ -482,17 +487,21 @@ function FeaturedEditor() {
     update(target.id, { order: draftOf(swapWith).order ?? index + delta });
     update(swapWith.id, { order: draftOf(target).order ?? index });
   };
-  const publish = () => run(async () => {
-    for (const entry of entries) {
-      const draft = drafts[entry.id];
-      if (!draft) continue;
-      await api.patchGame(entry.id, {
-        featured: draft.featured,
-        featured_order: draft.featured ? draft.order : null,
-        featured_note: draft.featured ? draft.note || null : null,
-      });
-    }
-  }, 'Hall of Fame arrangement published.');
+  const publish = async () => {
+    const ok = await run(async () => {
+      for (const entry of entries) {
+        const draft = drafts[entry.id];
+        if (!draft) continue;
+        await api.patchGame(entry.id, {
+          featured: draft.featured,
+          featured_order: draft.featured ? draft.order : null,
+          featured_note: draft.featured ? draft.note || null : null,
+        });
+      }
+    }, 'Hall of Fame arrangement published.');
+    // Reset so Publish disables again until the next real edit.
+    if (ok) setDrafts({});
+  };
   return <EditorShell title="Arrange the front shelf." eyebrow="Hall of Fame curator">
     <p className="muted mb-6">Toggle entries, assign an explicit order, and add a curator’s note. The rail renders top-down.</p>
     <ol className="space-y-3">
