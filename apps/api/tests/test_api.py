@@ -196,3 +196,48 @@ async def test_guide_rate_limit_is_profile_and_ip_backed(
     assert limited.status_code == 429
     context = answer.await_args.args[1]
     assert "auth0_sub" not in context["profile"]
+
+
+@pytest.mark.asyncio
+async def test_validation_errors_do_not_echo_submitted_values(client: httpx.AsyncClient) -> None:
+    response = await client.post("/api/v1/me/profile", json={"handle": "x!", "display_name": ""})
+    assert response.status_code == 422
+    body = response.json()
+    serialized = str(body)
+    assert 'x!' not in serialized
+    for error in body["errors"]:
+        assert set(error) == {"loc", "msg", "type"}
+
+
+@pytest.mark.asyncio
+async def test_patch_profile_to_taken_handle_conflicts(client: httpx.AsyncClient) -> None:
+    await client.post(
+        "/api/v1/me/profile",
+        json={"handle": "taken", "display_name": "T"},
+        headers={"X-Dev-Auth-Sub": "user-taken"},
+    )
+    await client.post(
+        "/api/v1/me/profile",
+        json={"handle": "claimer", "display_name": "C"},
+        headers={"X-Dev-Auth-Sub": "user-claimer"},
+    )
+    response = await client.patch(
+        "/api/v1/me/profile", json={"handle": "taken"}, headers={"X-Dev-Auth-Sub": "user-claimer"}
+    )
+    assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_unfeaturing_clears_order_and_note(client: httpx.AsyncClient) -> None:
+    await client.post("/api/v1/me/profile", json={"handle": "unfeat", "display_name": "U"})
+    me = await client.get("/api/v1/me/composite")
+    profile_id = uuid.UUID(me.json()["profile"]["id"])
+    entry_id = await create_library_entry(profile_id, featured=True)
+    await client.patch(
+        f"/api/v1/me/games/{entry_id}",
+        json={"featured": False},
+    )
+    released = await client.get("/api/v1/me/composite")
+    entry = next(g for g in released.json()["games"] if g["id"] == str(entry_id))
+    assert entry["featured"] is False
+    assert entry["featured_order"] is None
