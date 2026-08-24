@@ -1,4 +1,4 @@
-import { memo, useRef, type ReactNode } from 'react';
+import { memo, useMemo, useRef, type ReactNode } from 'react';
 import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { clsx as cn } from 'clsx';
 import { ArrowUpRight, Medal, Star } from 'lucide-react';
@@ -81,10 +81,10 @@ export const GameCard = memo(function GameCard({ game, onOpen }: { game: Game; o
 });
 
 export function TickerStrip({ games }: { games: Game[] }) {
-  if (!games.length) return null;
-  const items = games.map(g => g.rating == null
+  const items = useMemo(() => games.map(g => g.rating == null
     ? g.title
-    : `${g.title} ${'\u2605'.repeat(Math.max(1, Math.round(g.rating)))}`);
+    : `${g.title} ${'\u2605'.repeat(Math.max(1, Math.round(g.rating)))}`), [games]);
+  if (!games.length) return null;
   const row = (hidden: boolean) => (
     <div aria-hidden={hidden || undefined} className="flex shrink-0 items-center">
       {items.map((t, i) => (
