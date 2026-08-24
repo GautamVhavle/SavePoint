@@ -82,7 +82,12 @@ test('dossier arrow keys step through the collection with wrap-around', async ({
 test('floating actions appear past the masthead and return to top', async ({ page }) => {
   await page.goto('/u/nova');
   await expect(page.getByRole('button', { name: 'Back to top' })).toBeHidden();
-  await page.evaluate(() => window.scrollTo({ top: window.innerHeight * 2, behavior: 'instant' }));
+  // Wait until the archive is tall enough to actually scroll two viewports.
+  await page.waitForFunction(() => {
+    if (document.body.scrollHeight <= window.innerHeight * 2) return false;
+    window.scrollTo({ top: window.innerHeight * 2, behavior: 'instant' });
+    return true;
+  });
   // Let the scroll listener flip the floating actions' visibility state first.
   await page.waitForFunction(() => window.scrollY > window.innerHeight * 1.5);
   await expect(page.getByRole('button', { name: 'Back to top' })).toBeVisible();
