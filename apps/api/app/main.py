@@ -89,7 +89,9 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
     if request.url.path.startswith("/api/v1/me") or request.url.path.startswith("/api/v1/igdb"):
         response.headers["Cache-Control"] = "private, no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
-    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()"
+    )
     if settings.environment in {"staging", "production"}:
         response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
     return response
