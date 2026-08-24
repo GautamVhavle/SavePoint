@@ -16,7 +16,8 @@ test('curator can search IGDB and add a game to the chronicle', async ({ page })
     .textContent();
 
   await page.getByLabel('SEARCH IGDB').fill('disco elysium');
-  const result = page.getByRole('button', { name: /Disco Elysium/ }).first();
+  // Scope to results so library rows can never win the search-debounce race.
+  const result = page.getByRole('group', { name: 'IGDB search results' }).getByRole('button', { name: /Disco Elysium/ }).first();
   await result.click();
 
   await page.getByLabel('RATING').selectOption('4.5');
