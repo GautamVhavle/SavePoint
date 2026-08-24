@@ -5,26 +5,8 @@ import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, G
 import { api, isDemoMode } from '../lib/api';
 import { prefetchRoute } from '../lib/use-intent-prefetch';
 import { Button, PageFade, Panel } from '../components/ui';
-import { useEffect, useState } from 'react';
-
-/** Counts a number up on mount; instant under reduced motion. */
-function useCountUp(target: number, duration = 700): number {
-  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-  const [value, setValue] = useState(reduce ? target : 0);
-  useEffect(() => {
-    if (reduce) { setValue(target); return; }
-    let frame = 0;
-    const startedAt = performance.now();
-    const tick = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / duration);
-      setValue(Math.round(target * (1 - Math.pow(1 - progress, 3))));
-      if (progress < 1) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [target, duration, reduce]);
-  return value;
-}
+import { useCountUp } from './countup';
+import { useEffect } from 'react';
 
 const tools=[
   {to:'/dashboard/profile',icon:CircleUserRound,title:'Identity',text:'Name, story, avatar and public handle'},

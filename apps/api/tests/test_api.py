@@ -384,3 +384,18 @@ async def test_mutations_reject_non_json_content_types(client: httpx.AsyncClient
         headers={"Content-Type": "text/plain"},
     )
     assert response.status_code == 415
+
+
+@pytest.mark.asyncio
+async def test_chunked_mutations_without_length_are_rejected(
+    client: httpx.AsyncClient,
+) -> None:
+    async def chunks():
+        yield b'{"handle": "chunk", "display_name": "C"}'
+
+    response = await client.post(
+        "/api/v1/me/profile",
+        content=chunks(),
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 411
