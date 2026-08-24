@@ -6,7 +6,9 @@ COPY pyproject.toml README.md ./
 COPY app ./app
 COPY alembic.ini ./
 COPY alembic ./alembic
+COPY scripts ./scripts
 RUN pip install --no-cache-dir .
 USER api
 EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 CMD ["python", "scripts/healthcheck.py"]
 CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
