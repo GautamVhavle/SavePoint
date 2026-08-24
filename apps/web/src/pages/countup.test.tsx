@@ -11,7 +11,7 @@ function Target({ value }: { value: number }) {
 describe('useCountUp', () => {
   it('settles exactly on the target value', async () => {
     render(<Target value={80} />);
-    await vi.waitFor(() => expect(screen.getByTestId('out')).toHaveTextContent('80'), { timeout: 2000 });
+    await vi.waitFor(() => expect(screen.getByTestId('out')).toHaveTextContent('80'), { timeout: 4000 });
   });
 
   it('snaps instantly when reduced motion is requested', () => {

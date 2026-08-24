@@ -25,8 +25,17 @@ for (const path of ['/', '/u/nova', '/onboarding', '/dashboard']) {
       if (msg.type() === 'error' && msg.text().includes('Content-Security-Policy')) violations.push(msg.text());
     });
     await page.route('**/*', async route => {
-      const response = await route.fetch();
-      await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': csp } });
+      // Subresources (remote key art, fonts) add latency without affecting
+      // the policy under test — satisfy them instantly and locally.
+      if (/\.(png|jpe?g|webp|gif|svg|woff2?)(\?|$)/i.test(route.request().url())) {
+        return route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.alloc(0) });
+      }
+      try {
+        const response = await route.fetch();
+        await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': csp } });
+      } catch {
+        // Test ended before the fetch resolved; nothing to assert anymore.
+      }
     });
     await page.goto(path);
     await page.waitForTimeout(1500);
