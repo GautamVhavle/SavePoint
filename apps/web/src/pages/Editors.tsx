@@ -179,7 +179,7 @@ function ProfileEditor() {
   };
   return <EditorShell title="Shape your identity." eyebrow="Profile editor" aside={<Panel className="p-5">
     <span className="label">PUBLIC URL</span>
-    <p className="break-all font-mono text-sm">savepoint.app/u/{form.watch('handle') || '…'}</p>
+    <p className="break-all font-mono text-sm">{window.location.origin}/u/{form.watch('handle') || '…'}</p>
     <hr className="my-5 border-white/10"/>
     <p className="muted text-sm leading-6">The first 160 characters of your statement become the public share description.</p>
   </Panel>}>

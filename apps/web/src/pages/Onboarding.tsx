@@ -59,7 +59,7 @@ export default function Onboarding(){
           </label>
         </div>}
         {step===1&&<div className="mt-8"><label><span className="label">WHAT DO YOU PLAY FOR?</span><textarea className="field" value={bio} onChange={event=>setBio(event.target.value)} placeholder="Discovery, atmosphere, and stories that trust me to pay attention."/></label></div>}
-        {step===2&&<div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-5"><b>Your archive URL is ready</b><p className="muted mt-1 break-all font-mono text-sm">savepoint.app/u/{handle||'your-handle'}</p></div>}
+        {step===2&&<div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-5"><b>Your archive URL is ready</b><p className="muted mt-1 break-all font-mono text-sm">{window.location.origin}/u/{handle||'your-handle'}</p></div>}
       </motion.div></AnimatePresence>
       {formError&&<p className="field-error" role="alert">{formError}</p>}
       <div className="mt-10 flex justify-between">
