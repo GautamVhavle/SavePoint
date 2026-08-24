@@ -122,16 +122,17 @@ export function GalleryWall({ games, onOpen }: { games: Game[]; onOpen: (game: G
     if (!stageRef.current || !trackRef.current || reduce) return;
     if (!window.matchMedia('(min-width:1024px)').matches) return;
     setPinned(true);
-    const ctx = gsap.context((self) => {
-      const stage = self.selector!('[data-wall-stage]')[0] as HTMLElement;
-      const track = self.selector!('[data-wall-track]')[0] as HTMLElement;
-      const distance = () => Math.max(0, track.scrollWidth - stage.clientWidth + window.innerWidth * 0.12);
+    const stage = stageRef.current as HTMLElement;
+    const track = trackRef.current as HTMLElement;
+    if (!stage || !track) return;
+    const ctx = gsap.context(() => {
+      const distance = () => Math.max(0, track.scrollWidth - window.innerWidth + window.innerWidth * 0.12);
       gsap.to(track, {
         x: () => -distance(),
         ease: 'none',
         scrollTrigger: {
           trigger: stage, start: 'top top', end: () => '+=' + distance(),
-          scrub: 0.6, pin: true, anticipatePin: 1, invalidateOnRefresh: true,
+          scrub: 0.6, pin: stage, anticipatePin: 1, invalidateOnRefresh: true,
           onUpdate: (self2) => { if (barRef.current) barRef.current.style.transform = `scaleX(${self2.progress})`; },
         },
       });
