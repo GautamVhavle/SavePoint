@@ -7,6 +7,7 @@ import { Button, PageFade, Panel, useToast } from '../components/ui';
 import { useAuth } from '../lib/auth';
 import { api, ApiError } from '../lib/api';
 import { onboardingSchema } from '../lib/schemas';
+import { copyToClipboard } from '../lib/clipboard';
 
 const steps=[
   {title:'Claim your archive',body:'Choose the player identity that will anchor every artifact.'},
@@ -25,7 +26,7 @@ export default function Onboarding(){
   const toast=useToast();
   const reduce=useReducedMotion();
   const archiveUrl=`${window.location.origin}/u/${handle||'your-handle'}`;
-  const copyUrl=async()=>{try{await navigator.clipboard.writeText(archiveUrl);setCopied(true);toast.show('Archive URL copied.');setTimeout(()=>setCopied(false),1600);}catch{toast.show('Copying is unavailable in this browser.','error')}};
+  const copyUrl=async()=>{if(!(await copyToClipboard(archiveUrl)))return toast.show('Copying is unavailable in this browser.','error');setCopied(true);toast.show('Archive URL copied.');setTimeout(()=>setCopied(false),1600)};
   const navigate=useNavigate();
   const auth=useAuth();
   const nameOk=onboardingSchema.shape.displayName.safeParse(displayName).success;

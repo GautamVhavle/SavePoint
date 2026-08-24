@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, Link2 } from 'lucide-react';
 import { Button, CoverImage, Panel, useToast } from '../../components/ui';
 import { api } from '../../lib/api';
+import { copyToClipboard } from '../../lib/clipboard';
 import { profileSchema, type ProfileForm } from '../../lib/schemas';
 import { EditorShell, Field, SaveBar, SelectField, UploadCard, useArchiveAction, useMe } from './shared';
 
@@ -12,14 +13,10 @@ function PublicUrlCard({ handle }: { handle: string }) {
   const toast = useToast();
   const url = `${window.location.origin}/u/${handle || '…'}`;
   const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      toast.show('Profile URL copied to your clipboard.');
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      toast.show('Copying is unavailable in this browser.', 'error');
-    }
+    if (!(await copyToClipboard(url))) return toast.show('Copying is unavailable in this browser.', 'error');
+    setCopied(true);
+    toast.show('Profile URL copied to your clipboard.');
+    setTimeout(() => setCopied(false), 1800);
   };
   return <Panel className="p-5">
     <span className="label">PUBLIC URL</span>
