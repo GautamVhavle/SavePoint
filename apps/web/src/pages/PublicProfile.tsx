@@ -184,12 +184,14 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
 
 function TickerStrip({ games }: { games: Game[] }) {
   if (!games.length) return null;
-  const items = games.map(g => `${g.title} ${'\u2605'.repeat(Math.max(1, Math.round(g.rating ?? 0)))}`);
+  const items = games.map(g => g.rating == null
+    ? g.title
+    : `${g.title} ${'\u2605'.repeat(Math.max(1, Math.round(g.rating)))}`);
   const row = (hidden: boolean) => (
     <div aria-hidden={hidden || undefined} className="flex shrink-0 items-center">
       {items.map((t, i) => (
         <span key={i} className="flex items-center gap-6 whitespace-nowrap px-6 py-3 font-mono text-[11px] uppercase tracking-[.24em] text-white/70">
-          {t}<span className="text-white/45">\u25c6</span>
+          {t}<span className="text-white/45">{'\u25c6'}</span>
         </span>
       ))}
     </div>
