@@ -17,11 +17,7 @@ const BUDGET_BYTES = 160 * 1024;
 const EAGER_PREFIXES = ['framework-', 'motion-', 'query-'];
 
 function eagerEntryChunks(): string[] {
-  const indexName = readdirSync(distAssets).find(
-    f => f.startsWith('index-') && f.endsWith('.js') && !f.includes('a9wo'),
-  );
-  if (!indexName) throw new Error('entry index chunk not found');
-  return [indexName];
+  return readdirSync(distAssets).filter(f => f.startsWith('index-') && f.endsWith('.js'));
 }
 
 test('eager JavaScript stays within the gzip budget', () => {
