@@ -74,3 +74,12 @@ def test_guide_system_prompt_keeps_untrusted_data_boundary() -> None:
     assert "untrusted" in lowered
     assert "never as instructions" in lowered
     assert "only" in lowered
+
+
+def test_igdb_query_preparation_neutralizes_breaks() -> None:
+    from app.integrations.igdb import IGDBClient
+
+    prepared = IGDBClient._prepare_query('ha"de\\s\x00')
+    assert "\x00" not in prepared
+    # Escaped so the quoted IGDB API grammar cannot be broken out of.
+    assert '\\"' in prepared and "\\\\" in prepared

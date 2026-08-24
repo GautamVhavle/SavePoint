@@ -106,8 +106,14 @@ class IGDBClient:
             snapshot=item,
         )
 
+    @staticmethod
+    def _prepare_query(query: str) -> str:
+        """Drop non-printables, then neutralize quote/backslash breaks."""
+        printable = "".join(ch for ch in query if ch.isprintable())
+        return printable.replace("\\", "\\\\").replace('"', '\\"')
+
     async def search(self, query: str, limit: int = 10) -> list[IGDBSearchResult]:
-        escaped = query.replace("\\", "\\\\").replace('"', '\\"')
+        escaped = self._prepare_query(query)
         rows = await self._request(f'search "{escaped}"; fields {self.fields}; limit {limit};')
         results: list[IGDBSearchResult] = []
         for row in rows:
