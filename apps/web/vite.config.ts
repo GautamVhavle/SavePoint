@@ -11,7 +11,9 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
-          if (id.includes('framer-motion') || id.includes('/gsap/')) return 'motion';
+          // gsap is dynamically imported by the public profile only, so it must
+          // stay out of the eagerly-loaded framer-motion chunk.
+          if (id.includes('framer-motion')) return 'motion';
           if (id.includes('/react/') || id.includes('react-dom') || id.includes('scheduler') || id.includes('react-router')) return 'framework';
           if (id.includes('@tanstack')) return 'query';
           if (id.includes('@auth0')) return 'auth0';

@@ -4,8 +4,6 @@ import { clsx as cn } from 'clsx';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import gsap from 'gsap';
 import { ArrowUpRight, Bot, Check, ChevronDown, Cpu, Gamepad2, MapPin, Medal, Search, Share2, SlidersHorizontal, Sparkles, Star, X, Zap } from 'lucide-react';
 import { api, ApiError, isDemoMode } from '../lib/api';
 import type { Game } from '../types';
@@ -18,36 +16,48 @@ const MotionSection = ({ children, className = '', id, watermark }: { children: 
 
 function LoadingProfile() { return <div className="container-shell py-24" role="status"><div className="skeleton h-8 w-40 rounded-xl"/><div className="skeleton mt-8 h-64 rounded-[30px]"/><div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">{[1,2,3,4].map(i=><div key={i} className="skeleton h-80 rounded-3xl"/>)}</div><span className="sr-only">Loading player archive</span></div>; }
 
+let gsapModules: Promise<{ gsap: typeof import('gsap')['default']; ScrollTrigger: typeof import('gsap/ScrollTrigger')['ScrollTrigger'] }> | null = null;
+/** GSAP powers one cinematic moment per profile; fetch it only when that page mounts. */
+function loadGsap() {
+  return gsapModules ??= Promise.all([import('gsap'), import('gsap/ScrollTrigger')])
+    .then(([gsap, scrollTrigger]) => ({ gsap: gsap.default, ScrollTrigger: scrollTrigger.ScrollTrigger }));
+}
+
 /** Orchestrated masthead entrance: one cinematic moment, not scattered effects. */
 function useMastheadCinema(root: React.RefObject<HTMLDivElement | null>, statsRef: React.RefObject<HTMLDivElement | null>, ready: boolean) {
   const reduce = useReducedMotion();
   useEffect(() => {
     if (!root.current) return;
-    const ctx = gsap.context((self) => {
-      const q = self.selector!;
-      if (reduce) {
-        gsap.set(q('[data-cinema]'), { autoAlpha: 1, y: 0 });
-        return;
-      }
-      gsap.fromTo(q('[data-banner-zoom]'), { scale: 1.14 }, { scale: 1, duration: 1.6, ease: 'power2.out' });
-      gsap.fromTo(q('[data-cinema]'),
-        { autoAlpha: 0, y: 34 },
-        { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.11, delay: 0.15 });
-      gsap.registerPlugin(ScrollTrigger);
-      gsap.to(q('[data-banner-parallax]'), {
-        yPercent: 14, ease: 'none',
-        scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-      });
-      const counters = statsRef.current?.querySelectorAll<HTMLElement>('[data-count]');
-      counters?.forEach((el) => {
-        const target = Number(el.dataset.count ?? 0);
-        gsap.fromTo(el, { innerText: 0 }, {
-          innerText: target, duration: 1.4, delay: 0.5, ease: 'power1.out', snap: { innerText: 1 },
-          onUpdate() { el.textContent = Math.round(Number(el.innerText)).toLocaleString('en-US'); },
+    let ctx: { revert: () => void } | undefined;
+    let cancelled = false;
+    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled || !root.current) return;
+      ctx = gsap.context((self) => {
+        const q = self.selector!;
+        if (reduce) {
+          gsap.set(q('[data-cinema]'), { autoAlpha: 1, y: 0 });
+          return;
+        }
+        gsap.fromTo(q('[data-banner-zoom]'), { scale: 1.14 }, { scale: 1, duration: 1.6, ease: 'power2.out' });
+        gsap.fromTo(q('[data-cinema]'),
+          { autoAlpha: 0, y: 34 },
+          { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.11, delay: 0.15 });
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.to(q('[data-banner-parallax]'), {
+          yPercent: 14, ease: 'none',
+          scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
         });
-      });
-    }, root);
-    return () => ctx.revert();
+        const counters = statsRef.current?.querySelectorAll<HTMLElement>('[data-count]');
+        counters?.forEach((el) => {
+          const target = Number(el.dataset.count ?? 0);
+          gsap.fromTo(el, { innerText: 0 }, {
+            innerText: target, duration: 1.4, delay: 0.5, ease: 'power1.out', snap: { innerText: 1 },
+            onUpdate() { el.textContent = Math.round(Number(el.innerText)).toLocaleString('en-US'); },
+          });
+        });
+      }, root);
+    });
+    return () => { cancelled = true; ctx?.revert(); };
   }, [reduce, root, statsRef, ready]);
 }
 
@@ -139,7 +149,16 @@ function GameDetail({ game, close }: { game: Game; close: () => void }) {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = previous; };
   }, []);
-  useEffect(() => { if (!panel.current || reduce) return; const ctx = gsap.context(() => { gsap.fromTo(panel.current, { rotationY: -92, transformPerspective: 1400, opacity: .4 }, { rotationY: 0, opacity: 1, duration: .72, ease: 'power3.out' }); }, panel); return () => ctx.revert(); }, [game.id, reduce]);
+  useEffect(() => {
+    if (!panel.current || reduce) return;
+    let ctx: { revert: () => void } | undefined;
+    let cancelled = false;
+    void loadGsap().then(({ gsap }) => {
+      if (cancelled || !panel.current) return;
+      ctx = gsap.context(() => { gsap.fromTo(panel.current, { rotationY: -92, transformPerspective: 1400, opacity: .4 }, { rotationY: 0, opacity: 1, duration: .72, ease: 'power3.out' }); }, panel);
+    });
+    return () => { cancelled = true; ctx?.revert(); };
+  }, [game.id, reduce]);
   const tone = STATUS_COLORS[game.status];
   const accession = `SP-${game.year ?? '????'}-${game.id.replaceAll('-','').slice(0,6).toUpperCase()}`;
   const contentStagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.07 } } };
