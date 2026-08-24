@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /onboarding
+Disallow: /auth/callback
 
 Sitemap: https://savepointarchive.vercel.app/sitemap.xml
