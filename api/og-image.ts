@@ -44,6 +44,6 @@ export async function GET(req: Request): Promise<Response> {
   const target = safe ?? FALLBACK;
   return new Response(null, {
     status: 302,
-    headers: { Location: target, 'Cache-Control': 'public, max-age=300' },
+    headers: { Location: target, 'Cache-Control': 'public, max-age=300', 'X-Content-Type-Options': 'nosniff' },
   });
 }

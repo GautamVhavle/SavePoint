@@ -74,6 +74,7 @@ export default async function handler(
   }
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=600");
   res.status(200).send(html);
 }
