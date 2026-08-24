@@ -14,7 +14,7 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:api && pnpm build"
   },
   "engines": {
-    "node": ">=20",
-    "pnpm": ">=9"
+    "node": ">=22",
+    "pnpm": ">=11"
   }
 }
