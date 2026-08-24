@@ -26,6 +26,7 @@ pnpm lint && pnpm typecheck && pnpm test      # web unit (zero warnings allowed)
 pnpm build                                     # production bundle compiles
 pnpm test:e2e                                  # smoke + axe WCAG A/AA + studio flows + responsive gates
 pnpm test:api                                  # FastAPI suite
+pnpm check                                     # or run every gate in one shot
 cd apps/api && uv run ruff check . && uv run mypy app
 ```
 
