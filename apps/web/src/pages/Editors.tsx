@@ -29,14 +29,14 @@ function EditorShell({ title, eyebrow, children, aside }: { title: string; eyebr
   </div>;
 }
 
-function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, list }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; list?: string }) {
+function Field<T extends FieldValues>({ label, name, form, type = 'text', multiline = false, placeholder, step, min, list, maxLength }: { label: string; name: Path<T>; form: UseFormReturn<T>; type?: string; multiline?: boolean; placeholder?: string; step?: string; min?: string; list?: string; maxLength?: number }) {
   const error = form.formState.errors[name]?.message as string | undefined;
   const id = `field-${String(name)}`;
   return <label className="block">
     <span className="label">{label}</span>
     {multiline
-      ? <textarea id={id} className="field" placeholder={placeholder} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />
-      : <input id={id} type={type} placeholder={placeholder} className="field" min={min} step={step} list={list} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />}
+      ? <textarea id={id} className="field" placeholder={placeholder} maxLength={maxLength} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />
+      : <input id={id} type={type} placeholder={placeholder} className="field" min={min} step={step} list={list} maxLength={maxLength} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...form.register(name)} />}
     {error && <span id={`${id}-error`} className="field-error">{error}</span>}
   </label>;
 }
@@ -193,7 +193,7 @@ function ProfileEditor() {
       <Field label="HANDLE" name="handle" form={form}/>
       <SelectField label="THEME PREFERENCE" name="themePreference" form={form} options={[['system', 'Match system'], ['dark', 'Dark'], ['light', 'Light']]}/>
       <Field label="LOCATION" name="location" form={form} placeholder="Lisbon · UTC+1"/>
-      <div className="sm:col-span-2"><Field label="ARCHIVIST STATEMENT" name="bio" form={form} multiline/></div>
+      <div className="sm:col-span-2"><Field label="ARCHIVIST STATEMENT" name="bio" form={form} multiline maxLength={2000}/></div>
       <div className="sm:col-span-2">
         <UploadCard purpose="avatar" title="AVATAR" hint="Square works best · WebP optimized on device" current={data?.profile.avatar_url} onUploaded={setAvatarUrl}/>
       </div>
@@ -244,7 +244,7 @@ function RigEditor() {
       <Field label="BUILD NAME" name="name" form={form}/>
       <div/>
       {RIG_FIELDS.map(([name, label]) => <Field key={name} label={label.toUpperCase()} name={name} form={form}/>)}
-      <div className="sm:col-span-2"><Field label="BUILD NOTES" name="notes" form={form} multiline placeholder="Why this setup works for you"/></div>
+      <div className="sm:col-span-2"><Field label="BUILD NOTES" name="notes" form={form} multiline maxLength={2000} placeholder="Why this setup works for you"/></div>
     </div>
     <SaveBar form={form} onSave={save} ready={Boolean(data)}/>
     {data && <PeripheralManager peripherals={data.peripherals}/>}
@@ -398,7 +398,7 @@ function GameEditor() {
       <datalist id="platform-options">{(selected?.platforms ?? []).map(platform => <option key={platform} value={platform}/>)}</datalist>
       <Field label="STARTED ON" name="startedOn" form={form} type="date"/>
       <Field label="FINISHED ON" name="completedOn" form={form} type="date"/>
-      <div className="sm:col-span-2"><Field label="REVIEW" name="review" form={form} multiline placeholder="What did it mean to you? Any length."/> </div>
+      <div className="sm:col-span-2"><Field label="REVIEW" name="review" form={form} multiline maxLength={10000} placeholder="What did it mean to you? Any length."/> </div>
       <label className="flex items-center gap-3 sm:col-span-2">
         <input type="checkbox" className="h-5 w-5 accent-cyan-400" {...form.register('featured')}/>
         <span className="text-sm font-medium">Feature on the Hall of Fame rail</span>
@@ -457,7 +457,7 @@ function AwardEditor() {
     <form className="grid gap-5 sm:grid-cols-2" onSubmit={form.handleSubmit(submit)}>
       <SelectField label="GAME" name="profileGameId" form={form} options={[['', 'Choose one of your games'], ...entries.map(entry => [entry.id, `${entry.game.name} (${STATUS_LABELS[entry.status]})`] as [string, string])]} />
       <Field label="AWARD TITLE" name="title" form={form} placeholder="Changed My Brain"/>
-      <div className="sm:col-span-2"><Field label="CITATION" name="description" form={form} multiline placeholder="Why it earned this"/></div>
+      <div className="sm:col-span-2"><Field label="CITATION" name="description" form={form} multiline maxLength={2000} placeholder="Why it earned this"/></div>
       <Field label="AWARDED ON" name="awardedOn" form={form} type="date"/>
       <div className="flex items-end"><Button className="btn-primary" type="submit" disabled={form.formState.isSubmitting}><Plus size={16}/> Attach award</Button></div>
     </form>
