@@ -68,6 +68,10 @@ docker run --rm -p 8000:8000 --env-file .env savepoint-api
 
 The container runs `alembic upgrade head` and then Uvicorn, honoring `$PORT`. In multi-replica deployments, run migrations as a one-off release job instead. Configure an exact HTTPS frontend origin, a strong random `IP_HASH_SECRET`, database SSL/least-privilege credentials, trusted proxy forwarding, secret rotation, backups, and provider quotas. Do not expose the Supabase service role. `/ready` checks database connectivity; use `/health` for liveness.
 
+## Security controls
+
+See [docs/security-posture.md](../../docs/security-posture.md) for the control inventory (auth, rate limits, body/media guards, CSP) and their deliberate limits.
+
 ## Error format
 
 Validation and persistence conflicts use RFC 9457-style `application/problem+json` documents. Authentication/provider errors use stable HTTP statuses and intentionally avoid SQL, tokens, keys, signed URLs, or upstream response bodies.
