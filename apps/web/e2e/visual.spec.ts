@@ -56,6 +56,23 @@ test.describe('visual baselines', () => {
     });
   });
 
+  test('public archive full page (light)', async ({ page }) => {
+    await prepare(page);
+    await stubRemoteMedia(page);
+    await page.addInitScript(() => localStorage.setItem('savepoint-theme', 'light'));
+    await page.goto('/u/nova');
+    await settle(page);
+    await page.evaluate(async () => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(700);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(400);
+    await expect(page.locator('main')).toHaveScreenshot('archive-light.png', {
+      animations: 'disabled',
+      fullPage: true,
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
   test('public archive masthead (light)', async ({ page }) => {
     await prepare(page);
     await stubRemoteMedia(page);
