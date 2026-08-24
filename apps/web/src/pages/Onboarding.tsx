@@ -70,7 +70,7 @@ export default function Onboarding(){
         <Button disabled={!step} onClick={()=>setStep(s=>s-1)}>Back</Button>
         {step<2
           ? <Button className="btn-primary" disabled={step===0&&(!nameOk||!handleOk)} onClick={()=>setStep(s=>s+1)}>Continue <ArrowRight size={17}/></Button>
-          : <Button className="btn-primary" disabled={saving||!displayName.trim()||!handle.trim()} onClick={() => void finish()}>
+          : <Button className="btn-primary" disabled={saving||!nameOk||!handleOk} onClick={() => void finish()}>
               {saving ? <LoaderCircle className="animate-spin" size={17}/> : <ArrowRight size={17}/>}
               {auth.isAuthenticated?'Reserve and enter studio':'Sign in securely'}
             </Button>}
