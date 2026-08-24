@@ -22,7 +22,7 @@ a { color:inherit; text-decoration:none; } button,input,textarea,select { font:i
 /* Below-the-fold sections skip offscreen rendering until approached.
    Intrinsic size keeps anchors and scroll height honest while deferred. */
 .cv-auto { content-visibility:auto; contain-intrinsic-size:auto 900px; }
-.section-title { margin:12px 0 16px; font-size:clamp(2rem,5vw,4.5rem); line-height:.95; letter-spacing:-.055em; }
+.section-title { margin:12px 0 16px; font-size:clamp(2.5rem,5.6vw,4.6rem); line-height:.96; letter-spacing:-.055em; }
 .muted { color:rgb(var(--muted)); }
 .btn { min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:0 17px; border-radius:13px; border:1px solid rgba(var(--line)/.14); font-weight:600; cursor:pointer; transition:.18s ease; background:rgba(var(--line)/.055); }
 .btn:hover { transform:translateY(-1px); border-color:color-mix(in srgb,var(--cyan) 60%,transparent); background:rgba(var(--line)/.09); }
@@ -92,7 +92,6 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
 
 /* Editorial art direction */
 .serif-accent { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -.015em; }
-.section-title { font-size: clamp(2.5rem, 5.6vw, 4.6rem) !important; line-height: .96 !important; }
 .watermark {
   position: absolute; inset-inline: 0; top: -0.06em; z-index: 0; text-align: center;
   font-size: clamp(5.5rem, 17vw, 15rem); font-weight: 700; line-height: 1;
