@@ -20,6 +20,14 @@ test('unknown routes render the 404 screen with a working SPA return home', asyn
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
 
+test('missing handle offers the showcase archive in demo mode', async ({ page }) => {
+  await page.goto('/u/missing');
+  await expect(page.getByRole('heading', { name: /sealed/i })).toBeVisible();
+  await page.getByRole('link', { name: 'Try the showcase archive' }).click();
+  await expect(page).toHaveURL(/\/u\/nova$/);
+  await expect(page.getByRole('heading', { name: 'Nova Reyes' })).toBeVisible();
+});
+
 test('auth callback renders a recovery screen when sign-in fails', async ({ page }) => {
   await page.goto('/auth/callback?error=access_denied&error_description=User+cancelled+the+flow');
   await expect(page.getByRole('alert')).toContainText('The gate did not open.');
