@@ -71,7 +71,7 @@ function UnsavedNavGuard({ active }: { active: boolean }) {
   return null;
 }
 
-function SaveBar<T extends FieldValues>({ form, onSave }: { form: UseFormReturn<T>; onSave: (v: T) => Promise<void> }) {
+function SaveBar<T extends FieldValues>({ form, onSave, ready = true }: { form: UseFormReturn<T>; onSave: (v: T) => Promise<void>; ready?: boolean }) {
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => { if (form.formState.isDirty) event.preventDefault(); };
     addEventListener('beforeunload', handler);
@@ -80,8 +80,8 @@ function SaveBar<T extends FieldValues>({ form, onSave }: { form: UseFormReturn<
   return <>
     <UnsavedNavGuard active={form.formState.isDirty}/>
     <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-5">
-      <span className="muted text-sm">{form.formState.isDirty ? 'Unsaved changes' : 'All changes saved'}</span>
-      <Button className="btn-primary" disabled={form.formState.isSubmitting} onClick={form.handleSubmit(onSave)}>
+      <span className="muted text-sm">{!ready ? 'Loading your archive…' : form.formState.isDirty ? 'Unsaved changes' : 'All changes saved'}</span>
+      <Button className="btn-primary" disabled={form.formState.isSubmitting || !ready} title={ready ? undefined : 'Available once your archive loads'} onClick={form.handleSubmit(onSave)}>
         {form.formState.isSubmitting ? <LoaderCircle className="animate-spin" size={16}/> : <Save size={16}/>}
         {form.formState.isSubmitting ? 'Saving…' : 'Save changes'}
       </Button>
@@ -198,7 +198,7 @@ function ProfileEditor() {
         <UploadCard purpose="avatar" title="AVATAR" hint="Square works best · WebP optimized on device" current={data?.profile.avatar_url} onUploaded={setAvatarUrl}/>
       </div>
     </div>
-    <SaveBar form={form} onSave={save}/>
+    <SaveBar form={form} onSave={save} ready={Boolean(data)}/>
   </EditorShell>;
 }
 
@@ -246,7 +246,7 @@ function RigEditor() {
       {RIG_FIELDS.map(([name, label]) => <Field key={name} label={label.toUpperCase()} name={name} form={form}/>)}
       <div className="sm:col-span-2"><Field label="BUILD NOTES" name="notes" form={form} multiline placeholder="Why this setup works for you"/></div>
     </div>
-    <SaveBar form={form} onSave={save}/>
+    <SaveBar form={form} onSave={save} ready={Boolean(data)}/>
     {data && <PeripheralManager peripherals={data.peripherals}/>}
   </EditorShell>;
 }
