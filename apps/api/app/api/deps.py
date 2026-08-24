@@ -52,10 +52,27 @@ async def enforce_scope_limit(
         )
     )
     if (count or 0) >= (limit if limit is not None else settings.guide_rate_limit):
+        # Tell clients exactly when the oldest counted event leaves the window
+        # instead of making them wait the whole span again.
+        oldest = await session.scalar(
+            select(func.min(RateLimitEvent.created_at)).where(
+                RateLimitEvent.scope == scope,
+                RateLimitEvent.profile_id == profile_id,
+                RateLimitEvent.ip_hash == digest,
+                RateLimitEvent.created_at >= cutoff,
+            )
+        )
+        retry_after = window
+        if oldest is not None:
+            # SQLite returns naive datetimes; normalize before comparing.
+            if oldest.tzinfo is None:
+                oldest = oldest.replace(tzinfo=UTC)
+            elapsed = (datetime.now(UTC) - oldest).total_seconds()
+            retry_after = max(1, int(window - elapsed))
         raise HTTPException(
             status_code=429,
             detail=f"{scope} rate limit exceeded",
-            headers={"Retry-After": str(window)},
+            headers={"Retry-After": str(retry_after)},
         )
     session.add(RateLimitEvent(scope=scope, profile_id=profile_id, ip_hash=digest))
     # Commit immediately: endpoints that never write anything else (IGDB
