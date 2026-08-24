@@ -46,6 +46,22 @@ app.add_middleware(
 
 @app.middleware("http")
 async def security_and_logging(request: Request, call_next):  # type: ignore[no-untyped-def]
+    # Reject oversized payloads before they are buffered into memory;
+    # pydantic limits apply only after the body has been fully read.
+    if request.method in {"POST", "PUT", "PATCH"}:
+        content_length = request.headers.get("content-length")
+        if content_length and content_length.isdigit() and int(content_length) > settings.max_body_bytes:
+            from fastapi.responses import JSONResponse
+
+            logger.warning("request_too_large", path=request.url.path, content_length=content_length)
+            return JSONResponse(
+                status_code=413,
+                content={
+                    "type": "about:blank", "title": "Payload Too Large", "status": 413,
+                    "detail": "Request body is too large", "instance": str(request.url.path),
+                },
+                media_type="application/problem+json",
+            )
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))[:100]
     started = time.perf_counter()
     structlog.contextvars.bind_contextvars(request_id=request_id)
@@ -60,6 +76,7 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
     response.headers["X-Request-ID"] = request_id
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     if settings.environment in {"staging", "production"}:

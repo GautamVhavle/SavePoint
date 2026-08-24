@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     igdb_rate_limit: int = Field(default=60, ge=1, le=10000)
     upload_rate_limit: int = Field(default=30, ge=1, le=1000)
     max_upload_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=100 * 1024 * 1024)
+    max_body_bytes: int = Field(default=1024 * 1024, ge=1024, le=100 * 1024 * 1024)
     log_level: str = "INFO"
 
     @field_validator("database_url")

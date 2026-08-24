@@ -289,3 +289,18 @@ async def test_upload_signing_is_rate_limited(client: httpx.AsyncClient) -> None
         assert response.status_code == 503
     limited = await client.post("/api/v1/me/uploads/sign", json=payload)
     assert limited.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_oversized_bodies_are_rejected_before_parsing(client: httpx.AsyncClient) -> None:
+    from app.core.config import get_settings
+
+    limit = get_settings().max_body_bytes
+    response = await client.post(
+        "/api/v1/me/profile",
+        content=b"x" * (limit + 1),
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 413
+    body = response.json()
+    assert "x" * 100 not in str(body)
