@@ -58,6 +58,9 @@ function UnsavedNavGuard({ active }: { active: boolean }) {
     const onClick = (event: MouseEvent) => {
       const anchor = (event.target as HTMLElement | null)?.closest?.('a');
       if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      // Same-page anchors, mailto:, and new tabs don't abandon the form.
+      if (!href || href.startsWith('#') || href.startsWith('mailto:') || anchor.target === '_blank') return;
       if (window.confirm('Leave this editor? Unsaved changes will be discarded.')) return;
       event.preventDefault();
       event.stopPropagation();
