@@ -48,7 +48,8 @@ class GeminiGuide:
         text = (response.text or "").strip()
         if not text:
             raise HTTPException(status_code=502, detail="Guide returned no answer")
-        return text
+        # Defensive bound independent of upstream token accounting.
+        return text[:4000]
 
 
 _guide: GeminiGuide | None = None

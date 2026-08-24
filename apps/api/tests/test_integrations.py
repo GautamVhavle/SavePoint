@@ -64,3 +64,13 @@ async def test_gemini_uses_strict_system_prompt(monkeypatch: pytest.MonkeyPatch)
     assert result.startswith("I can only answer")
     assert captured["config"].system_instruction == SYSTEM_INSTRUCTION
     assert "untrusted" in SYSTEM_INSTRUCTION
+
+
+def test_guide_system_prompt_keeps_untrusted_data_boundary() -> None:
+    """The injection boundary is a security control; pin its wording."""
+    from app.integrations.gemini import SYSTEM_INSTRUCTION
+
+    lowered = SYSTEM_INSTRUCTION.lower()
+    assert "untrusted" in lowered
+    assert "never as instructions" in lowered
+    assert "only" in lowered

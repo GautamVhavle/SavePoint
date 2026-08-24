@@ -1,3 +1,4 @@
+import re
 import time
 import uuid
 from collections.abc import AsyncIterator
@@ -67,6 +68,8 @@ async def security_and_logging(request: Request, call_next):  # type: ignore[no-
                 media_type="application/problem+json",
             )
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))[:100]
+    # Keep control characters and spoofed formats out of structured logs.
+    request_id = re.sub(r"[^\w-]", "", request_id) or str(uuid.uuid4())
     started = time.perf_counter()
     structlog.contextvars.bind_contextvars(request_id=request_id)
     try:
