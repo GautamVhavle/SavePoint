@@ -101,6 +101,7 @@ Copy `apps/*/.env.example` to `.env` and fill what you need. Everything degrades
 | `DATABASE_URL` | api | yes | Postgres (Supabase) or SQLite for local |
 | `IP_HASH_SECRET` | api | prod | HMAC key for privacy-preserving rate-limit keys |
 | `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` | api | IGDB | Client-credentials token for IGDB v4 |
+| `IGDB_RATE_LIMIT` | api | no | Authenticated search calls per profile+visitor per hour window (default 60) |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | api | Guide | Google GenAI access, model defaults to a current Flash tier |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` | api | uploads | Signed upload URLs |
 | `SAVEPOINT_API_URL`, `SITE_URL` | web functions | deploy | Server-side OG metadata + share cards |
