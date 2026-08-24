@@ -5,7 +5,7 @@ import { Button, CoverImage, Panel, useToast } from '../../components/ui';
 import { api } from '../../lib/api';
 import { copyToClipboard } from '../../lib/clipboard';
 import { profileSchema, type ProfileForm } from '../../lib/schemas';
-import { EditorShell, Field, SaveBar, SelectField, UploadCard, useArchiveAction, useMe , zodResolverFor } from './shared';
+import { EditorShell, Field, SaveBar, SelectField, UploadCard, useArchiveAction, useMe, zodResolverFor } from './shared';
 
 function PublicUrlCard({ handle }: { handle: string }) {
   const [copied, setCopied] = useState(false);

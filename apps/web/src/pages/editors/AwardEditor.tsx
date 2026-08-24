@@ -5,7 +5,7 @@ import { Panel, Button } from '../../components/ui';
 import { api } from '../../lib/api';
 import { awardSchema, type AwardForm } from '../../lib/schemas';
 import { STATUS_LABELS } from '../../types';
-import { EditorShell, Field, SelectField, useArchiveAction, useMe , zodResolverFor } from './shared';
+import { EditorShell, Field, SelectField, useArchiveAction, useMe, zodResolverFor } from './shared';
 
 export function AwardEditor() {
   const { data } = useMe();

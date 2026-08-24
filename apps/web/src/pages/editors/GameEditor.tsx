@@ -8,7 +8,7 @@ import { api } from '../../lib/api';
 import { gameSchema, type GameForm } from '../../lib/schemas';
 import { STATUS_LABELS, STATUS_ORDER, type ApiIGDBResult, type ApiProfileGame } from '../../types';
 import { Button } from '../../components/ui';
-import { EditorShell, Field, SelectField, useArchiveAction, useMe , zodResolverFor } from './shared';
+import { EditorShell, Field, SelectField, useArchiveAction, useMe, zodResolverFor } from './shared';
 
 // Half-star scale from 1.0 to 5.0; '' renders the "Unrated" option.
 const RATING_OPTIONS: Array<[string, string]> = [['', 'Unrated'], ...Array.from({ length: 9 }, (_, i) => {
