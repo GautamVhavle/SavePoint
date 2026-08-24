@@ -188,6 +188,7 @@ export const HallPlaque = memo(function HallPlaque({ game, index, onOpen }: { ga
 
 export function TiltCard({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  const rectRef = useRef<DOMRect | null>(null);
   const rx = useMotionValue(0); const ry = useMotionValue(0);
   const srx = useSpring(rx, { stiffness: 180, damping: 18 }); const sry = useSpring(ry, { stiffness: 180, damping: 18 });
   const reduce = useReducedMotion();
@@ -196,11 +197,12 @@ export function TiltCard({ children }: { children: ReactNode }) {
     <motion.div
       ref={ref}
       style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
-      onPointerMove={(e) => { if (e.pointerType !== 'mouse' || !ref.current) return;
-        const r = ref.current.getBoundingClientRect();
+      // Measure once on entry; reading the rect on every move forces layout.
+      onPointerEnter={(e) => { if (e.pointerType !== 'mouse') return; rectRef.current = ref.current?.getBoundingClientRect() ?? null; }}
+      onPointerMove={(e) => { const r = rectRef.current; if (e.pointerType !== 'mouse' || !r) return;
         ry.set(((e.clientX - r.left) / r.width - .5) * 7);
         rx.set(-((e.clientY - r.top) / r.height - .5) * 7); }}
-      onPointerLeave={() => { rx.set(0); ry.set(0); }}
+      onPointerLeave={() => { rectRef.current = null; rx.set(0); ry.set(0); }}
     >{children}</motion.div>
   );
 }
