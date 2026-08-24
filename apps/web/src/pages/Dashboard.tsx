@@ -27,7 +27,7 @@ export default function Dashboard(){
   const health=[Boolean(p?.profile.avatar_url),Boolean(p?.rig),gameCount>0,reviews>0,featured>0];
   const score=Math.round(health.filter(Boolean).length/health.length*100);
   return <div className="container-shell py-12">
-    <Helmet><title>Studio · SavePoint</title></Helmet>
+    <Helmet><title>Studio · SavePoint</title><meta name="robots" content="noindex"/></Helmet>
     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
         <div className="eyebrow">Curator studio</div>

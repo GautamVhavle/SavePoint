@@ -21,7 +21,7 @@ import { Button, CoverImage, Panel, useToast } from '../components/ui';
 
 function EditorShell({ title, eyebrow, children, aside }: { title: string; eyebrow: string; children: ReactNode; aside?: ReactNode }) {
   return <div className="container-shell py-10">
-    <Helmet><title>{title} · SavePoint Studio</title></Helmet>
+    <Helmet><title>{title} · SavePoint Studio</title><meta name="robots" content="noindex"/></Helmet>
     <Link to="/dashboard" className="btn mb-8"><ArrowLeft size={16}/> Studio</Link>
     <div className="mb-8"><div className="eyebrow">{eyebrow}</div><h1 className="mt-4 text-4xl font-bold tracking-[-.045em] sm:text-6xl">{title}</h1></div>
     <div className={aside ? 'grid items-start gap-5 lg:grid-cols-[1fr_320px]' : ''}>
