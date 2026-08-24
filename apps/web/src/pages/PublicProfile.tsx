@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -65,20 +65,20 @@ function Reveal({ children, delay = 0, className }: { children: React.ReactNode;
   );
 }
 
-function Stars({ value }: { value: number | null }) {
+const Stars = memo(function Stars({ value }: { value: number | null }) {
   if (value == null) return <span className="font-mono text-[10px] uppercase tracking-wider text-white/55">Unrated</span>;
   const filled = Math.round(value);
   return <span className="flex items-center gap-0.5" role="img" aria-label={`Rated ${value} out of 5`}>{[1,2,3,4,5].map(n => (
     <Star key={n} size={12} aria-hidden className={n <= filled ? 'text-amber-300' : 'text-white/25'} fill={n <= filled ? 'currentColor' : 'none'} />
   ))}</span>;
-}
+});
 
-function GameCard({ game, onOpen }: { game: Game; onOpen: () => void }) {
+const GameCard = memo(function GameCard({ game, onOpen }: { game: Game; onOpen: (game: Game) => void }) {
   const tone = STATUS_COLORS[game.status];
   return (
     <motion.button
       layout
-      onClick={onOpen}
+      onClick={() => onOpen(game)}
       aria-label={`Open ${game.title} details`}
       className={`card-sheen group relative aspect-[3/4] overflow-hidden rounded-[20px] border text-left shadow-card transition-colors sm:aspect-[4/4.6] sm:min-h-64 sm:rounded-[24px] ${game.featured ? 'holo-ring border-transparent' : 'border-white/15'}`}
       whileHover={{ y: -8 }}
@@ -127,7 +127,7 @@ function GameCard({ game, onOpen }: { game: Game; onOpen: () => void }) {
       )}
     </motion.button>
   );
-}
+});
 
 function GameDetail({ game, close }: { game: Game; close: () => void }) {
   const panel = useRef<HTMLDivElement>(null); const reduce = useReducedMotion();
@@ -202,11 +202,11 @@ function TickerStrip({ games }: { games: Game[] }) {
 }
 
 /** Desktop-only: the first inductee gets the pedestal. */
-function GrandExhibit({ game, onOpen }: { game: Game; onOpen: () => void }) {
+const GrandExhibit = memo(function GrandExhibit({ game, onOpen }: { game: Game; onOpen: (game: Game) => void }) {
   const tone = STATUS_COLORS[game.status];
   return (
     <motion.button
-      onClick={onOpen}
+      onClick={() => onOpen(game)}
       aria-label={`Open ${game.title} details`}
       className="holo-ring group relative block w-full overflow-hidden rounded-[28px] text-left shadow-card"
       whileHover={{ y: -6 }}
@@ -244,14 +244,14 @@ function GrandExhibit({ game, onOpen }: { game: Game; onOpen: () => void }) {
       </div>
     </motion.button>
   );
-}
+});
 
 /** Desktop-only plaque: art above, engraved nameplate below. */
-function HallPlaque({ game, index, onOpen }: { game: Game; index: number; onOpen: () => void }) {
+const HallPlaque = memo(function HallPlaque({ game, index, onOpen }: { game: Game; index: number; onOpen: (game: Game) => void }) {
   const tone = STATUS_COLORS[game.status];
   return (
     <motion.button
-      onClick={onOpen}
+      onClick={() => onOpen(game)}
       aria-label={`Open ${game.title} details`}
       className="card-sheen group relative overflow-hidden rounded-[24px] border border-white/10 bg-panel text-left shadow-card transition-colors hover:border-cyan-300/30"
       whileHover={{ y: -6 }}
@@ -283,7 +283,7 @@ function HallPlaque({ game, index, onOpen }: { game: Game; index: number; onOpen
       </div>
     </motion.button>
   );
-}
+});
 
 function TiltCard({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -320,7 +320,10 @@ export default function PublicProfile() {
   const query=useQuery({queryKey:['public-profile',handle],queryFn:({signal})=>api.publicProfile(handle,signal),retry:(count,e)=>!(e instanceof ApiError&&e.status===404)&&count<2});
   useMastheadCinema(mastheadRef, statsRef, !query.isPending && !query.isError);
   const games=useMemo(()=>{const list=(query.data?.games??[]).filter(g=>(filter==='all'||g.status===filter)&&g.title.toLowerCase().includes(search.toLowerCase()));return [...list].sort((a,b)=>sort==='Rating'?((b.rating??0)-(a.rating??0)):((b.year??0)-(a.year??0)))},[query.data,filter,sort,search]);
-  const selected=query.data?.games.find(g=>g.slug===params.get('game')); const open=(g:Game)=>navigate({search:`?game=${g.slug}`},{replace:false}); const close=()=>navigate({search:''},{replace:true});
+  const selected=query.data?.games.find(g=>g.slug===params.get('game'));
+  // Stable identities so memoized exhibit cards skip re-render while filters/search type.
+  const open=useCallback((g:Game)=>navigate({search:`?game=${g.slug}`},{replace:false}),[navigate]);
+  const close=useCallback(()=>navigate({search:''},{replace:true}),[navigate]);
   if(query.isPending)return <LoadingProfile/>; if(query.isError){const notFound=query.error instanceof ApiError&&query.error.status===404;return <div className="container-shell grid min-h-[65vh] place-items-center text-center"><div><div className="eyebrow justify-center">{notFound?'404 · Uncharted player':'Signal interrupted'}</div><h1 className="mt-5 text-5xl font-bold">{notFound?'This archive is sealed.':'Could not reach the archive.'}</h1><p className="muted mt-4">{notFound?'Check the handle and try another route.':'Your connection may have drifted. Retry when ready.'}</p><Button className="mt-7" onClick={()=>query.refetch()}>{notFound?'Try demo archive':'Retry'}</Button></div></div>};
   const p=query.data; const featured=p.featuredOrder.map(id=>p.games.find(g=>g.id===id)).filter(Boolean) as Game[];
   
@@ -329,12 +332,12 @@ export default function PublicProfile() {
   <section className="container-shell pt-6 sm:pt-10"><Panel elemRef={mastheadRef} className="relative min-h-[540px] overflow-hidden bg-[#0b0f1c] sm:min-h-[560px]"><div data-banner-parallax className="absolute -inset-y-8 inset-x-0"><CoverImage src={p.banner} alt="" data-banner-zoom priority className="absolute inset-0 opacity-55"/></div><div className="absolute inset-0 bg-gradient-to-r from-[#070a14] via-[#070a14]/75 to-transparent"/><div className="relative flex min-h-[560px] max-w-3xl flex-col justify-end p-6 sm:p-12"><div className="mb-auto flex items-center gap-4"><CoverImage src={p.avatar} alt={`${p.displayName} avatar`} priority className="h-16 w-16 rounded-2xl border border-white/20"/><div><span className="font-mono text-xs text-cyan-200">@{p.handle}</span><p className="mt-1 flex items-center gap-1.5 text-sm text-white/65"><MapPin size={14}/>{p.location}</p></div></div><div data-cinema className="eyebrow cinema-hidden">Player archive · est. {p.since}</div><h1 data-cinema className="cinema-hidden mt-4 text-[clamp(2.55rem,10vw,8rem)] font-bold leading-[.9] tracking-[-.065em] text-white">{p.displayName}</h1><p data-cinema className="cinema-hidden mt-6 max-w-xl text-lg leading-8 text-white/75">{p.bio}</p><div className="mt-8 flex flex-wrap gap-3"><a href="#featured" className="btn btn-primary">Enter the collection <ChevronDown size={17}/></a><Button type="button" className="border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={shareProfile}>{copied ? <Check size={17}/> : <Share2 size={17}/>}{copied ? 'Link copied' : 'Share archive'}</Button><span ref={statsRef} data-cinema className="cinema-hidden flex min-h-11 items-center px-3 font-mono text-xs text-white/60"><span data-count={p.games.length}>{p.games.length}</span> GAMES · <span data-count={Math.round(p.games.reduce((n,g)=>n+(g.hours??0),0))}>{Math.round(p.games.reduce((n,g)=>n+(g.hours??0),0))}</span> HOURS</span></div></div></Panel></section>
   <MotionSection id="rig" className="section container-shell"><SectionHead kicker="01 · Battle station" title={<>The <span className="text-gradient">Rig</span></>} body="A deliberately tuned system. Every component documented like an artifact."/><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{p.rig.map((r,i)=><Reveal key={r.id} delay={(i%4)*0.06}><TiltCard><Panel className="group h-full p-5 transition hover:-translate-y-1"><div className="flex justify-between"><Cpu size={20} className={i%2?'text-violet-300':'text-cyan-300'}/><span className="font-mono text-[9px] text-ink/40">0{i+1}</span></div><span className="label mt-10">{r.category}</span><h3 className="text-lg font-semibold">{r.name}</h3><p className="muted mt-2 font-mono text-xs leading-5">{r.detail}</p></Panel></TiltCard></Reveal>)}</div></MotionSection>
   {featured.length>0 && <TickerStrip games={featured}/>}
-  <MotionSection id="featured" className="section container-shell"><SectionHead kicker="02 · Hall of fame" title={<>The games that <span className="text-gradient">stayed</span></>} body="The permanent collection. The first inductee holds the grand exhibit; every plaque opens into complete field notes."/><div className="grid grid-cols-2 gap-3 sm:hidden">{featured.map((g,i)=><Reveal key={g.id} delay={(i%2)*0.07}><GameCard game={g} onOpen={()=>open(g)}/></Reveal>)}</div>
+  <MotionSection id="featured" className="section container-shell"><SectionHead kicker="02 · Hall of fame" title={<>The games that <span className="text-gradient">stayed</span></>} body="The permanent collection. The first inductee holds the grand exhibit; every plaque opens into complete field notes."/><div className="grid grid-cols-2 gap-3 sm:hidden">{featured.map((g,i)=><Reveal key={g.id} delay={(i%2)*0.07}><GameCard game={g} onOpen={open}/></Reveal>)}</div>
   <div className="hidden space-y-6 sm:block">
-    {featured[0] && <Reveal><GrandExhibit game={featured[0]} onOpen={()=>open(featured[0])}/></Reveal>}
+    {featured[0] && <Reveal><GrandExhibit game={featured[0]} onOpen={open}/></Reveal>}
     {featured.length > 1 && (
       <div className="grid gap-5 md:grid-cols-2">
-        {featured.slice(1).map((g,i)=><Reveal key={g.id} delay={(i%2)*0.08}><HallPlaque game={g} index={i+1} onOpen={()=>open(g)}/></Reveal>)}
+        {featured.slice(1).map((g,i)=><Reveal key={g.id} delay={(i%2)*0.08}><HallPlaque game={g} index={i+1} onOpen={open}/></Reveal>)}
       </div>
     )}
   </div></MotionSection>
