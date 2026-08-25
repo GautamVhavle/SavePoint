@@ -92,8 +92,8 @@ export function TickerStrip({ games }: { games: Game[] }) {
   const row = (hidden: boolean) => (
     <div aria-hidden={hidden || undefined} className="flex shrink-0 items-center">
       {items.map((t, i) => (
-        <span key={i} className="flex items-center gap-6 whitespace-nowrap px-6 py-3 font-mono text-[11px] uppercase tracking-[.24em] text-white/70">
-          {t}<span className="text-white/45">{'\u25c6'}</span>
+        <span key={i} className="flex items-center gap-6 whitespace-nowrap px-6 py-3 font-mono text-[11px] uppercase tracking-[.24em] text-ink/70">
+          {t}<span className="text-ink/40">{'\u25c6'}</span>
         </span>
       ))}
     </div>
@@ -142,12 +142,17 @@ export function GalleryWall({ games, onOpen }: { games: Game[]; onOpen: (game: G
 
   if (!games.length) return null;
   return (
-    <div ref={stageRef} data-wall-stage className={cn('relative', 'hidden sm:block', pinned ? 'lg:h-screen' : '')}>
+    // `overflow-x:clip` (never `hidden`, which would make this a scroll
+    // container and break the pin) frames the rail. Without it the posters
+    // that deliberately run past the fold opened a horizontal page scrollbar.
+    <div ref={stageRef} data-wall-stage className={cn('relative [overflow-x:clip]', 'hidden sm:block', pinned ? 'lg:h-screen' : '')}>
       <div
         ref={trackRef} data-wall-track
         className={cn(
           'flex items-center gap-[4vw] px-[7vw]',
-          pinned ? 'lg:h-screen lg:flex-nowrap lg:overflow-visible' : 'snap-x snap-mandatory overflow-x-auto pb-8',
+          // Proximity snapping (and a snappable intro panel) keeps the rail
+          // parked at scrollLeft 0 instead of jumping to the first poster.
+          pinned ? 'lg:h-screen lg:flex-nowrap lg:overflow-visible' : 'snap-x snap-proximity scroll-pl-[7vw] overflow-x-auto pb-8',
         )}
       >
         <IntroPanel count={games.length} />
@@ -155,7 +160,7 @@ export function GalleryWall({ games, onOpen }: { games: Game[]; onOpen: (game: G
           <GalleryPoster key={game.id} game={game} index={i + 1} grand={i === 0} onOpen={() => onOpen(game)} />
         ))}
       </div>
-      <span aria-hidden className="absolute inset-x-[7vw] bottom-10 hidden h-px bg-white/10 lg:block">
+      <span aria-hidden className="absolute inset-x-[7vw] bottom-10 hidden h-px bg-ink/10 lg:block">
         <span ref={barRef} className="block h-full origin-left scale-x-0 bg-cyan-300/80" style={{ transform: 'scaleX(0)' }} />
       </span>
     </div>
@@ -172,7 +177,7 @@ function PosterShell({ game, index, grand, onOpen, children, className }: {
       aria-label={`Open ${game.title} details (${STATUS_LABELS[game.status]})`} aria-haspopup="dialog"
       whileTap={{ scale: 0.985 }}
       className={cn(
-        'group relative shrink-0 snap-center overflow-hidden rounded-[26px] text-left shadow-card ring-1 ring-white/10',
+        'group relative shrink-0 snap-start overflow-hidden rounded-[26px] text-left shadow-card ring-1 ring-white/10',
         'transition-shadow duration-500 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300',
         grand ? 'w-[80vw] sm:w-[62vw] lg:w-[46vw]' : 'w-[70vw] sm:w-[44vw] lg:w-[30vw]',
         'h-[64vh] sm:h-[68vh] lg:h-[74vh]',
@@ -199,7 +204,7 @@ function PosterShell({ game, index, grand, onOpen, children, className }: {
           {game.title}
         </h3>
         {grand && game.featuredNote && (
-          <p className="serif-accent mt-3 max-w-xl text-lg leading-7 text-white/75 sm:text-xl">\u201c{game.featuredNote}\u201d</p>
+          <p className="serif-accent mt-3 max-w-xl text-lg leading-7 text-white/75 sm:text-xl">{'\u201c'}{game.featuredNote}{'\u201d'}</p>
         )}
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
           <Stars value={game.rating} />
@@ -225,10 +230,10 @@ function GalleryPoster({ game, index, grand, onOpen }: { game: Game; index: numb
 
 function IntroPanel({ count }: { count: number }) {
   return (
-    <div aria-hidden className="hidden shrink-0 select-none flex-col justify-end pb-10 pr-[2vw] lg:flex">
-      <span className="font-mono text-[10px] uppercase tracking-[.34em] text-white/45">The wall of</span>
-      <span className="mt-2 block text-[clamp(3rem,5vw,5.4rem)] font-bold leading-[.9] tracking-[-.05em] text-white">Induction<span className="serif-accent font-normal text-gradient">s</span></span>
-      <span className="mt-4 max-w-[220px] font-mono text-[11px] uppercase leading-relaxed tracking-[.2em] text-white/45">{count} pieces · scroll to walk the wall</span>
+    <div aria-hidden className="hidden shrink-0 snap-start select-none flex-col justify-end pb-10 pr-[2vw] lg:flex">
+      <span className="font-mono text-[10px] uppercase tracking-[.34em] text-ink/50">The wall of</span>
+      <span className="mt-2 block text-[clamp(3rem,5vw,5.4rem)] font-bold leading-[.9] tracking-[-.05em] text-ink">Induction<span className="serif-accent font-normal text-gradient">s</span></span>
+      <span className="mt-4 max-w-[220px] font-mono text-[11px] uppercase leading-relaxed tracking-[.2em] text-ink/50">{count} pieces · scroll to walk the wall</span>
     </div>
   );
 }

@@ -10,21 +10,22 @@ describe('Stars', () => {
     expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Rated 4.5 out of 5');
   });
 
-  it('fills stars by rounded half-step value', () => {
-    const { container, rerender } = render(<Stars value={4.4} />);
-    const filled = countFilled(container);
-    expect(filled).toBe(4);
-    rerender(<Stars value={4.6} />);
-    expect(countFilled(container)).toBe(5);
+  it('fills stars fractionally instead of rounding up', () => {
+    const { container } = render(<Stars value={4.5} />);
+    expect(fillWidths(container)).toEqual(['100%', '100%', '100%', '100%', '50%']);
+  });
+
+  it('omits the lit layer for stars below the rating', () => {
+    render(<Stars value={2} />);
+    expect(fillWidths(screen.getByRole('img'))).toEqual(['100%', '100%']);
   });
 
   it('shows an unrated placeholder instead of stars', () => {
-    cleanup();
     render(<Stars value={null} />);
     expect(screen.getByText('Unrated')).toBeInTheDocument();
   });
 });
 
-function countFilled(container: HTMLElement): number {
-  return [...container.querySelectorAll('svg')].filter(svg => svg.getAttribute('fill') === 'currentColor').length;
+function fillWidths(container: HTMLElement): string[] {
+  return [...container.querySelectorAll<HTMLElement>('span.overflow-hidden')].map(el => el.style.width);
 }

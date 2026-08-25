@@ -42,7 +42,9 @@ function mapRigItems(dto: ApiPublicProfile): RigItem[] {
     ['Storage', rig.storage], ['Case', rig.case], ['Power', rig.psu], ['Cooling', rig.cooling], ['OS', rig.os],
   ];
   specs.filter(([, detail]) => detail).forEach(([category, detail]) => {
-    items.push({ id: `spec-${slugify(category!)}`, category: category!.toUpperCase(), name: rig.name, detail: detail! });
+    // The part is the headline. There is no second line to give it: repeating
+    // the build name here made every spec card read "Obsidian SFF".
+    items.push({ id: `spec-${slugify(category!)}`, category: category!.toUpperCase(), name: detail!, detail: '' });
   });
   rig.monitors.forEach((monitor, index) => {
     const detail = [monitor.brand_model, monitor.resolution, monitor.refresh_hz ? `${monitor.refresh_hz} Hz` : null]
