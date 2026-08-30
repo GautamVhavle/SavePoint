@@ -7,9 +7,9 @@ reporting vulnerabilities see [SECURITY.md](../SECURITY.md).
 
 | Control | Where |
 | --- | --- |
-| Auth0 RS256 JWT with required `exp/iat/iss/aud/sub`, JWKS caching with unknown-`kid` refresh | `apps/api/app/core/auth.py` |
-| Ownership derived from the token subject — client input never selects a profile | `owner_profile` dependency |
-| Dev bypass refused in staging/production by settings validator | `Settings.production_safety` |
+| Auth0 RS256 JWT with required `exp/iat/iss/aud/sub`, JWKS caching with unknown-`kid` refresh | `api/_lib/auth.ts` |
+| Ownership derived from the token subject — client input never selects a profile | `ownerProfile` in `api/_lib/deps.ts` |
+| Dev bypass refused in staging/production by the env validator | `getEnv` in `api/_lib/env.ts` |
 
 ## Abuse resistance
 
@@ -17,12 +17,12 @@ reporting vulnerabilities see [SECURITY.md](../SECURITY.md).
 | --- | --- | --- |
 | Guide questions | 10 / profile+visitor / hour | Committed before the upstream Gemini call, so failures still consume quota |
 | IGDB search | 60 / profile+visitor / hour | Events survive rollback because the limiter commits its own insert |
-| Upload signing | 30 / profile+visitor / window | Throttles Supabase round trips |
-| Request bodies | 1 MiB before parsing (`MAX_BODY_BYTES`) | 413 short-circuits in middleware |
+| Upload signing | 30 / profile+visitor / window | Throttles Vercel Blob token minting |
+| Request bodies | 256 KiB before parsing (`MAX_BODY_BYTES`) | 413 short-circuits in middleware |
 | Mutation media type | `application/json` only | 415 for anything else, pre-parse |
 | Mutation framing | Explicit `Content-Length` required | 411 blocks chunked-transfer bypass |
 
-Visitor identity is an HMAC-SHA256 of the socket address keyed by
+Visitor identity is an HMAC-SHA256 of the client address keyed by
 `IP_HASH_SECRET`; raw addresses are never stored. The window cleanup deletes
 aged events on every limited call and is backed by
 `ix_rate_limit_created_at`.
@@ -34,7 +34,7 @@ is not a billing meter).
 ## Content and prompt boundaries
 
 - The Guide's system instruction treats all profile text as untrusted data;
-  the wording is pinned by `test_guide_system_prompt_keeps_untrusted_data_boundary`.
+  the wording is pinned in `api/_lib/integrations/gemini.ts`.
 - Answers are capped at 4000 characters regardless of upstream accounting.
 - Validation errors strip submitted values before echoing anything back.
 
@@ -51,8 +51,8 @@ is not a billing meter).
 ## Supply chain
 
 - `gitleaks` scans full history on every push/PR.
-- `pip-audit` gates API lockfile dependencies; npm audit gates production web deps.
-- Dependabot watches npm, pip, and Actions; CI fails on high/critical npm
+- `npm audit` gates production dependencies for the whole workspace.
+- Dependabot watches npm and Actions; CI fails on high/critical npm
   audit findings in production dependencies.
 
 ## Residual risks (accepted, revisit if product changes)
@@ -62,8 +62,10 @@ is not a billing meter).
 2. **Public read flood.** `/profiles/{handle}` relies on CDN caching
    (60 s fresh + SWR) rather than per-IP throttling; a burst beyond cache
    reach reaches Postgres. Fine at current scale.
-3. **Trusted-proxy IP assumption.** Rate limiting trusts `request.client.host`;
-   the ASGI platform must sanitize forwarding headers (documented in `deps.py`).
+3. **Trusted-proxy IP assumption.** Rate limiting trusts the forwarded client
+   address; Vercel overwrites `x-forwarded-for` at the edge, so this holds as
+   long as the API is only reachable through Vercel (documented in
+   `api/_lib/rate-limit.ts`).
 4. **Demo mode writes** live in `localStorage` under a fixed key on shared
    machines. Demo grants no authorization, but clear it on shared devices.
 5. **Per-profile budgets rotate.** Visitor limits are scoped to one profile

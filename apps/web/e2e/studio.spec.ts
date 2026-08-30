@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 /**
  * Studio editor flow exercised against the in-browser demo backend
- * (same SavepointClient contract as the live FastAPI integration).
+ * (same SavepointClient contract as the live API integration).
  */
 async function openStudioGames(page: Page) {
   await page.goto('/dashboard/games');

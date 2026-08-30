@@ -1,14 +1,14 @@
 # Contributing to SavePoint
 
-Thanks for wanting to make player archives better. This repo is a pnpm + uv monorepo: `apps/web` (React, TypeScript, Vite) and `apps/api` (FastAPI, SQLAlchemy async).
+Thanks for wanting to make player archives better. This repo is a pnpm monorepo: `apps/web` (React, TypeScript, Vite) and `api/` (Hono, Prisma, deployed as Vercel Functions).
 
 ## Setup
 
 ```bash
 pnpm install
-uv sync --project apps/api --all-extras
+cp .env.example .env.local               # DATABASE_URL and friends
 cp apps/web/.env.example apps/web/.env
-cp apps/api/.env.example apps/api/.env   # optional; tests provide their own env
+pnpm db:generate                          # emit the Prisma client
 ```
 
 ## Branches and commits
@@ -25,9 +25,8 @@ A PR is mergeable when **all** of the following pass locally:
 pnpm lint && pnpm typecheck && pnpm test      # web unit (zero warnings allowed)
 pnpm build                                     # production bundle compiles
 pnpm test:e2e                                  # smoke + axe WCAG A/AA + studio flows + responsive gates
-pnpm test:api                                  # FastAPI suite
+pnpm test:api                                  # Hono suite (needs a reachable DATABASE_URL)
 pnpm check                                     # or run every gate in one shot
-cd apps/api && uv run ruff check . && uv run mypy app
 ```
 
 Additional expectations:
@@ -35,8 +34,8 @@ Additional expectations:
 - **Accessibility**: any new interactive component must be keyboard-reachable, labelled (`aria-label` where text is absent), and pass the axe scans in both themes.
 - **Responsive**: nothing may introduce horizontal overflow at 320px. The `responsive.spec.ts` gates exist for a reason.
 - **Motion**: respect `prefers-reduced-motion`. Framer: gate on `useReducedMotion()`. GSAP: branch inside the timeline setup.
-- **Data contracts**: API DTOs are snake_case and mirrored in `apps/web/src/types.ts`. If you change a Pydantic schema, update the view-model mapper in `apps/web/src/lib/api.ts` and, when relevant, regenerate `src/lib/__fixtures__/public-profile.json` from a live response so the contract test stays honest.
-- **Database**: schema changes need an Alembic revision (`alembic revision -m "..."`) plus a model update. Never edit an existing revision — always add a new one on top.
+- **Data contracts**: API DTOs are snake_case and mirrored in `apps/web/src/types.ts`. If you change a Zod schema in `api/_lib/validation.ts`, update the view-model mapper in `apps/web/src/lib/api.ts` and, when relevant, regenerate `src/lib/__fixtures__/public-profile.json` from a live response so the contract test stays honest.
+- **Database**: schema changes need a Prisma migration (`pnpm db:migrate --name "..."`) alongside the `prisma/schema.prisma` edit. Never edit an applied migration — always add a new one on top.
 
 ## Design system notes
 

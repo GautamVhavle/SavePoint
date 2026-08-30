@@ -4,22 +4,24 @@ interface ProfilePayload {
   games: Array<{ game: { cover_url: string | null }; featured: boolean }>;
 }
 
-const API_URL = process.env.SAVEPOINT_API_URL?.replace(/\/$/, '') ?? '';
+import { apiBaseUrl } from './_lib/site-url.js';
+
 const FALLBACK = '/og-card.jpg';
 
 /**
  * 1200x630 share-card endpoint.
  *
  * Today it redirects to the best available artwork: the profile's hero or
- * featured game cover once SAVEPOINT_API_URL points at the FastAPI service,
+ * featured game cover resolved from the same deployment's public API,
  * otherwise the branded static card. Per-profile rendered typography cards
  * (satori/edge runtime) are tracked in the README roadmap and will replace
  * the redirect target once the function runtime supports the WASM bundle.
  */
 async function bestArtwork(handle: string): Promise<string | null> {
-  if (!API_URL || !handle) return null;
+  const apiUrl = apiBaseUrl();
+  if (!apiUrl || !handle) return null;
   try {
-    const response = await fetch(`${API_URL}/profiles/${encodeURIComponent(handle)}`, {
+    const response = await fetch(`${apiUrl}/profiles/${encodeURIComponent(handle)}`, {
       headers: { Accept: 'application/json' },
       signal: AbortSignal.timeout(4000),
     });

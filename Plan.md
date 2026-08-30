@@ -74,14 +74,14 @@ GameEntry's IGDB snapshot stays denormalized so profiles render if IGDB is unava
 | Layer | Choice |
 |---|---|
 | Frontend | React + Vite, Tailwind, shadcn/ui primitives, Framer Motion + GSAP |
-| Backend | Python, FastAPI, Pydantic v2 |
-| Database | Supabase Postgres |
-| File storage | Supabase Storage |
+| Backend | TypeScript, Hono on Vercel Functions, Zod |
+| Database | Neon Serverless Postgres via Prisma |
+| File storage | Vercel Blob |
 | Auth | Auth0 |
 | Game metadata | IGDB API v4 via Twitch OAuth2 |
-| AI Guide | Gemini Flash API |
+| AI Guide | Gemini Flash API (`@google/genai`) |
 
-IGDB credentials and tokens remain server-side. Search and add calls go through FastAPI. Gemini requests are profile-scoped and rate-limited. All credentials are injected via environment variables.
+IGDB credentials and tokens remain server-side. Search and add calls go through the Hono API. Gemini requests are profile-scoped and rate-limited. All credentials are injected via environment variables.
 
 ## 6. MVP Scope
 
@@ -99,9 +99,9 @@ IGDB credentials and tokens remain server-side. Search and add calls go through 
 
 ## 8. Build Order
 
-1. Data model, FastAPI, Supabase wiring, Auth0, and dashboard shell.
+1. Data model, API routes, database wiring, Auth0, and dashboard shell.
 2. IGDB search and metadata-snapshot flow.
-3. Rig CRUD and Supabase Storage uploads.
+3. Rig CRUD and Vercel Blob uploads.
 4. Cards, reviews, ratings, awards, and featured curation.
 5. Public profile route and Open Graph generation.
 6. AI Guide and durable rate limiting.

@@ -1,0 +1,190 @@
+// SavePoint data model — ported 1:1 from the retired SQLAlchemy models so the
+// public API contract and every invariant survive the move to Vercel.
+//
+// CHECK constraints have no Prisma equivalent; they live in
+// prisma/migrations/**/migration.sql and are asserted by the API test suite.
+
+// Prisma 7's TypeScript client: no Rust engine binary to trace into the Vercel
+// function bundle, and the output lives under api/_lib so it is always included.
+generator client {
+  provider     = "prisma-client"
+  output       = "../api/_lib/generated/prisma"
+  runtime      = "nodejs"
+  moduleFormat = "esm"
+
+  // Emit ".js" specifiers so the generated sources match the rest of the API and
+  // resolve identically under tsc, tsx, vitest, and Vercel's esbuild bundler.
+  importFileExtension = "js"
+}
+
+// Connection URLs live in prisma.config.ts (Prisma 7 requirement).
+datasource db {
+  provider = "postgresql"
+}
+
+enum GameStatus {
+  playing
+  completed
+  backlog
+  dropped
+}
+
+enum ThemePreference {
+  system
+  light
+  dark
+}
+
+model Profile {
+  id              String          @id @default(uuid()) @db.Uuid
+  auth0Sub        String          @unique @map("auth0_sub") @db.VarChar(255)
+  handle          String          @unique @db.VarChar(40)
+  displayName     String          @map("display_name") @db.VarChar(80)
+  bio             String?         @db.Text
+  avatarUrl       String?         @map("avatar_url") @db.VarChar(2048)
+  themePreference ThemePreference @default(system) @map("theme_preference")
+  location        String?         @db.VarChar(120)
+  socialLinks     Json            @default("{}") @map("social_links")
+  isPublic        Boolean         @default(true) @map("is_public")
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rig         Rig?
+  peripherals Peripheral[]
+  games       ProfileGame[]
+  awards      Award[]
+  rateLimits  RateLimitEvent[]
+
+  @@index([isPublic])
+  @@map("profiles")
+}
+
+model Rig {
+  id           String   @id @default(uuid()) @db.Uuid
+  profileId    String   @unique @map("profile_id") @db.Uuid
+  name         String   @default("Main Rig") @db.VarChar(100)
+  heroPhotoUrl String?  @map("hero_photo_url") @db.VarChar(2048)
+  monitors     Json     @default("[]")
+  cpu          String?  @db.VarChar(160)
+  gpu          String?  @db.VarChar(160)
+  motherboard  String?  @db.VarChar(160)
+  memory       String?  @db.VarChar(160)
+  storage      String?  @db.VarChar(250)
+  case         String?  @db.VarChar(160)
+  psu          String?  @db.VarChar(160)
+  cooling      String?  @db.VarChar(160)
+  os           String?  @db.VarChar(100)
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("rigs")
+}
+
+model Peripheral {
+  id          String   @id @default(uuid()) @db.Uuid
+  profileId   String   @map("profile_id") @db.Uuid
+  type        String   @db.VarChar(60)
+  displayName String   @map("display_name") @db.VarChar(160)
+  brandModel  String?  @map("brand_model") @db.VarChar(200)
+  photoUrl    String?  @map("photo_url") @db.VarChar(2048)
+  notes       String?  @db.Text
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@map("peripherals")
+}
+
+model Game {
+  id          String    @id @default(uuid()) @db.Uuid
+  igdbId      Int       @unique @map("igdb_id")
+  name        String    @db.VarChar(250)
+  slug        String    @db.VarChar(250)
+  summary     String?   @db.Text
+  coverUrl    String?   @map("cover_url") @db.VarChar(2048)
+  bannerUrl   String?   @map("banner_url") @db.VarChar(2048)
+  releaseDate DateTime? @map("release_date") @db.Timestamptz(6)
+  genres      Json      @default("[]")
+  platforms   Json      @default("[]")
+  snapshot    Json      @default("{}")
+  snapshotAt  DateTime  @default(now()) @map("snapshot_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  profiles ProfileGame[]
+
+  @@index([name])
+  @@map("games")
+}
+
+model ProfileGame {
+  id            String     @id @default(uuid()) @db.Uuid
+  profileId     String     @map("profile_id") @db.Uuid
+  gameId        String     @map("game_id") @db.Uuid
+  status        GameStatus
+  rating        Float?
+  review        String?    @db.Text
+  hoursPlayed   Float?     @map("hours_played")
+  startedOn     DateTime?  @map("started_on") @db.Date
+  completedOn   DateTime?  @map("completed_on") @db.Date
+  platform      String?    @db.VarChar(100)
+  featured      Boolean    @default(false)
+  featuredOrder Int?       @map("featured_order")
+  featuredNote  String?    @map("featured_note") @db.Text
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  game    Game    @relation(fields: [gameId], references: [id], onDelete: Restrict)
+  awards  Award[]
+
+  @@unique([profileId, gameId])
+  // Referenced by the composite award foreign key that pins an award to a game
+  // entry owned by the same profile.
+  @@unique([id, profileId], map: "uq_profile_games_id_profile")
+  @@unique([profileId, featuredOrder], map: "uq_profile_featured_order")
+  @@index([profileId, status])
+  @@index([status])
+  @@index([featured])
+  @@map("profile_games")
+}
+
+model Award {
+  id            String    @id @default(uuid()) @db.Uuid
+  profileId     String    @map("profile_id") @db.Uuid
+  profileGameId String    @map("profile_game_id") @db.Uuid
+  title         String    @db.VarChar(100)
+  description   String?   @db.Text
+  iconUrl       String?   @map("icon_url") @db.VarChar(2048)
+  awardedOn     DateTime? @map("awarded_on") @db.Date
+  sortOrder     Int       @default(0) @map("sort_order")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  profile     Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileGame ProfileGame @relation(fields: [profileGameId, profileId], references: [id, profileId], onDelete: Cascade, map: "fk_award_same_profile_game")
+
+  @@index([profileId])
+  @@index([profileGameId])
+  @@map("awards")
+}
+
+model RateLimitEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  scope     String   @db.VarChar(40)
+  profileId String   @map("profile_id") @db.Uuid
+  ipHash    String   @map("ip_hash") @db.VarChar(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([scope, profileId, ipHash, createdAt], map: "ix_rate_limit_lookup")
+  @@index([createdAt], map: "ix_rate_limit_created_at")
+  @@map("rate_limit_events")
+}

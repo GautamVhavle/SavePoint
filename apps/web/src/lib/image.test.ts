@@ -9,8 +9,8 @@ describe('igdbWideMobileVariant', () => {
 
   it('leaves covers and non-IGDB hosts untouched', () => {
     const cover = 'https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg';
-    const supabase = 'https://proj.supabase.co/storage/v1/object/public/media/users/u1/rig/x.webp';
+    const blob = 'https://abc123.public.blob.vercel-storage.com/users/u1/rig/x.webp';
     expect(igdbWideMobileVariant(cover)).toBe(cover);
-    expect(igdbWideMobileVariant(supabase)).toBe(supabase);
+    expect(igdbWideMobileVariant(blob)).toBe(blob);
   });
 });

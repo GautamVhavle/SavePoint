@@ -12,10 +12,10 @@ Please include reproduction steps, affected routes/components, and any proof-of-
 ## Scope and guarantees the codebase tries to keep
 
 - Every mutation route requires a valid Auth0 JWT and verifies resource ownership (`profile_id` derived from the token subject, never from client input).
-- `DEV_AUTH_BYPASS` is impossible to enable outside development/test environments (settings validator refuses it in production).
-- IGDB/Twitch, Gemini, and Supabase service credentials live only in server-side environment variables and are never exposed to the browser bundle.
+- `DEV_AUTH_BYPASS` is impossible to enable outside development/test environments (the env validator refuses it in staging and production).
+- IGDB/Twitch, Gemini, and Vercel Blob credentials live only in server-side environment variables and are never exposed to the browser bundle.
 - Guide rate limiting uses HMAC-hashed visitor IPs, never raw addresses.
-- Uploaded media flows through Supabase signed URLs with purpose-scoped paths.
+- Uploaded media flows through Vercel Blob using short-lived, server-issued client upload tokens scoped to a single purpose-derived path under `users/<profile_id>/`.
 - Request bodies above `MAX_BODY_BYTES` are rejected before parsing; upload
   signing, IGDB search, and Guide calls each carry their own rate limits.
 - The crawler-facing HTML function only fetches from `SAVEPOINT_API_URL` with handle allowlisting and timeouts.

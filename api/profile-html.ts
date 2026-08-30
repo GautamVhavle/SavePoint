@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { apiBaseUrl } from './_lib/site-url.js';
 
 interface ProfilePayload {
   profile: { handle: string; display_name: string; bio: string | null };
@@ -19,7 +20,7 @@ const escapeHtml = (value: string) =>
  * Crawler-only route: social scrapers (Discord/X/LinkedIn/Facebook) never execute
  * React, so /u/:handle is rewritten here for bot user-agents and served the SPA
  * for everyone else (see vercel.json). Returns the real app shell injected with
- * per-profile Open Graph metadata fetched server-side from FastAPI.
+ * per-profile Open Graph metadata fetched server-side from the same deployment.
  */
 export default async function handler(
   req: { query: Record<string, string | string[]> },
@@ -33,7 +34,7 @@ export default async function handler(
   let html = await readFile(path.join(process.cwd(), "apps", "web", "dist", "index.html"), "utf8");
 
   if (handle) {
-    const apiUrl = process.env.SAVEPOINT_API_URL?.replace(/\/$/, "");
+    const apiUrl = apiBaseUrl();
     if (apiUrl) {
       try {
         const response = await fetch(`${apiUrl}/profiles/${encodeURIComponent(handle)}`, {

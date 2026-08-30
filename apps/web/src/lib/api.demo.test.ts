@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ApiError, api } from './api';
 
 /**
- * Demo-mode contract: these behaviors must mirror the live FastAPI client so
+ * Demo-mode contract: these behaviors must mirror the live API client so
  * the visual showcase never lies about how production behaves.
  */
 

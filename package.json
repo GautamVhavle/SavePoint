@@ -3,19 +3,43 @@
   "private": true,
   "version": "1.0.0",
   "description": "A collectible gaming portfolio for your rig, chronicle, and personal reviews.",
+  "type": "module",
   "scripts": {
-    "dev": "pnpm --dir apps/web dev",
+    "dev": "vercel dev",
     "dev:web": "pnpm --dir apps/web dev",
-    "build": "pnpm --dir apps/web build",
+    "build": "prisma generate && pnpm --dir apps/web build",
     "lint": "pnpm --dir apps/web lint",
-    "typecheck": "pnpm --dir apps/web typecheck",
+    "typecheck": "tsc -p tsconfig.json && pnpm --dir apps/web typecheck",
     "test": "pnpm --dir apps/web test",
-    "test:api": "uv run --project apps/api pytest",
+    "test:api": "vitest run",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:api && pnpm build",
     "test:e2e": "pnpm --dir apps/web test:e2e"
   },
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"
+  },
+  "dependencies": {
+    "@google/genai": "^2.19.0",
+    "@hono/node-server": "^2.1.1",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "@vercel/blob": "^2.8.0",
+    "hono": "^4.13.5",
+    "jose": "^6.2.10",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "@vercel/node": "^10.0.0",
+    "dotenv": "^17.4.2",
+    "prisma": "7.10.0",
+    "tsx": "^4.23.13",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.9"
   }
 }

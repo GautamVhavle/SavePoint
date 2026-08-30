@@ -4,7 +4,7 @@ import fixtureRaw from './__fixtures__/public-profile.json';
 import type { ApiPublicProfile } from '../types';
 
 /**
- * Contract guard: the fixture is captured from a live FastAPI response
+ * Contract guard: the fixture is captured from a live API response
  * (GET /api/v1/profiles/alex) and must keep mapping into the page view model.
  */
 const fixture = fixtureRaw as ApiPublicProfile;

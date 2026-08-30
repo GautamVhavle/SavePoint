@@ -14,7 +14,7 @@ pnpm install
 pnpm dev
 ```
 
-For the credential-free visual showcase, omit `VITE_API_URL` or set `VITE_DEMO_MODE=true`. Demo mode uses deterministic synthetic data and simulated writes. It only changes browser UX: it does **not** manufacture an access token or bypass FastAPI authorization. In production configure the API and Auth0 variables and leave demo mode false.
+For the credential-free visual showcase, omit `VITE_API_URL` or set `VITE_DEMO_MODE=true`. Demo mode uses deterministic synthetic data and simulated writes. It only changes browser UX: it does **not** manufacture an access token or bypass server-side authorization. In production configure the API and Auth0 variables and leave demo mode false.
 
 ## Commands
 
@@ -25,11 +25,11 @@ For the credential-free visual showcase, omit `VITE_API_URL` or set `VITE_DEMO_M
 - `pnpm build`, typecheck and optimized production bundle
 - `pnpm test:e2e`, Playwright desktop/mobile suites against the preview build
 
-## FastAPI contract
+## API contract
 
-The typed client is centralized in `src/lib/api.ts`. Public reads call `GET /profiles/:handle`; writes use bearer tokens acquired silently from Auth0 and target `/me/*`; Guide calls `POST /profiles/:handle/guide`. Requests are cancellable, use JSON, include credentials for secure cookie-compatible deployments, and normalize response errors. FastAPI remains responsible for authorization, ownership checks, validation, upload scanning, rate limits, and draft/public field separation.
+The typed client is centralized in `src/lib/api.ts`. Public reads call `GET /profiles/:handle`; writes use bearer tokens acquired silently from Auth0 and target `/me/*`; Guide calls `POST /profiles/:handle/guide`. Requests are cancellable, use JSON, include credentials for secure cookie-compatible deployments, and normalize response errors. The API remains responsible for authorization, ownership checks, validation, upload scanning, rate limits, and draft/public field separation.
 
-Expected public profile data matches the interfaces in `src/types.ts`. For a mature deployment, generate API types from FastAPI OpenAPI and add runtime response validation at this boundary.
+Expected public profile data matches the interfaces in `src/types.ts`, which mirror the Zod schemas in `api/_lib/validation.ts`. For a mature deployment, generate these types from the API schemas and add runtime response validation at this boundary.
 
 ## Auth0
 

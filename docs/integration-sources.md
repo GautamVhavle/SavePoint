@@ -18,20 +18,23 @@ Public profile HTML must include crawler-visible `og:title`, `og:type`, `og:url`
 ## Auth0
 
 - [Auth0 React quickstart](https://auth0.com/docs/quickstart/spa/react)
-- [Auth0 FastAPI quickstart](https://auth0.com/docs/quickstart/backend/fastapi)
+- [Auth0 Node.js (Express) API quickstart](https://auth0.com/docs/quickstart/backend/nodejs)
 - [Validate access tokens](https://auth0.com/docs/secure/tokens/access-tokens/validate-access-tokens)
 - [Validate JSON Web Tokens](https://auth0.com/docs/secure/tokens/json-web-tokens/validate-json-web-tokens)
 
-The browser sends an API access token, never an ID token. FastAPI validates RS256 signature, issuer, audience, expiry, and scopes using cached JWKS, refreshing when a previously unknown key ID appears.
+The browser sends an API access token, never an ID token. The API validates RS256 signature, issuer, audience, expiry, and scopes using cached JWKS, refreshing when a previously unknown key ID appears.
 
-## Supabase
+## Vercel platform
 
-- [Python client initialization](https://supabase.com/docs/reference/python/initializing)
-- [Postgres connection modes](https://supabase.com/docs/guides/database/connecting-to-postgres)
-- [Storage access control](https://supabase.com/docs/guides/storage/security/access-control)
-- [Signed upload URLs](https://supabase.com/docs/reference/python/storage-from-create-signed-upload-url)
+- [Vercel Functions (Node.js runtime)](https://vercel.com/docs/functions/runtimes/node-js)
+- [Vercel Blob](https://vercel.com/docs/vercel-blob)
+- [Blob client uploads](https://vercel.com/docs/vercel-blob/client-upload)
+- [Neon on Vercel Marketplace](https://vercel.com/docs/neon)
+- [Prisma with serverless drivers](https://www.prisma.io/docs/orm/overview/databases/neon)
 
-The service-role key remains server-side. FastAPI authorizes a user-scoped object path and the browser uploads directly with a short-lived signed URL.
+The Blob read/write token remains server-side. The API authorizes a
+profile-scoped object path and mints a short-lived client token; the browser
+then uploads directly to Blob storage.
 
 ## Twitch and IGDB
 
@@ -51,13 +54,13 @@ IGDB calls remain server-only. Tokens are cached until shortly before expiry, re
 - [Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
 - [Model deprecations](https://ai.google.dev/gemini-api/docs/deprecations)
 
-SavePoint uses the unified `google-genai` package and an environment-configurable stable Flash model. Quotas can change, so rate-limit and upstream errors must degrade gracefully.
+SavePoint uses the unified `@google/genai` package and an environment-configurable stable Flash model. Quotas can change, so rate-limit and upstream errors must degrade gracefully.
 
 ## Testing
 
 - [Vitest guide](https://vitest.dev/guide/)
 - [Playwright introduction](https://playwright.dev/docs/intro/)
-- [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/)
-- [Supabase local development](https://supabase.com/docs/guides/local-development)
+- [Hono testing helper](https://hono.dev/docs/guides/testing)
+- [Prisma Migrate in CI](https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production)
 
 Routine automated tests use deterministic fakes and must not consume live IGDB or Gemini quotas.

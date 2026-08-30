@@ -65,7 +65,7 @@ export interface Profile {
 
 export interface GuideResponse { answer: string; }
 
-/* ---- Raw API DTOs mirroring apps/api/app/schemas.py (snake_case) ---- */
+/* ---- Raw API DTOs mirroring api/_lib/validation.ts (snake_case) ---- */
 
 export interface ApiProfileSummary {
   id: string;

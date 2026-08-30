@@ -88,29 +88,30 @@ const realClient: SavepointClient = {
   async deleteAward(id) { await request(`/me/awards/${id}`, { method: 'DELETE' }, await auth()); },
   async uploadMedia(purpose, file) {
     const token = await auth();
-    const signed = await request<{ path: string; token: string; upload_url: string }>('/me/uploads/sign', {
+    // The server derives the object path from the verified profile and issues a
+    // short-lived, single-path token, so the browser never holds store-wide
+    // credentials and cannot write outside its own prefix.
+    const signed = await request<{ path: string; token: string }>('/me/uploads/sign', {
       method: 'POST',
       body: JSON.stringify({ filename: file.name, content_type: file.type, size: file.size, purpose }),
     }, token);
-    const url = new URL(signed.upload_url);
-    url.searchParams.set('token', signed.token);
-    let uploaded: Response;
+
     try {
-      // Media payloads are large; give them a generous but bounded window.
-      uploaded = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file,
-        signal: AbortSignal.timeout(120_000),
+      const { put } = await import('@vercel/blob/client');
+      const blob = await put(signed.path, file, {
+        access: 'public',
+        token: signed.token,
+        contentType: file.type,
+        // Media payloads are large; give them a generous but bounded window.
+        abortSignal: AbortSignal.timeout(120_000),
       });
-    } catch {
-      throw new ApiError('Upload failed or timed out', 0);
+      return blob.url;
+    } catch (error) {
+      throw new ApiError(
+        error instanceof Error && error.name === 'TimeoutError' ? 'Upload timed out' : 'Upload failed',
+        0,
+      );
     }
-    if (!uploaded.ok) throw new ApiError('Upload failed', uploaded.status);
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '');
-    const bucket = import.meta.env.VITE_SUPABASE_BUCKET ?? 'savepoint-media';
-    if (!supabaseUrl) throw new ApiError('Public media base is not configured', 503);
-    return `${supabaseUrl}/storage/v1/object/public/${bucket}/${signed.path}`;
   },
   async guide(handle, question, signal) {
     return request<GuideResponse>(`/profiles/${encodeURIComponent(handle)}/guide`, {

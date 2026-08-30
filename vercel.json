@@ -1,9 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "buildCommand": "cd apps/web && pnpm run build",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "prisma generate && if [ \"$VERCEL_ENV\" = \"production\" ]; then prisma migrate deploy; fi && cd apps/web && pnpm run build",
   "outputDirectory": "apps/web/dist",
   "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "/api"
+    },
     {
       "source": "/u/:path*",
       "has": [
@@ -20,11 +25,14 @@
       "destination": "/.well-known/security.txt"
     },
     {
-      "source": "/((?!assets/).*)",
+      "source": "/((?!api/|assets/).*)",
       "destination": "/index.html"
     }
   ],
   "functions": {
+    "api/index.ts": {
+      "maxDuration": 30
+    },
     "api/profile-html.ts": {
       "includeFiles": "apps/web/dist/index.html"
     },
