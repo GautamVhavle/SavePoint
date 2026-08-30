@@ -43,6 +43,8 @@ is not a billing meter).
 - `Content-Security-Policy` is enforced via `vercel.json`. The page ships
   exactly one inline script whose sha256 is pinned; `src/index-html.security.test.ts`
   fails on drift and `e2e/csp.spec.ts` enforces the header across key routes.
+- `frame-src` allows only the Auth0 tenant, which the SPA SDK needs for its
+  silent-authentication iframe. Update it when the tenant changes.
 - Headers on both surfaces: `nosniff`, `X-Frame-Options: DENY`,
   `frame-ancestors 'none'`, COOP `same-origin`, referrer + permissions policies,
   HSTS in staging/production.
