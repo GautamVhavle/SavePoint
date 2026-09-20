@@ -3,5 +3,6 @@ Allow: /
 Disallow: /dashboard
 Disallow: /onboarding
 Disallow: /auth/callback
+Disallow: /auth/
 
 Sitemap: https://savepointarchive.vercel.app/sitemap.xml

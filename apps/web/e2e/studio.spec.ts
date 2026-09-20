@@ -31,6 +31,19 @@ test('curator can search IGDB and add a game to the chronicle', async ({ page })
   await expect(row).toContainText('4.5★');
 });
 
+test('identity editor can unpublish and restore the public archive', async ({ page }) => {
+  await page.goto('/dashboard/profile');
+  const toggle = page.getByRole('switch', { name: /Unpublish archive|Publish archive/ });
+  await expect(toggle).toHaveAttribute('aria-checked', 'true');
+  await toggle.click();
+  await expect(page.locator('.toast')).toContainText(/unpublished/i);
+  await page.goto('/u/nova');
+  await expect(page.getByRole('heading', { name: /sealed/i })).toBeVisible();
+  await page.goto('/dashboard/profile');
+  await page.getByRole('switch', { name: 'Publish archive' }).click();
+  await expect(page.locator('.toast')).toContainText(/public again/i);
+});
+
 test('duplicate IGDB additions are rejected with a visible reason', async ({ page }) => {
   await openStudioGames(page);
   // Hades ships inside the seeded demo archive, so re-adding must fail loudly.

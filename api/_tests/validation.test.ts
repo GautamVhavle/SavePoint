@@ -17,7 +17,7 @@ describe('profile validation', () => {
     expect(parsed.handle).toBe('alexthegamer');
   });
 
-  it.each(['ab', 'a'.repeat(31), '-alex', 'alex-', 'alex!', 'Alex Gamer'])(
+  it.each(['ab', 'a'.repeat(31), '-alex', 'alex-', 'alex!', 'Alex Gamer', 'about', 'privacy', 'dashboard'])(
     'rejects the invalid handle %s',
     handle => {
       expect(profileCreateSchema.safeParse({ ...baseProfile, handle }).success).toBe(false);

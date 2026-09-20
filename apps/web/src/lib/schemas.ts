@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { GameStatus } from '../types';
+import { isReservedHandle, reservedHandleMessage } from './reserved-handles';
 
 export type ThemePreferenceValue = 'system' | 'light' | 'dark';
 
@@ -12,7 +13,7 @@ const displayNameField = z.string().trim().min(2, 'At least 2 characters').max(8
 const handleField = z.string().trim().toLowerCase().regex(
   /^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])?$/,
   '3 to 30 lowercase letters, numbers, _ or -',
-);
+).refine(value => !isReservedHandle(value), reservedHandleMessage);
 
 export const profileSchema = z.object({
   displayName: displayNameField,

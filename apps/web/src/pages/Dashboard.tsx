@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, Gamepad2, GripVertical, Plus, Radio, Settings2, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Award, Bot, CheckCircle2, Circle, CircleUserRound, Cpu, EyeOff, Gamepad2, GripVertical, Plus, Radio, Settings2, Sparkles } from 'lucide-react';
 import { api, isDemoMode } from '../lib/api';
 import { prefetchRoute } from '../lib/use-intent-prefetch';
 import { Button, PageFade, Panel } from '../components/ui';
@@ -51,6 +51,7 @@ export default function Dashboard(){
       </div>
     </div>
     {isDemoMode&&<Panel className="mt-8 flex items-start gap-3 border-violet-300/20 bg-violet-400/5 p-4"><Radio className="mt-0.5 text-violet-300" size={18}/><div><b className="text-sm">Safe demo workspace</b><p className="muted mt-1 text-sm">Edits stay in this browser and never grant production authorization.</p></div></Panel>}
+    {!isLoading&&p&&!p.profile.is_public&&<Panel className="mt-4 flex flex-wrap items-center justify-between gap-3 border-amber-300/20 bg-amber-400/5 p-4"><div className="flex items-start gap-3"><EyeOff className="mt-0.5 text-amber-200" size={18}/><div><b className="text-sm">This archive is private</b><p className="muted mt-1 text-sm">The public URL returns 404 until you publish it again.</p></div></div><Link className="btn" to="/dashboard/profile">Open identity</Link></Panel>}
     {!isDemoMode&&!isLoading&&query.isError&&<Panel className="mt-8 flex items-start gap-3 border-rose-300/20 bg-rose-400/5 p-4"><Radio className="mt-0.5 text-rose-300" size={18}/><div><b className="text-sm">Could not load your archive</b><p className="muted mt-1 text-sm">Check your connection, then try again.</p><Button className="mt-3" onClick={() => void query.refetch()}>Retry</Button></div></Panel>}
     {!isDemoMode&&!isLoading&&!query.isError&&!p&&<Panel className="mt-8 flex flex-wrap items-center justify-between gap-3 border-cyan-300/20 bg-cyan-400/5 p-4"><div><b className="text-sm">Create your identity first</b><p className="muted mt-1 text-sm">Claim a handle before curating games and awards.</p></div><Link className="btn btn-primary" to="/onboarding">Start onboarding</Link></Panel>}
     <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_320px]">

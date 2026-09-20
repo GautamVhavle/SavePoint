@@ -74,6 +74,7 @@ const realClient: SavepointClient = {
   },
   async me(signal) { return request<ApiPublicProfile>('/me/composite', { signal }, await auth()); },
   async patchMe(patch) { await request('/me/profile', { method: 'PATCH', body: JSON.stringify(patch) }, await auth()); },
+  async deleteMe() { await request('/me/profile', { method: 'DELETE' }, await auth()); },
   async putRig(rig) { await request('/me/rig', { method: 'PUT', body: JSON.stringify(rig) }, await auth()); },
   async createPeripheral(input) { await request('/me/peripherals', { method: 'POST', body: JSON.stringify(input) }, await auth()); },
   async updatePeripheral(id, input) { await request(`/me/peripherals/${id}`, { method: 'PUT', body: JSON.stringify(input) }, await auth()); },

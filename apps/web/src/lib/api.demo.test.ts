@@ -46,4 +46,17 @@ describe('demo client', () => {
   it('maps missing handles to a 404 ApiError', async () => {
     await expect(api.publicProfile('missing')).rejects.toBeInstanceOf(ApiError);
   });
+
+  it('hides an unpublished archive from the public URL', async () => {
+    const doc = await api.me();
+    await api.patchMe({ is_public: false });
+    await expect(api.publicProfile(doc.profile.handle)).rejects.toMatchObject({ status: 404 });
+    await api.patchMe({ is_public: true });
+    await expect(api.publicProfile(doc.profile.handle)).resolves.toMatchObject({ handle: doc.profile.handle });
+  });
+
+  it('clears the demo workspace on delete', async () => {
+    await api.deleteMe();
+    expect(localStorage.getItem('savepoint-demo-store-v1')).toBeNull();
+  });
 });

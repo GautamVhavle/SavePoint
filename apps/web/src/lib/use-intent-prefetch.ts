@@ -7,6 +7,9 @@ const ROUTE_CHUNKS: Array<[prefix: string, load: () => Promise<unknown>]> = [
   ['/dashboard/awards', () => import('../pages/editors/AwardEditor')],
   ['/dashboard', () => Promise.all([import('../pages/Dashboard'), import('../pages/editors/FeaturedEditor')])],
   ['/onboarding', () => import('../pages/Onboarding')],
+  ['/about', () => import('../pages/Site')],
+  ['/privacy', () => import('../pages/Site')],
+  ['/terms', () => import('../pages/Site')],
   ['/u/', () => import('../pages/PublicProfile')],
 ];
 

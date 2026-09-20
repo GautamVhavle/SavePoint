@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { currentPrincipal } from '../auth.js';
 import { body, loadComposite, ownerProfile, pathUuid } from '../deps.js';
 import { HttpError } from '../errors.js';
+import { deleteProfileMedia } from '../integrations/blob.js';
 import { prisma } from '../prisma.js';
 import { peripheralRead, profileRead, publicProfile, rigRead } from '../serialize.js';
 import { peripheralInputSchema, profileCreateSchema, profileUpdateSchema, rigInputSchema } from '../validation.js';
@@ -57,6 +58,13 @@ meRoutes.patch('/me/profile', async c => {
     },
   });
   return c.json(profileRead(updated));
+});
+
+meRoutes.delete('/me/profile', async c => {
+  const profile = await ownerProfile(c);
+  await deleteProfileMedia(profile.id);
+  await prisma.profile.delete({ where: { id: profile.id } });
+  return c.body(null, 204);
 });
 
 meRoutes.put('/me/rig', async c => {

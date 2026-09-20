@@ -139,6 +139,7 @@ export interface SavepointClient {
   createMe(input: { handle: string; display_name: string; bio?: string | null }): Promise<{ created: boolean }>;
   me(signal?: AbortSignal): Promise<ApiPublicProfile>;
   patchMe(patch: MePatch): Promise<void>;
+  deleteMe(): Promise<void>;
   putRig(rig: Partial<Omit<ApiRig, 'id' | 'profile_id'>>): Promise<void>;
   createPeripheral(input: PeripheralInput): Promise<void>;
   updatePeripheral(id: string, input: PeripheralInput): Promise<void>;

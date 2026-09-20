@@ -21,7 +21,7 @@ if(isDemoMode){
 }else{
   void Promise.all([import('@auth0/auth0-react'), import('./lib/auth0-bridge')]).then(([{ Auth0Provider }, { RealAuthBridge }])=>{
     root.render(
-      <Auth0Provider domain={import.meta.env.VITE_AUTH0_DOMAIN} clientId={import.meta.env.VITE_AUTH0_CLIENT_ID} authorizationParams={{redirect_uri:`${location.origin}/auth/callback`,audience:import.meta.env.VITE_AUTH0_AUDIENCE}} onRedirectCallback={state=>history.replaceState({},'',state?.returnTo??'/dashboard')}>
+      <Auth0Provider domain={import.meta.env.VITE_AUTH0_DOMAIN} clientId={import.meta.env.VITE_AUTH0_CLIENT_ID} authorizationParams={{redirect_uri:`${location.origin}/auth/callback`,audience:import.meta.env.VITE_AUTH0_AUDIENCE,scope:'openid profile email offline_access'}} cacheLocation="memory" useRefreshTokens useRefreshTokensFallback onRedirectCallback={state=>history.replaceState({},'',state?.returnTo??'/dashboard')}>
         <RealAuthBridge>{content}</RealAuthBridge>
       </Auth0Provider>,
     );

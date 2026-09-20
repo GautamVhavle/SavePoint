@@ -21,6 +21,15 @@ test('public archive passes serious/critical wcag checks in both themes', async 
   }
 });
 
+test('about page passes serious/critical wcag checks in both themes', async ({ page }) => {
+  for (const theme of ['dark', 'light'] as const) {
+    const violations = await scan(page, '/about', theme);
+    expect(
+      violations.map(v => `${theme}: ${v.id} (${v.impact}) → ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`),
+    ).toEqual([]);
+  }
+});
+
 test('landing page passes serious/critical wcag checks in light theme', async ({ page }) => {
   const violations = await scan(page, '/', 'light');
   expect(

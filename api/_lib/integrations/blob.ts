@@ -1,3 +1,4 @@
+import { del, list } from '@vercel/blob';
 import { generateClientTokenFromReadWriteToken } from '@vercel/blob/client';
 import { getEnv } from '../env.js';
 import { HttpError } from '../errors.js';
@@ -69,4 +70,23 @@ export async function signUpload(profileId: string, request: UploadRequest): Pro
     expires_at: new Date(validUntil).toISOString(),
     max_bytes: env.maxUploadBytes,
   };
+}
+
+/** Best-effort wipe of a curator's Blob prefix. Account deletion still proceeds if this fails. */
+export async function deleteProfileMedia(profileId: string): Promise<void> {
+  const env = getEnv();
+  if (!env.blobToken) return;
+  try {
+    const prefix = `users/${profileId}/`;
+    let cursor: string | undefined;
+    do {
+      const page = await list({ prefix, token: env.blobToken, cursor });
+      if (page.blobs.length) {
+        await del(page.blobs.map(blob => blob.url), { token: env.blobToken });
+      }
+      cursor = page.hasMore ? page.cursor : undefined;
+    } while (cursor);
+  } catch (error) {
+    console.error('blob_profile_cleanup_failed', error);
+  }
 }

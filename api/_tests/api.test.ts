@@ -6,7 +6,8 @@ import { prisma } from '../_lib/prisma.js';
 
 const OWNER = 'auth0|vitest-owner';
 const INTRUDER = 'auth0|vitest-intruder';
-const SUBJECTS = [OWNER, INTRUDER];
+const DOOMED = 'auth0|vitest-doomed';
+const SUBJECTS = [OWNER, INTRUDER, DOOMED];
 
 let app: Hono;
 
@@ -88,6 +89,15 @@ describe('profile lifecycle', () => {
     expect(created.handle).toBe('vitestowner');
     expect(created.auth0_sub).toBe(OWNER);
     profileId = created.id;
+  });
+
+  it('rejects a reserved handle', async () => {
+    const res = await call('/me/profile', {
+      method: 'POST',
+      sub: DOOMED,
+      body: json({ handle: 'about', display_name: 'Reserved' }),
+    });
+    expect(res.status).toBe(422);
   });
 
   it('refuses a second profile for the same subject', async () => {
@@ -295,6 +305,34 @@ describe('game entries and awards', () => {
 
     expect((await call(`/me/games/${entryId}`, { method: 'DELETE', sub: OWNER })).status).toBe(204);
     expect(await prisma.award.count({ where: { id: award.id } })).toBe(0);
+  });
+});
+
+describe('archive deletion', () => {
+  it('removes the profile and cascaded rows for the owner', async () => {
+    const created = await call('/me/profile', {
+      method: 'POST',
+      sub: DOOMED,
+      body: json({ handle: 'vitestdoomed', display_name: 'Doomed' }),
+    });
+    expect(created.status).toBe(201);
+    const { id } = (await created.json()) as { id: string };
+
+    const deleted = await call('/me/profile', { method: 'DELETE', sub: DOOMED });
+    expect(deleted.status).toBe(204);
+    expect(await prisma.profile.count({ where: { id } })).toBe(0);
+  });
+
+  it('cannot delete another curator’s archive via /me/profile', async () => {
+    await call('/me/profile', {
+      method: 'POST',
+      sub: DOOMED,
+      body: json({ handle: 'vitestdoomed', display_name: 'Doomed' }),
+    });
+    // DELETE is always the caller’s row. Intruder removing themselves (or 404
+    // if they have no profile) must leave the doomed archive in place.
+    await call('/me/profile', { method: 'DELETE', sub: INTRUDER });
+    expect(await prisma.profile.count({ where: { auth0Sub: DOOMED } })).toBe(1);
   });
 });
 

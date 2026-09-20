@@ -100,8 +100,11 @@ export const demoClient: SavepointClient = {
     // A freshly claimed identity must resolve as its own archive; any other
     // handle keeps serving the curated showcase so /u/* never dead-ends.
     const doc = demoDoc();
-    // The persisted document is DTO-shaped; the page needs the view model.
-    return doc.profile.handle === handle ? mapPublicProfile(doc) : demoProfile;
+    if (doc.profile.handle === handle) {
+      if (!doc.profile.is_public) throw new ApiError('That profile is not available', 404);
+      return mapPublicProfile(doc);
+    }
+    return demoProfile;
   },
   async createMe(input) {
     await wait();
@@ -112,6 +115,7 @@ export const demoClient: SavepointClient = {
   },
   async me() { await wait(); return demoDoc(); },
   async patchMe(patch) { await wait(); const doc = demoDoc(); Object.assign(doc.profile, patch); persist(doc); },
+  async deleteMe() { await wait(); try { localStorage.removeItem(DEMO_KEY); } catch { /* privacy mode */ } },
   async putRig(rig) { await wait(); const doc = demoDoc(); doc.rig = { ...(doc.rig ?? { id: uid(), profile_id: doc.profile.id, name: 'Main Rig', hero_photo_url: null, monitors: [] }), ...rig } as NonNullable<ApiPublicProfile['rig']>; persist(doc); },
   async createPeripheral(input) { await wait(); const doc = demoDoc(); doc.peripherals.push({ id: uid(), profile_id: doc.profile.id, ...input }); persist(doc); },
   async updatePeripheral(id, input) { await wait(); const doc = demoDoc(); const found = doc.peripherals.find(item => item.id === id); if (!found) throw new ApiError('Peripheral not found', 404); Object.assign(found, input); persist(doc); },

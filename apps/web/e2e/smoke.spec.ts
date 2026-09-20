@@ -99,6 +99,23 @@ test('floating actions appear past the masthead and return to top', async ({ pag
     .toBeLessThan(80);
 });
 
+test('legal and about pages render from the footer', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('contentinfo').getByRole('link', { name: 'Privacy' }).click();
+  await expect(page.getByRole('heading', { name: /What we keep/ })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Legal' }).getByRole('link', { name: 'Terms' }).click();
+  await expect(page.getByRole('heading', { name: /house rules/ })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Legal' }).getByRole('link', { name: 'About' }).click();
+  await expect(page.getByRole('heading', { name: /museum for the games/ })).toBeVisible();
+});
+
+test('archive slash key focuses chronicle search', async ({ page }) => {
+  await page.goto('/u/nova');
+  await page.getByRole('heading', { name: 'Nova Reyes' }).waitFor();
+  await page.keyboard.press('/');
+  await expect(page.locator('#chronicle-search')).toBeFocused();
+});
+
 test('skip link activation moves focus into the main region', async ({ page }) => {
   await page.goto('/u/nova');
   await page.getByRole('link', { name: 'Skip to content' }).focus();

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../pages/Onboarding', () => ({ default: {} }));
 vi.mock('../pages/Dashboard', () => ({ default: {} }));
 vi.mock('../pages/editors/GameEditor', () => ({ default: {} }));
+vi.mock('../pages/Site', () => ({ default: {} }));
 
 import { hasPrefetched, prefetchRoute } from './use-intent-prefetch';
 

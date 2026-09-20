@@ -23,6 +23,9 @@ __pycache__/
 *.sqlite
 *.sqlite3
 
+# Human-only production secrets, checklists, and filled values
+temp/
+
 # Editors and operating systems
 .DS_Store
 .idea/

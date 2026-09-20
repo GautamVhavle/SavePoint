@@ -6,6 +6,14 @@ export type GameStatus = (typeof GAME_STATUSES)[number];
 
 const HANDLE_RE = /^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])?$/;
 
+/** Keep in sync with apps/web/src/lib/reserved-handles.ts */
+const RESERVED_HANDLES = new Set([
+  'about', 'admin', 'api', 'auth', 'contact', 'dashboard', 'explore', 'faq',
+  'help', 'index', 'legal', 'login', 'logout', 'official', 'onboarding',
+  'privacy', 'root', 'savepoint', 'security', 'settings', 'signup', 'staff',
+  'static', 'status', 'studio', 'support', 'system', 'terms', 'www',
+]);
+
 const handle = z
   .string()
   .transform(value => value.trim().toLowerCase())
@@ -14,7 +22,8 @@ const handle = z
       .string()
       .min(3)
       .max(30)
-      .regex(HANDLE_RE, 'handle must be 3-30 lowercase letters, numbers, _ or -'),
+      .regex(HANDLE_RE, 'handle must be 3-30 lowercase letters, numbers, _ or -')
+      .refine(value => !RESERVED_HANDLES.has(value), 'that handle is reserved'),
   );
 
 /**

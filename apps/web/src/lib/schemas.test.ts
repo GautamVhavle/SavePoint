@@ -21,6 +21,15 @@ describe('editor schemas', () => {
     }).success).toBe(false);
   });
 
+  it('rejects reserved first-party handles', () => {
+    expect(profileSchema.safeParse({
+      displayName: 'Nova', handle: 'about', bio: '', location: '', themePreference: 'system',
+    }).success).toBe(false);
+    expect(profileSchema.safeParse({
+      displayName: 'Nova', handle: 'privacy', bio: '', location: '', themePreference: 'system',
+    }).success).toBe(false);
+  });
+
   it('bounds ratings to half-star steps between 1 and 5', () => {
     expect(gameSchema.safeParse({ ...baseGame, rating: 12 }).success).toBe(false);
     expect(gameSchema.safeParse({ ...baseGame, rating: 4.3 }).success).toBe(false);

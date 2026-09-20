@@ -182,3 +182,26 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--cyan) 55
   font-family: 'Instrument Serif', Georgia, serif; font-size: 4.5rem; line-height: 1;
   color: color-mix(in srgb, var(--cyan) 30%, transparent); pointer-events: none;
 }
+
+.faq details { border-bottom: 1px solid rgba(var(--line)/.12); }
+.faq summary {
+  cursor: pointer; list-style: none; min-height: 56px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  font-weight: 600; padding: 14px 0;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; font-family: 'IBM Plex Mono', monospace; color: var(--cyan); }
+.faq details[open] summary::after { content: '–'; }
+.faq details p { padding: 0 0 18px; max-width: 62ch; line-height: 1.7; }
+.prose-legal h2 { margin: 2.2rem 0 .7rem; font-size: 1.35rem; letter-spacing: -.02em; }
+.prose-legal ul { margin: .4rem 0 0; padding-left: 1.1rem; }
+.prose-legal li { margin: .45rem 0; line-height: 1.7; color: rgb(var(--muted)); }
+.prose-legal li b { color: rgb(var(--ink)); }
+.prose-legal a { color: inherit; }
+
+@media print {
+  .no-print, header, footer, .skip-link, .grain::after { display: none !important; }
+  body::before, body::after { display: none !important; }
+  main { background: white; color: black; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 10px; }
+}

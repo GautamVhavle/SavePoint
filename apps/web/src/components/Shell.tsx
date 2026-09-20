@@ -1,4 +1,4 @@
-import { Archive, ChevronRight, LogIn, Menu, X, ArrowRight } from 'lucide-react';
+import { Archive, ChevronRight, LogIn, LogOut, Menu, X, ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
@@ -34,6 +34,7 @@ const drawerLinks = (path: string): NavLink[] =>
       ]
     : [
         { label: 'Showcase', to: '/u/nova', anchor: false },
+        { label: 'About', to: '/about', anchor: false },
         { label: 'Dashboard', to: '/dashboard', anchor: false },
       ];
 
@@ -105,11 +106,15 @@ function MobileNav({ open, close }: { open: boolean; close: () => void }) {
             </nav>
             <div className="mt-auto flex flex-col gap-4 pt-8">
               <ThemeToggle />
-              {!auth.isAuthenticated && (
+              {auth.isAuthenticated && !isDemoMode ? (
+                <Button className="w-full" onClick={() => { close(); auth.logout(); }}>
+                  <LogOut size={17} /> Sign out
+                </Button>
+              ) : !auth.isAuthenticated ? (
                 <Button className="btn-primary w-full" onClick={() => { close(); auth.login(); }}>
                   <LogIn size={17} /> Sign in to build yours
                 </Button>
-              )}
+              ) : null}
               <p className="muted text-center font-mono text-[10px] uppercase tracking-[.25em]">SavePoint · Player archives</p>
             </div>
           </motion.div>
@@ -125,37 +130,47 @@ export function Shell() {
   // Close the drawer whenever the route changes so deep links never trap it open.
   useEffect(() => { setOpen(false); }, [location.pathname, location.hash]);
 
+  const marketing = location.pathname === '/' || location.pathname.startsWith('/u/');
   return <>
     <ScrollProgress />
     <a href="#main" className="skip-link">Skip to content</a>
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-canvas/75 backdrop-blur-xl">
+    <header className="no-print sticky top-0 z-50 border-b border-white/10 bg-canvas/75 backdrop-blur-xl">
       <div className="container-shell flex h-[72px] items-center gap-4">
         <Link to="/" className="flex min-h-11 items-center gap-2.5 font-bold tracking-tight" aria-label="SavePoint home"><span aria-hidden className="grid h-9 w-9 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-300"><Archive size={19} /></span><span>Save<span className="text-gradient">Point</span></span></Link>
         {isDemoMode && <span className="hidden rounded-full border border-violet-400/30 bg-violet-400/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[.16em] text-violet-300 sm:inline">Safe demo</span>}
         <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Primary">{links.map(({ label, to, anchor }) => anchor ? <a className="btn btn-ghost text-sm" key={to} href={to}>{label}</a> : <NavLink className={({ isActive }) => `btn btn-ghost text-sm ${isActive ? 'text-cyan-300' : ''}`} key={to} to={to}>{label}</NavLink>)}</nav>
-        <div className="ml-auto flex gap-2 md:ml-2"><ThemeToggle />{auth.isAuthenticated ? <Link className="btn !hidden sm:!inline-flex" to="/dashboard">Studio <ChevronRight size={16} /></Link> : <Button className="!hidden sm:!inline-flex" onClick={() => auth.login()}><LogIn size={16} /> Sign in</Button>}<Button className="icon-btn md:hidden" aria-label="Open navigation" aria-expanded={open} aria-controls="mobile-nav" aria-haspopup="dialog" onClick={() => setOpen(true)}><Menu size={20} /></Button></div>
+        <div className="ml-auto flex gap-2 md:ml-2">
+          <ThemeToggle />
+          {auth.isAuthenticated ? <Link className="btn !hidden sm:!inline-flex" to="/dashboard">Studio <ChevronRight size={16} /></Link> : <Button className="!hidden sm:!inline-flex" onClick={() => auth.login()}><LogIn size={16} /> Sign in</Button>}
+          {auth.isAuthenticated && !isDemoMode && <Button className="icon-btn !hidden sm:!inline-flex" aria-label="Sign out" onClick={() => auth.logout()}><LogOut size={16} /></Button>}
+          <Button className="icon-btn md:hidden" aria-label="Open navigation" aria-expanded={open} aria-controls="mobile-nav" aria-haspopup="dialog" onClick={() => setOpen(true)}><Menu size={20} /></Button>
+        </div>
       </div>
     </header>
     <MobileNav open={open} close={() => setOpen(false)} />
     <main id="main" tabIndex={-1}><Outlet /></main>
-    <footer className="border-t border-white/10">
-      <div className="container-shell py-16 sm:py-24">
-        <div className="eyebrow">Every player keeps something worth keeping</div>
-        <div className="mt-6 flex flex-wrap items-end justify-between gap-8">
-          <h2 className="max-w-3xl text-[clamp(2.6rem,7vw,6rem)] font-bold leading-[.94] tracking-[-.05em]">
-            Your archive<br />
-            <span className="serif-accent font-normal text-gradient">awaits.</span>
-          </h2>
-          <Link to="/onboarding" className="btn btn-primary !px-7 !py-3.5 text-base">
-            Start yours free <ArrowRight size={18} />
-          </Link>
-        </div>
-        <div className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-ink/60 sm:flex-row sm:items-center sm:justify-between">
+    <footer className="no-print border-t border-white/10">
+      <div className={`container-shell ${marketing ? 'py-16 sm:py-24' : 'py-10'}`}>
+        {marketing && <>
+          <div className="eyebrow">Every player keeps something worth keeping</div>
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-8">
+            <h2 className="max-w-3xl text-[clamp(2.6rem,7vw,6rem)] font-bold leading-[.94] tracking-[-.05em]">
+              Your archive<br />
+              <span className="serif-accent font-normal text-gradient">awaits.</span>
+            </h2>
+            <Link to="/onboarding" className="btn btn-primary !px-7 !py-3.5 text-base">
+              Start yours free <ArrowRight size={18} />
+            </Link>
+          </div>
+        </>}
+        <div className={`flex flex-col gap-3 text-sm text-ink/60 sm:flex-row sm:items-center sm:justify-between ${marketing ? 'mt-14 border-t border-white/10 pt-6' : ''}`}>
           <span>© {new Date().getFullYear()} SavePoint Archive</span>
-          <span className="flex items-center gap-5">
+          <span className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link to="/u/nova" className="transition hover:text-cyan-300">Showcase</Link>
-            <Link to="/onboarding" className="transition hover:text-cyan-300">Start yours</Link>
-            <span className="hidden font-mono text-xs tracking-wider sm:inline">BUILT FOR THE GAMES THAT STAY</span>
+            <Link to="/about" className="transition hover:text-cyan-300">About</Link>
+            <Link to="/privacy" className="transition hover:text-cyan-300">Privacy</Link>
+            <Link to="/terms" className="transition hover:text-cyan-300">Terms</Link>
+            <a href="https://github.com/GautamVhavle/SavePoint" className="transition hover:text-cyan-300">GitHub</a>
           </span>
         </div>
       </div>

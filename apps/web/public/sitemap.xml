@@ -4,5 +4,8 @@
      profile-listing endpoint exists (documented in docs/architecture.md). -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://savepointarchive.vercel.app/</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://savepointarchive.vercel.app/about</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://savepointarchive.vercel.app/privacy</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://savepointarchive.vercel.app/terms</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://savepointarchive.vercel.app/u/nova</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
