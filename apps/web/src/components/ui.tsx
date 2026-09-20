@@ -72,7 +72,7 @@ export function CoverImage({ src, alt, className = '', priority = false, mobileS
   const image = <img src={src} alt={alt} loading={priority ? 'eager' : 'lazy'} decoding="async" {...fetchHint} onLoad={() => setLoaded(true)} onError={() => setFailed(true)}
     className={cn('h-full w-full object-cover transition-opacity duration-700', loaded ? 'opacity-100' : 'opacity-0')} />;
   return <div {...data} className={cn('bg-gradient-to-br from-cyan-950 via-violet-950 to-fuchsia-950 overflow-hidden', className)}>
-    {!failed && (mobileSrc && mobileSrc !== src
+    {Boolean(src) && !failed && (mobileSrc && mobileSrc !== src
       ? <picture><source media="(max-width: 639px)" srcSet={mobileSrc} />{image}</picture>
       : image)}
   </div>; }

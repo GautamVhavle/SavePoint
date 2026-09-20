@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Check, Eye, EyeOff, Link2, Trash2 } from 'lucide-react';
+import { Check, Eye, EyeOff, Link2, Plus, Trash2 } from 'lucide-react';
 import { Button, CoverImage, Panel, useToast } from '../../components/ui';
 import { api, isDemoMode } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { copyToClipboard } from '../../lib/clipboard';
 import { useDialogA11y } from '../../lib/useDialogA11y';
+import { LINK_PRESETS, isHttpUrl, recordFromLinks, linksFromRecord, type SocialLink } from '../../lib/links';
 import { profileSchema, type ProfileForm } from '../../lib/schemas';
 import { EditorShell, Field, SaveBar, SelectField, UploadCard, useArchiveAction, useMe, zodResolverFor } from './shared';
 
@@ -100,11 +101,47 @@ function DangerZone({ handle }: { handle: string }) {
   </>;
 }
 
+function LinksEditor({ links, onChange, error }: { links: SocialLink[]; onChange: (links: SocialLink[]) => void; error: string }) {
+  const setRow = (index: number, patch: Partial<SocialLink>) => {
+    onChange(links.map((link, i) => (i === index ? { ...link, ...patch } : link)));
+  };
+  const add = (label = '', url = 'https://') => {
+    if (links.length >= 10) return;
+    onChange([...links, { label, url }]);
+  };
+  return (
+    <div>
+      <span className="label">PUBLIC LINKS</span>
+      <p className="muted mt-1 text-sm leading-6">Up to ten destinations on your archive — the Linktree layer. http(s) only.</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {LINK_PRESETS.filter(preset => !links.some(link => link.label.toLowerCase() === preset.toLowerCase())).map(preset => (
+          <Button key={preset} type="button" className="!min-h-8 !px-3 font-mono text-[10px]" disabled={links.length >= 10} onClick={() => add(preset, 'https://')}>{preset}</Button>
+        ))}
+      </div>
+      <div className="mt-4 grid gap-3">
+        {links.map((link, index) => (
+          <div key={index} className="grid gap-2 sm:grid-cols-[minmax(0,0.4fr)_minmax(0,1fr)_auto]">
+            <input className="field" aria-label={`Link ${index + 1} name`} placeholder="Twitch" value={link.label} maxLength={40} onChange={event => setRow(index, { label: event.target.value })}/>
+            <input className="field" aria-label={`Link ${index + 1} URL`} placeholder="https://" value={link.url} onChange={event => setRow(index, { url: event.target.value })} inputMode="url"/>
+            <Button type="button" aria-label={`Remove ${link.label || 'link'}`} onClick={() => onChange(links.filter((_, i) => i !== index))}><Trash2 size={16}/></Button>
+          </div>
+        ))}
+      </div>
+      {error && <p className="field-error mt-2" role="alert">{error}</p>}
+      <Button type="button" className="mt-4" disabled={links.length >= 10} onClick={() => add()}>
+        <Plus size={16}/> {links.length >= 10 ? 'Ten link ceiling' : 'Add a link'}
+      </Button>
+    </div>
+  );
+}
+
 export function ProfileEditor() {
   const { data } = useMe();
   const run = useArchiveAction();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [toggling, setToggling] = useState(false);
+  const [links, setLinks] = useState<SocialLink[]>([]);
+  const [linkError, setLinkError] = useState('');
   const hydrated = useRef<string | null>(null);
   const form = useForm<ProfileForm>({
     resolver: zodResolverFor(profileSchema),
@@ -118,11 +155,19 @@ export function ProfileEditor() {
       location: data.profile.location ?? '', themePreference: data.profile.theme_preference,
     });
     setAvatarUrl(data.profile.avatar_url);
+    setLinks(linksFromRecord(data.profile.social_links));
   }, [data, form]);
   const save = async (v: ProfileForm) => {
+    const invalid = links.find(link => (link.label.trim() || link.url.trim()) && (!link.label.trim() || !isHttpUrl(link.url.trim())));
+    if (invalid) {
+      setLinkError('Every link needs a name and an http(s) URL.');
+      return;
+    }
+    setLinkError('');
     await run(() => api.patchMe({
       display_name: v.displayName, handle: v.handle, location: v.location || null, bio: v.bio || null,
-      theme_preference: v.themePreference, ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+      theme_preference: v.themePreference, social_links: recordFromLinks(links),
+      ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
     }), 'Identity archived successfully.');
     form.reset(v);
   };
@@ -150,6 +195,9 @@ export function ProfileEditor() {
       <div className="sm:col-span-2"><Field label="ARCHIVIST STATEMENT" name="bio" form={form} multiline maxLength={2000}/></div>
       <div className="sm:col-span-2">
         <UploadCard purpose="avatar" title="AVATAR" hint="Square works best · WebP optimized on device" current={data?.profile.avatar_url} onUploaded={setAvatarUrl}/>
+      </div>
+      <div className="sm:col-span-2">
+        <LinksEditor links={links} onChange={next => { setLinks(next); setLinkError(''); }} error={linkError}/>
       </div>
     </div>
     <SaveBar form={form} onSave={save} ready={Boolean(data)}/>

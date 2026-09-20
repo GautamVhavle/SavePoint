@@ -61,7 +61,10 @@ export interface Profile {
   games: Game[];
   awards: Award[];
   featuredOrder: string[];
+  links: SocialLink[];
 }
+
+export interface SocialLink { label: string; url: string; }
 
 export interface GuideResponse { answer: string; }
 

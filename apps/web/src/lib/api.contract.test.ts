@@ -17,6 +17,7 @@ describe('FastAPI public profile contract', () => {
     expect(view.displayName).toBe('Alex SavePoint');
     expect(view.location).toBe('Toronto, ON');
     expect(view.themePreference).toBe('system');
+    expect(view.links).toEqual([{ label: 'twitch', url: 'https://twitch.tv/savepoint_demo' }]);
   });
 
   it('renders rig specs, monitors, and peripherals as display items', () => {

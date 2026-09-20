@@ -13,8 +13,11 @@ async function seed(auth0Sub: string, handle: string): Promise<void> {
   const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
   try {
-    if (await prisma.profile.findUnique({ where: { handle } })) {
-      console.log(`Profile @${handle} already exists; no changes made.`);
+    const existing = await prisma.profile.findFirst({
+      where: { OR: [{ handle }, { auth0Sub }] },
+    });
+    if (existing) {
+      console.log(`Profile @${existing.handle} already exists; no changes made.`);
       return;
     }
 
@@ -23,9 +26,11 @@ async function seed(auth0Sub: string, handle: string): Promise<void> {
         data: {
           auth0Sub,
           handle,
-          displayName: 'Alex SavePoint',
-          bio: 'Completionist, indie explorer, and unapologetic photo-mode tourist.',
-          location: 'Toronto, Canada',
+          displayName: handle === 'nova' ? 'Nova Reyes' : 'Alex SavePoint',
+          bio: handle === 'nova'
+            ? 'Archivist of strange worlds and impossible machines. Fifteen hundred hours across nine platforms, every save a small act of memory.'
+            : 'Completionist, indie explorer, and unapologetic photo-mode tourist.',
+          location: handle === 'nova' ? 'Lisbon · UTC+1' : 'Toronto, Canada',
           socialLinks: { twitch: 'https://twitch.tv/savepoint_demo' },
           isPublic: true,
         },
@@ -137,7 +142,7 @@ async function seed(auth0Sub: string, handle: string): Promise<void> {
 const { values } = parseArgs({
   options: {
     'auth0-sub': { type: 'string', default: 'auth0|demo-savepoint-user' },
-    handle: { type: 'string', default: 'alex' },
+    handle: { type: 'string', default: 'nova' },
   },
 });
 

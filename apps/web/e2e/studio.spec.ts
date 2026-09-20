@@ -31,6 +31,17 @@ test('curator can search IGDB and add a game to the chronicle', async ({ page })
   await expect(row).toContainText('4.5★');
 });
 
+test('identity editor can add a public link that appears on the archive', async ({ page }) => {
+  await page.goto('/dashboard/profile');
+  await page.getByRole('button', { name: 'Website' }).click();
+  await page.getByLabel('Link 6 URL').fill('https://savepointarchive.vercel.app');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await expect(page.locator('.toast')).toContainText(/Identity archived/i);
+  await page.goto('/u/nova');
+  await expect(page.getByRole('heading', { name: /rest of the map/i })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Website/ }).first()).toHaveAttribute('href', 'https://savepointarchive.vercel.app');
+});
+
 test('identity editor can unpublish and restore the public archive', async ({ page }) => {
   await page.goto('/dashboard/profile');
   const toggle = page.getByRole('switch', { name: /Unpublish archive|Publish archive/ });

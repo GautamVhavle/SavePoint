@@ -12,6 +12,13 @@ export const demoProfile: Profile = {
   since: 2016,
   themePreference: 'dark',
   isPublic: true,
+  links: [
+    { label: 'Twitch', url: 'https://twitch.tv/novareyes' },
+    { label: 'YouTube', url: 'https://youtube.com/@novareyes' },
+    { label: 'Steam', url: 'https://steamcommunity.com/id/novareyes' },
+    { label: 'Discord', url: 'https://discord.gg/savepoint' },
+    { label: 'GitHub', url: 'https://github.com/GautamVhavle/SavePoint' },
+  ],
   rigHero: cover('photo-1591488320449-011701bb6704'),
   rig: [
     { id: 'r1', category: 'SYSTEM', name: 'Obsidian SFF', detail: 'Ryzen 9 7900 · RTX 4080 Super · 32 GB DDR5' },

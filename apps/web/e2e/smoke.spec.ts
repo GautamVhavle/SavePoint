@@ -4,7 +4,7 @@ test('public archive has required section order and details', async ({ page }) =
   await page.goto('/u/nova');
   await expect(page.getByRole('heading', { name: 'Nova Reyes' })).toBeVisible();
   const headings = await page.locator('main section h2').allTextContents();
-  expect(headings.join('|')).toMatch(/Rig.*games that stayed.*Every save.*compass/is);
+  expect(headings.join('|')).toMatch(/map.*Rig.*games that stayed.*Every save.*compass/is);
   // The Hall of Fame card and its chronicle row share a label; target the card grid.
   await page.locator('#featured').getByRole('button', { name: /Open Outer Wilds details/ }).click();
   await expect(page.getByRole('dialog')).toContainText('Field notes');

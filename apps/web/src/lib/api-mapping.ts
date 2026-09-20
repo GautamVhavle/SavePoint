@@ -2,6 +2,7 @@ import type {
   ApiAward, ApiProfileGame, ApiPublicProfile,
   Profile, RigItem,
 } from '../types';
+import { linksFromRecord } from './links';
 
 const yearOf = (iso: string | null | undefined) => (iso ? new Date(iso).getUTCFullYear() : undefined);
 const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'entry';
@@ -86,6 +87,7 @@ export function mapPublicProfile(dto: ApiPublicProfile): Profile {
     })),
     featuredOrder: [...dto.games].filter(game => game.featured)
       .sort((a, b) => (a.featured_order ?? 0) - (b.featured_order ?? 0)).map(game => game.id),
+    links: linksFromRecord(dto.profile.social_links),
   };
 }
 

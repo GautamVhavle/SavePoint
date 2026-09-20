@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bot, Check, Copy, Sparkles, Zap } from 'lucide-react';
 import { Button, Panel } from '../../components/ui';
-import { api } from '../../lib/api';
+import { api, ApiError } from '../../lib/api';
 import { copyToClipboard } from '../../lib/clipboard';
 
 export const SUGGESTIONS = [
@@ -18,7 +18,7 @@ export function Guide({ handle }: { handle: string }) {
   // Stop button aborts too and must return the UI to idle.
   const mounted=useRef(true);
   useEffect(()=>()=>{mounted.current=false;controller.current?.abort();},[]);
-  const runAsk=async(q:string)=>{controller.current?.abort(); const current=new AbortController(); controller.current=current; setLoading(true);setAnswer(''); try{const r=await api.guide(handle,q,current.signal);if(!mounted.current)return;setAnswer(r.answer)}catch(e){if(mounted.current&&(e as Error).name!=='AbortError')setAnswer('The Guide lost its signal. Try again in a moment.')}finally{if(mounted.current)setLoading(false)}};
+  const runAsk=async(q:string)=>{controller.current?.abort(); const current=new AbortController(); controller.current=current; setLoading(true);setAnswer(''); try{const r=await api.guide(handle,q,current.signal);if(!mounted.current)return;setAnswer(r.answer)}catch(e){if(mounted.current&&(e as Error).name!=='AbortError')setAnswer(e instanceof ApiError?e.message:'The Guide lost its signal. Try again in a moment.')}finally{if(mounted.current)setLoading(false)}};
   const ask=()=>runAsk(question);
   // Suggestion chips are one-tap: they submit their own question.
   const askSuggestion=(s:string)=>{setQuestion(s);void runAsk(s);};

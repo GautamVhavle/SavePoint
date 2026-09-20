@@ -9,7 +9,7 @@ import { useCountUp } from './countup';
 import { useEffect } from 'react';
 
 const tools=[
-  {to:'/dashboard/profile',icon:CircleUserRound,title:'Identity',text:'Name, story, avatar and public handle'},
+  {to:'/dashboard/profile',icon:CircleUserRound,title:'Identity',text:'Name, story, avatar, handle, and public links'},
   {to:'/dashboard/rig',icon:Cpu,title:'Rig & peripherals',text:'Document the hardware behind every save'},
   {to:'/dashboard/games',icon:Gamepad2,title:'Game archive',text:'Add from IGDB, review and record playtime'},
   {to:'/dashboard/awards',icon:Award,title:'Awards',text:'Create personal honors and distinctions'},

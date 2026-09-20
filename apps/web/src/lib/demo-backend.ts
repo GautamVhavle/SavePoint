@@ -52,7 +52,7 @@ function seedFromView(view: Profile): ApiPublicProfile {
     profile: {
       id: 'demo-profile', handle: view.handle, display_name: view.displayName, bio: view.bio,
       avatar_url: view.avatar, theme_preference: view.themePreference, location: view.location,
-      social_links: {}, is_public: view.isPublic, created_at: created, updated_at: created,
+      social_links: Object.fromEntries((view.links ?? []).map(link => [link.label, link.url])), is_public: view.isPublic, created_at: created, updated_at: created,
     },
     rig: {
       id: 'demo-rig', profile_id: 'demo-profile', name: 'Obsidian SFF', hero_photo_url: view.rigHero ?? null,

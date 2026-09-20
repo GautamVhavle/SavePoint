@@ -27,6 +27,7 @@ interface NavLink { label: string; to: string; anchor: boolean }
 const drawerLinks = (path: string): NavLink[] =>
   path.startsWith('/u/')
     ? [
+        { label: 'Links', to: '#links', anchor: true },
         { label: 'Rig', to: '#rig', anchor: true },
         { label: 'Hall of Fame', to: '#featured', anchor: true },
         { label: 'Chronicle', to: '#chronicle', anchor: true },
@@ -138,12 +139,12 @@ export function Shell() {
       <div className="container-shell flex h-[72px] items-center gap-4">
         <Link to="/" className="flex min-h-11 items-center gap-2.5 font-bold tracking-tight" aria-label="SavePoint home"><span aria-hidden className="grid h-9 w-9 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-300"><Archive size={19} /></span><span>Save<span className="text-gradient">Point</span></span></Link>
         {isDemoMode && <span className="hidden rounded-full border border-violet-400/30 bg-violet-400/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[.16em] text-violet-300 sm:inline">Safe demo</span>}
-        <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Primary">{links.map(({ label, to, anchor }) => anchor ? <a className="btn btn-ghost text-sm" key={to} href={to}>{label}</a> : <NavLink className={({ isActive }) => `btn btn-ghost text-sm ${isActive ? 'text-cyan-300' : ''}`} key={to} to={to}>{label}</NavLink>)}</nav>
-        <div className="ml-auto flex gap-2 md:ml-2">
+        <nav className="ml-auto hidden items-center gap-1 lg:flex" aria-label="Primary">{links.map(({ label, to, anchor }) => anchor ? <a className="btn btn-ghost text-sm" key={to} href={to}>{label}</a> : <NavLink className={({ isActive }) => `btn btn-ghost text-sm ${isActive ? 'text-cyan-300' : ''}`} key={to} to={to}>{label}</NavLink>)}</nav>
+        <div className="ml-auto flex gap-2 lg:ml-2">
           <ThemeToggle />
           {auth.isAuthenticated ? <Link className="btn !hidden sm:!inline-flex" to="/dashboard">Studio <ChevronRight size={16} /></Link> : <Button className="!hidden sm:!inline-flex" onClick={() => auth.login()}><LogIn size={16} /> Sign in</Button>}
           {auth.isAuthenticated && !isDemoMode && <Button className="icon-btn !hidden sm:!inline-flex" aria-label="Sign out" onClick={() => auth.logout()}><LogOut size={16} /></Button>}
-          <Button className="icon-btn md:hidden" aria-label="Open navigation" aria-expanded={open} aria-controls="mobile-nav" aria-haspopup="dialog" onClick={() => setOpen(true)}><Menu size={20} /></Button>
+          <Button className="icon-btn lg:hidden" aria-label="Open navigation" aria-expanded={open} aria-controls="mobile-nav" aria-haspopup="dialog" onClick={() => setOpen(true)}><Menu size={20} /></Button>
         </div>
       </div>
     </header>

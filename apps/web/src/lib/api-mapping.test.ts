@@ -29,6 +29,21 @@ describe('mapPublicProfile with a bare archive', () => {
     expect(view.games).toEqual([]);
     expect(view.awards).toEqual([]);
     expect(view.featuredOrder).toEqual([]);
+    expect(view.links).toEqual([]);
+  });
+
+  it('keeps public links in the order they were stored', () => {
+    const withLinks: ApiPublicProfile = {
+      ...bare,
+      profile: {
+        ...bare.profile,
+        social_links: { Twitch: 'https://twitch.tv/nova', Steam: 'https://store.steampowered.com' },
+      },
+    };
+    expect(mapPublicProfile(withLinks).links).toEqual([
+      { label: 'Twitch', url: 'https://twitch.tv/nova' },
+      { label: 'Steam', url: 'https://store.steampowered.com' },
+    ]);
   });
 
   it('derives "since" from the profile creation year', () => {
